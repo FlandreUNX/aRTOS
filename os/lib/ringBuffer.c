@@ -29,12 +29,7 @@
  */
  
 #include "./ringBuffer.h"
-
-#include <stdbool.h>
-#include <stdlib.h> 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include "./symbolExport.h"
 
 /**
  * @addtogroup 具体方法
@@ -68,6 +63,7 @@ osRBuffer_t* osRBuffer_Create(uint16_t size) {
 
     return buffer;
 }
+SYMBOL_EXPORT(osRBuffer_Create);
 
 
 /**
@@ -92,6 +88,7 @@ osRBuffer_t* osRBuffer_StaticCreate(void *pool, uint16_t size) {
 
     return buffer;
 }
+SYMBOL_EXPORT(osRBuffer_StaticCreate);
 
 
 /**
@@ -113,6 +110,7 @@ enum BUFFER_STAGE osRBuffer_GetStatus(osRBuffer_t *obj) {
 
     return RBUFFER_HALFFULL;
 }
+SYMBOL_EXPORT(osRBuffer_GetStatus);
 
 
 /**
@@ -147,6 +145,7 @@ uint16_t osRBuffer_GetDataLen(osRBuffer_t *obj) {
 
     return len;
 }
+SYMBOL_EXPORT(osRBuffer_GetDataLen);
 
 
 /**
@@ -159,6 +158,7 @@ uint16_t osRBuffer_GetDataLen(osRBuffer_t *obj) {
 uint16_t osRBuffer_GetSpaceLen(osRBuffer_t *obj) {
     return (obj)->size - osRBuffer_GetDataLen(obj);
 }
+SYMBOL_EXPORT(osRBuffer_GetSpaceLen);
 
 
 /**
@@ -208,6 +208,7 @@ uint16_t osRBuffer_Put(osRBuffer_t *obj, const uint8_t *src, uint16_t len) {
 
     return len;
 }
+SYMBOL_EXPORT(osRBuffer_Put);
 
 
 /**
@@ -257,6 +258,7 @@ uint16_t osRBuffer_Get(osRBuffer_t *obj, uint8_t *dest, uint16_t len) {
 
     return len;
 }
+SYMBOL_EXPORT(osRBuffer_Get);
 
 
 /**
@@ -286,6 +288,7 @@ uint8_t osRBuffer_PutByte(osRBuffer_t *obj, uint8_t src) {
 
     return 1;
 }
+SYMBOL_EXPORT(osRBuffer_PutByte);
 
 
 /**
@@ -315,6 +318,7 @@ uint8_t osRBuffer_GetByte(osRBuffer_t *obj, uint8_t *dest) {
 
     return 1;
 }
+SYMBOL_EXPORT(osRBuffer_GetByte);
 
 
 /**
@@ -328,5 +332,6 @@ void osRBuffer_Clear(osRBuffer_t *obj) {
     obj->in = obj->out = 0;
     obj->in_Mirror = obj->out_Mirror = 1;
 }
+SYMBOL_EXPORT(osRBuffer_Clear);
 
 /*@}*/
