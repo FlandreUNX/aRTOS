@@ -40,14 +40,11 @@
 #define LIST_H_
 
 /**
- * @addtogroup Task 基本定义
+ * @addtogroup list节点基本模型
  */
 
 /*@{*/
 
-/**
- * list节点基本模型
- */
 typedef listHead_t {
   listHead_t *previous;    /**< 前节点 */
   listHead_t *next;        /**< 后节点 */

@@ -46,7 +46,7 @@
 /*@{*/
 
 /**
- *  buffer储存状态
+ *  @note buffer储存状态
  */
 enum BUFFER_STAGE {
     RBUFFER_EMPTY,
@@ -55,7 +55,7 @@ enum BUFFER_STAGE {
 };
 
 /**
- *  buffer对象结构体
+ *  @note buffer对象结构体
  */
 typedef struct ring_buffer {
     uint16_t size;        /**< 缓冲器大小 */
