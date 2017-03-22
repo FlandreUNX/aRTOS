@@ -40,7 +40,7 @@
 /**
  * 创建RingBuffer
  *
- * @param size RingBuffer大小(不包含buufer必要信息)
+ * @param size RingBuffer大小(不包含buffer必要信息)
  * 
  * @return RingBuffer有效句柄
  * @return 0: 创建失败

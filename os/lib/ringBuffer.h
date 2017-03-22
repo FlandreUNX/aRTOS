@@ -29,8 +29,9 @@
  */
 
 /**
- * 参考原理
- * http://en.wikipedia.org/wiki/Circular_buffer#Mirroring 
+ *  参考原理
+ *  http://en.wikipedia.org/wiki/Circular_buffer#Mirroring 
+ *  使用in/out相等状态以及标志位(mirror)来确定环形缓冲是否满或者是空
  */
  
 #ifndef RINGBUFFER_H_
