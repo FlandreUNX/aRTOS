@@ -34,7 +34,7 @@
 #include <stdint.h>
 
 /**
- * @addtogroup CPU相关
+ * @addtogroup 32位CPU相关
  */
  
 /*@{*/
@@ -45,6 +45,28 @@
 #define OS_WAIT_FOREVER     (CPU_TICK_MAX)              /**< 系统无限等待数 */
 
 #define MAGIC_WORD          (uint32_t)(0xE25A2EA5)      /**< 魔幻数,用于检验thread的堆栈溢出 */
+
+/*@}*/
+
+/**
+ * @addtogroup 编译平台相关
+ */
+ 
+/*@{*/
+
+/**
+ *  KEIL CMSIS平台
+ *  @note #include "cmsis_armcc.h"
+ *  @note 对于keil平台,结构对齐建议使用"#pragma pack()"
+ */
+#ifdef __CC_ARM 
+    #include <stdarg.h>
+
+    #define OS_SECTION(x)      __attribute__((section(x)))
+    #define OS_WEEK            __weak
+    #define OS_INLINE          static __inline
+    #define OS_NO_RETURN       __declspec(noreturn)
+#endif
 
 /*@}*/
 

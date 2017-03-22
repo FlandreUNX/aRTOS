@@ -70,7 +70,7 @@ typedef listHead_t {
  * 
  * @return none
  */
-static __inline void __DROP__ListAdd(listHead_t* new_lst, listHead_t* previous_list, listHead_t* next_list) {
+OS_INLINE void __DROP__ListAdd(listHead_t* new_lst, listHead_t* previous_list, listHead_t* next_list) {
 	next_list->previous = new_lst;
 	new_lst->next = next_list;
 	new_lst->previous = previous_list;
@@ -86,7 +86,7 @@ static __inline void __DROP__ListAdd(listHead_t* new_lst, listHead_t* previous_l
  * 
  * @return none
  */
-static __inline void __DROP__Delete(listHead_t* prev, listHead_t* next) {
+OS_INLINE void __DROP__Delete(listHead_t* prev, listHead_t* next) {
 	next->previous = prev;
 	prev->next = next;
 }
@@ -162,7 +162,7 @@ static __inline void __DROP__Delete(listHead_t* prev, listHead_t* next) {
  * 
  * @return none
  */	
-static __inline void osList_HeadInit(listHead_t* head) {
+OS_INLINE void osList_HeadInit(listHead_t* head) {
 	head->next = head;
 	head->previous = head;
 }
@@ -176,7 +176,7 @@ static __inline void osList_HeadInit(listHead_t* head) {
  * 
  * @return none
  */	
-static __inline void osList_AddTail(listHead_t* list, listHead_t* newNode) {
+OS_INLINE void osList_AddTail(listHead_t* list, listHead_t* newNode) {
 	//__ListAdd(node, list->previous, list);
   list->previous->next = newNode;
   newNode->previous = list->previous;
@@ -194,7 +194,7 @@ static __inline void osList_AddTail(listHead_t* list, listHead_t* newNode) {
  * 
  * @return none
  */	
-static __inline void osList_Add(listHead_t* list, listHead_t* newNode) {
+OS_INLINE void osList_Add(listHead_t* list, listHead_t* newNode) {
 	//__ListAdd(node, list, node->next);
   list->next->previous = newNode;
   newNode->next = list->next;
@@ -211,7 +211,7 @@ static __inline void osList_Add(listHead_t* list, listHead_t* newNode) {
  * 
  * @return none
  */	
-static __inline void osList_DeleteNode(listHead_t* node) {
+OS_INLINE void osList_DeleteNode(listHead_t* node) {
 	node->next->previous = node->previous;
 	node->previous->next = node->next;
 
@@ -227,7 +227,7 @@ static __inline void osList_DeleteNode(listHead_t* node) {
  * 
  * @return bool
  */	
-static __inline int osList_CheckIsLast(listHead_t* head, listHead_t* node) {
+OS_INLINE int osList_CheckIsLast(listHead_t* head, listHead_t* node) {
 	return (node->next == head);
 }
 
@@ -239,7 +239,7 @@ static __inline int osList_CheckIsLast(listHead_t* head, listHead_t* node) {
  * 
  * @return bool
  */	
-static __inline int osList_CheckIsEmpty(listHead_t* head) {
+OS_INLINE int osList_CheckIsEmpty(listHead_t* head) {
 	return (head->next == head);
 }
 
@@ -252,7 +252,7 @@ static __inline int osList_CheckIsEmpty(listHead_t* head) {
  * 
  * @return none
  */	
-static __inline void osList_Move(listHead_t* head, listHead_t* node) {
+OS_INLINE void osList_Move(listHead_t* head, listHead_t* node) {
 	osList_DeleteNode(node);
 	osList_Add(node, head);
 }
@@ -266,7 +266,7 @@ static __inline void osList_Move(listHead_t* head, listHead_t* node) {
  * 
  * @return none
  */	
-static __inline void osList_MoveTail(listHead_t* head, listHead_t* node) {
+OS_INLINE void osList_MoveTail(listHead_t* head, listHead_t* node) {
 	osList_DeleteNode(node);
 	osList_AddTail(node, head);
 }
@@ -280,7 +280,7 @@ static __inline void osList_MoveTail(listHead_t* head, listHead_t* node) {
  * 
  * @return none
  */	
-static __inline void osList_Splice(listHead_t* head, listHead_t* list) {
+OS_INLINE void osList_Splice(listHead_t* head, listHead_t* list) {
 	if (!osList_CheckIsEmpty(list)) {
 		listHead_t *first = list->next;
 		listHead_t *last = list->previous;

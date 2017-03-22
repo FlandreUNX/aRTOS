@@ -37,7 +37,7 @@
 #ifndef RINGBUFFER_H_
 #define RINGBUFFER_H_
 
-#include <stdint.h>
+#include "../arch/util.h"
 
 /**
  * @addtogroup 定义
