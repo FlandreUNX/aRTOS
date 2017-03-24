@@ -60,18 +60,17 @@
     * @return none
     */
     #define EXPORT_SYMBOL(symbol) \
-        const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \    /**< 导出符号名称 */
-        const symbolTab_t export_##symbol OS_SECTION("kernelSymbol") = { \             /**< 导出符号主体 */
+        const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \
+        const symbolTab_t export_##symbol OS_SECTION("kernelSymbol") = { \
             (void *)&symbol, \
             export_##symbol##_name \
         };
-
+        
     /*@}*/
-
-#elif
-
+#else
+        
     #define EXPORT_SYMBOL(symbol)
-
+        
 #endif
 
 #endif

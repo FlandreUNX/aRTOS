@@ -31,7 +31,15 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
+/**
+ * @addtogroup ANSI-C Include
+ */
+
+/*@{*/
+
 #include <stdint.h>
+
+/*@}*/
 
 /**
  * @addtogroup 32位CPU相关
@@ -61,6 +69,7 @@
  */
 #ifdef __CC_ARM 
     #include <stdarg.h>
+    #include <stdint.h>
 
     #define OS_SECTION(x)      __attribute__((section(x)))
     #define OS_WEEK            __weak
@@ -84,7 +93,7 @@
  * 向上计算以number为底数,align的2倍数的对齐值 
  * 例如:ALIGN(13, 4) = 16
  */
-#define ALIGN(number, align) \      
+#define ALIGN(number, align) \
     (((number) + (align) - 1) & ~((align) - 1))
 
 
@@ -96,7 +105,7 @@
  * 向下计算以number为底数,align的2倍数的对齐值
  * 例如:ALIGN_DOWN(13, 4) = 12
  */
-#define ALIGN_DOWN(number, align) \     
+#define ALIGN_DOWN(number, align) \
     ((number) & ~((align) - 1))
 
 /*@}*/

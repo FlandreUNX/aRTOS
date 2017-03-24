@@ -27,9 +27,27 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
+/**
+ * @addtogroup OS Include
+ */
+
+/*@{*/
+
 #include "./ringBuffer.h"
 #include "./symbolExport.h"
+
+/*@}*/
+
+/**
+ * @addtogroup ANSI-C Include
+ */
+
+/*@{*/
+
+#include <string.h>
+
+/*@}*/
 
 /**
  * @addtogroup 具体方法
@@ -63,7 +81,7 @@ osRBuffer_t* osRBuffer_Create(uint16_t size) {
 
     return buffer;
 }
-SYMBOL_EXPORT(osRBuffer_Create);
+EXPORT_SYMBOL(osRBuffer_Create);
 
 
 /**
@@ -88,7 +106,7 @@ osRBuffer_t* osRBuffer_StaticCreate(void *pool, uint16_t size) {
 
     return buffer;
 }
-SYMBOL_EXPORT(osRBuffer_StaticCreate);
+EXPORT_SYMBOL(osRBuffer_StaticCreate);
 
 
 /**
@@ -110,7 +128,7 @@ enum BUFFER_STAGE osRBuffer_GetStatus(osRBuffer_t *obj) {
 
     return RBUFFER_HALFFULL;
 }
-SYMBOL_EXPORT(osRBuffer_GetStatus);
+EXPORT_SYMBOL(osRBuffer_GetStatus);
 
 
 /**
@@ -145,7 +163,7 @@ uint16_t osRBuffer_GetDataLen(osRBuffer_t *obj) {
 
     return len;
 }
-SYMBOL_EXPORT(osRBuffer_GetDataLen);
+EXPORT_SYMBOL(osRBuffer_GetDataLen);
 
 
 /**
@@ -158,7 +176,7 @@ SYMBOL_EXPORT(osRBuffer_GetDataLen);
 uint16_t osRBuffer_GetSpaceLen(osRBuffer_t *obj) {
     return (obj)->size - osRBuffer_GetDataLen(obj);
 }
-SYMBOL_EXPORT(osRBuffer_GetSpaceLen);
+EXPORT_SYMBOL(osRBuffer_GetSpaceLen);
 
 
 /**
@@ -208,7 +226,7 @@ uint16_t osRBuffer_Put(osRBuffer_t *obj, const uint8_t *src, uint16_t len) {
 
     return len;
 }
-SYMBOL_EXPORT(osRBuffer_Put);
+EXPORT_SYMBOL(osRBuffer_Put);
 
 
 /**
@@ -258,7 +276,7 @@ uint16_t osRBuffer_Get(osRBuffer_t *obj, uint8_t *dest, uint16_t len) {
 
     return len;
 }
-SYMBOL_EXPORT(osRBuffer_Get);
+EXPORT_SYMBOL(osRBuffer_Get);
 
 
 /**
@@ -288,7 +306,7 @@ uint8_t osRBuffer_PutByte(osRBuffer_t *obj, uint8_t src) {
 
     return 1;
 }
-SYMBOL_EXPORT(osRBuffer_PutByte);
+EXPORT_SYMBOL(osRBuffer_PutByte);
 
 
 /**
@@ -318,7 +336,7 @@ uint8_t osRBuffer_GetByte(osRBuffer_t *obj, uint8_t *dest) {
 
     return 1;
 }
-SYMBOL_EXPORT(osRBuffer_GetByte);
+EXPORT_SYMBOL(osRBuffer_GetByte);
 
 
 /**
@@ -332,6 +350,6 @@ void osRBuffer_Clear(osRBuffer_t *obj) {
     obj->in = obj->out = 0;
     obj->in_Mirror = obj->out_Mirror = 1;
 }
-SYMBOL_EXPORT(osRBuffer_Clear);
+EXPORT_SYMBOL(osRBuffer_Clear);
 
 /*@}*/

@@ -45,10 +45,10 @@
 
 /*@{*/
 
-typedef listHead_t {
-  listHead_t *previous;    /**< 前节点 */
-  listHead_t *next;        /**< 后节点 */
-} listHead_t;
+typedef osList_Head_t {
+  osList_Head_t *previous;    /**< 前节点 */
+  osList_Head_t *next;        /**< 后节点 */
+} osList_Head_t;
 
 /*@}*/
 
@@ -61,13 +61,13 @@ typedef listHead_t {
 /**
  * 节点添加(丢弃方法)
  *
- * @param listHead_t* new_lst
- * @param listHead_t* previous_list
- * @param listHead_t* next_list
+ * @param osList_Head_t* new_lst
+ * @param osList_Head_t* previous_list
+ * @param osList_Head_t* next_list
  * 
  * @return none
  */
-OS_INLINE void __DROP__ListAdd(listHead_t* new_lst, listHead_t* previous_list, listHead_t* next_list) {
+OS_INLINE void __DROP__ListAdd(osList_Head_t* new_lst, osList_Head_t* previous_list, osList_Head_t* next_list) {
 	next_list->previous = new_lst;
 	new_lst->next = next_list;
 	new_lst->previous = previous_list;
@@ -78,12 +78,12 @@ OS_INLINE void __DROP__ListAdd(listHead_t* new_lst, listHead_t* previous_list, l
 /**
  * 节点删除(丢弃方法)
  *
- * @param listHead_t* previous_list
- * @param listHead_t* next_list
+ * @param osList_Head_t* previous_list
+ * @param osList_Head_t* next_list
  * 
  * @return none
  */
-OS_INLINE void __DROP__Delete(listHead_t* prev, listHead_t* next) {
+OS_INLINE void __DROP__Delete(osList_Head_t* prev, osList_Head_t* next) {
 	next->previous = prev;
 	prev->next = next;
 }
@@ -104,9 +104,9 @@ OS_INLINE void __DROP__Delete(listHead_t* prev, listHead_t* next) {
 /**
  * 获取当前list_head链表节点所在的宿主结构项
  *
- * @param ptr 宿主结构体下的listHead_t*
+ * @param ptr 宿主结构体下的osList_Head_t*
  * @param type 宿主类型
- * @param name 宿主结构类型定义中listHead_t成员名
+ * @param name 宿主结构类型定义中osList_Head_t成员名
  * 
  * @return 宿主结构体指针
  */
@@ -159,7 +159,7 @@ OS_INLINE void __DROP__Delete(listHead_t* prev, listHead_t* next) {
  * 
  * @return none
  */	
-OS_INLINE void osList_HeadInit(listHead_t* head) {
+OS_INLINE void osList_HeadInit(osList_Head_t* head) {
 	head->next = head;
 	head->previous = head;
 }
@@ -173,7 +173,7 @@ OS_INLINE void osList_HeadInit(listHead_t* head) {
  * 
  * @return none
  */	
-OS_INLINE void osList_AddTail(listHead_t* list, listHead_t* newNode) {
+OS_INLINE void osList_AddTail(osList_Head_t* list, osList_Head_t* newNode) {
 	//__ListAdd(node, list->previous, list);
   list->previous->next = newNode;
   newNode->previous = list->previous;
@@ -191,7 +191,7 @@ OS_INLINE void osList_AddTail(listHead_t* list, listHead_t* newNode) {
  * 
  * @return none
  */	
-OS_INLINE void osList_Add(listHead_t* list, listHead_t* newNode) {
+OS_INLINE void osList_Add(osList_Head_t* list, osList_Head_t* newNode) {
 	//__ListAdd(node, list, node->next);
   list->next->previous = newNode;
   newNode->next = list->next;
@@ -208,7 +208,7 @@ OS_INLINE void osList_Add(listHead_t* list, listHead_t* newNode) {
  * 
  * @return none
  */	
-OS_INLINE void osList_DeleteNode(listHead_t* node) {
+OS_INLINE void osList_DeleteNode(osList_Head_t* node) {
 	node->next->previous = node->previous;
 	node->previous->next = node->next;
 
@@ -224,7 +224,7 @@ OS_INLINE void osList_DeleteNode(listHead_t* node) {
  * 
  * @return bool
  */	
-OS_INLINE int osList_CheckIsLast(listHead_t* head, listHead_t* node) {
+OS_INLINE int osList_CheckIsLast(osList_Head_t* head, osList_Head_t* node) {
 	return (node->next == head);
 }
 
@@ -232,11 +232,11 @@ OS_INLINE int osList_CheckIsLast(listHead_t* head, listHead_t* node) {
 /**
  * 检查链表是不是空
  *
- * @param listHead_t* 节点 
+ * @param osList_Head_t* 节点 
  * 
  * @return bool
  */	
-OS_INLINE int osList_CheckIsEmpty(listHead_t* head) {
+OS_INLINE int osList_CheckIsEmpty(osList_Head_t* head) {
 	return (head->next == head);
 }
 
@@ -249,7 +249,7 @@ OS_INLINE int osList_CheckIsEmpty(listHead_t* head) {
  * 
  * @return none
  */	
-OS_INLINE void osList_Move(listHead_t* head, listHead_t* node) {
+OS_INLINE void osList_Move(osList_Head_t* head, osList_Head_t* node) {
 	osList_DeleteNode(node);
 	osList_Add(node, head);
 }
@@ -263,7 +263,7 @@ OS_INLINE void osList_Move(listHead_t* head, listHead_t* node) {
  * 
  * @return none
  */	
-OS_INLINE void osList_MoveTail(listHead_t* head, listHead_t* node) {
+OS_INLINE void osList_MoveTail(osList_Head_t* head, osList_Head_t* node) {
 	osList_DeleteNode(node);
 	osList_AddTail(node, head);
 }
@@ -277,11 +277,11 @@ OS_INLINE void osList_MoveTail(listHead_t* head, listHead_t* node) {
  * 
  * @return none
  */	
-OS_INLINE void osList_Splice(listHead_t* head, listHead_t* list) {
+OS_INLINE void osList_Splice(osList_Head_t* head, osList_Head_t* list) {
 	if (!osList_CheckIsEmpty(list)) {
-		listHead_t *first = list->next;
-		listHead_t *last = list->previous;
-		listHead_t *at  = head->next;
+		osList_Head_t *first = list->next;
+		osList_Head_t *last = list->previous;
+		osList_Head_t *at  = head->next;
 
 		first->previous = head;
 		head->next = first;
