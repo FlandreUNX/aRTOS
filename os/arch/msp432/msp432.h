@@ -32,6 +32,16 @@
 #define MSP432_H_
 
 /**
+ * @addtogroup OS Include
+ */
+
+/*@{*/
+
+#include "../util.h"
+
+/*@}*/
+
+/**
  * @addtogroup 硬件核心相关
  */
  

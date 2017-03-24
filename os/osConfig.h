@@ -31,10 +31,8 @@
 #ifndef OSCONFIG_H_
 #define OSCONFIG_H_
 
-#define __CC_ARM
+#define USING_SYMBOL_EXPORT     1
 
-#define USING_SYMBOL_EXPORT
-
-#define MAX_PRIORITY_LEVEL  128
+#define MAX_PRIORITY_LEVEL      128
 
 #endif

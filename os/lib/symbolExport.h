@@ -41,7 +41,7 @@
 
 /*@}*/
 
-#ifdef USING_SYMBOL_EXPORT
+#if USING_SYMBOL_EXPORT == 1
 
     /**
     * @addtogroup 导出符号类型定义
@@ -78,7 +78,7 @@
         
     /*@}*/
 #else
-        
+            
     #define EXPORT_SYMBOL(symbol)
         
 #endif
