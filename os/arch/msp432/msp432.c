@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬--- 
- * File      : symbolExport.h
+ * File      : msp432.c
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,8 +28,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SYMBOLEXPORT_H_
-#define SYMBOLEXPORT_H_
+#include "./msp432.h"
 
 /**
  * @addtogroup OS Include
@@ -37,50 +36,83 @@
 
 /*@{*/
 
-#include "../osConfig.h"
+#include "../util.h"
 
 /*@}*/
 
-#ifdef USING_SYMBOL_EXPORT
+/**
+ * @addtogroup ARCH Include
+ */
 
-    /**
-    * @addtogroup 导出符号类型定义
-    */
+/*@{*/
 
-    /*@{*/
+#include "./driverlib/driverlib.h"
 
-    typedef struct symbolTab {
-        void *address;
-        const char *name;
-    } symbolTab_t;
+/*@}*/
 
-    /*@}*/
+/**
+ * @addtogroup os运行必要接口
+ */
 
-    /**
-    * @addtogroup 导出符定义
-    */
+/*@{*/
 
-    /*@{*/
+/**
+ * 关闭全局中断
+ *
+ * @param 无
+ * 
+ * @return 无
+ */
+__asm uint32_t hal_DisableINT(void) {
+    PRESERVE8
 
-    /**
-    * 内核导出符
-    *
-    * @param symbol 需要导出的函数
-    * 
-    * @return none
-    */
-    #define EXPORT_SYMBOL(symbol) \
-        const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \
-        const symbolTab_t export_##symbol OS_SECTION("kernelSymbol") = { \
-            (void *)&symbol, \
-            export_##symbol##_name \
-        };
-        
-    /*@}*/
-#else
-        
-    #define EXPORT_SYMBOL(symbol)
-        
-#endif
+    mrs r0, basepri
+    mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
+    msr basepri, r1
 
-#endif
+    dsb
+    isb
+
+    bx r14
+}
+
+
+/**
+ * 开启全局中断
+ *
+ * @param 无
+ * 
+ * @return 无
+ */
+__asm void hal_EnableINT(uint32_t level) {
+	PRESERVE8
+	
+	msr basepri, r0
+	bx r14
+}
+
+
+/**
+ * 标志pensv异常
+ *
+ * @param 无
+ * 
+ * @return 无
+ */
+void hal_CallPendSV(void) {
+    Interrupt_pendInterrupt(FAULT_PENDSV);
+}
+
+
+/**
+ * 进入NMI异常
+ *
+ * @param 无
+ * 
+ * @return 无
+ */
+void hal_CallNMI(void) {
+    Interrupt_pendInterrupt(FAULT_NMI);
+}
+
+/*@}*/

@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬--- 
- * File      : symbolExport.h
+ * File      : osConfig.h
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,59 +28,13 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SYMBOLEXPORT_H_
-#define SYMBOLEXPORT_H_
+#ifndef OSCONFIG_H_
+#define OSCONFIG_H_
 
-/**
- * @addtogroup OS Include
- */
+#define __CC_ARM
 
-/*@{*/
+#define USING_SYMBOL_EXPORT
 
-#include "../osConfig.h"
-
-/*@}*/
-
-#ifdef USING_SYMBOL_EXPORT
-
-    /**
-    * @addtogroup 导出符号类型定义
-    */
-
-    /*@{*/
-
-    typedef struct symbolTab {
-        void *address;
-        const char *name;
-    } symbolTab_t;
-
-    /*@}*/
-
-    /**
-    * @addtogroup 导出符定义
-    */
-
-    /*@{*/
-
-    /**
-    * 内核导出符
-    *
-    * @param symbol 需要导出的函数
-    * 
-    * @return none
-    */
-    #define EXPORT_SYMBOL(symbol) \
-        const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \
-        const symbolTab_t export_##symbol OS_SECTION("kernelSymbol") = { \
-            (void *)&symbol, \
-            export_##symbol##_name \
-        };
-        
-    /*@}*/
-#else
-        
-    #define EXPORT_SYMBOL(symbol)
-        
-#endif
+#define MAX_PRIORITY_LEVEL  128
 
 #endif

@@ -37,7 +37,15 @@
 #ifndef RINGBUFFER_H_
 #define RINGBUFFER_H_
 
+/**
+ * @addtogroup OS Include
+ */
+
+/*@{*/
+
 #include "../arch/util.h"
+
+/*@}*/
 
 /**
  * @addtogroup 定义

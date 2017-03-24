@@ -69,7 +69,6 @@
  */
 #ifdef __CC_ARM 
     #include <stdarg.h>
-    #include <stdint.h>
 
     #define OS_SECTION(x)      __attribute__((section(x)))
     #define OS_WEEK            __weak

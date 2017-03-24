@@ -113,12 +113,6 @@ typedef struct Thread_Attr {
 typedef void* osThread_ID_t;
 
 /**
- *  Thread运行主体
- */
-#define osThread_Func(name) \
-    static OS_NO_RETURN name(void *argument)
-
-/**
  *  Thread创建器
  */
 #define osThread_Def(name, priority, stackSize, function) \
@@ -127,7 +121,8 @@ typedef void* osThread_ID_t;
         .functions = (void *)function,  \
         .stackSize = stackSize, \
         .priority = priority    \
-    }
+    }; \
+    static OS_NO_RETURN name(void *argument)
 
 /*@}*/
 

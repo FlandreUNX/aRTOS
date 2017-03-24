@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬--- 
- * File      : symbolExport.h
+ * File      : msp432.h
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,59 +28,51 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SYMBOLEXPORT_H_
-#define SYMBOLEXPORT_H_
+#ifndef MSP432_H_
+#define MSP432_H_
 
 /**
- * @addtogroup OS Include
+ * @addtogroup 硬件核心相关
  */
-
+ 
 /*@{*/
 
-#include "../osConfig.h"
+/**
+ * CPU
+ */
+#define MCU_MCLK    (48000000)
+
+/**
+ * 内存堆起止
+ */
+extern int Image$$RW_IRAM1$$ZI$$Limit;
+#define HEAP_BEGIN  ((void *) &Image$$RW_IRAM1$$ZI$$Limit)
+#define HEAP_END    (0x20000000 + 64 * 1024)
+
+/**
+ * IRQ
+ */
+#define MAX_SYSCALL_INTERRUPT_PRIORITY		(5) << (8 - 3)
+
+/**
+ * Systick 
+ */
+#define SYSTICK_TICK_PER_SEC    (1000)     /**<  1000 = 1ms systick计数1000次中断一次 */
 
 /*@}*/
 
-#ifdef USING_SYMBOL_EXPORT
+/**
+ * @addtogroup irq
+ */
+ 
+/*@{*/
 
-    /**
-    * @addtogroup 导出符号类型定义
-    */
+extern uint32_t hal_DisableINT(void);
+extern void hal_EnableINT(uint32_t level);
 
-    /*@{*/
+extern void hal_CallNMI(void);
+extern void hal_CallPendSV(void);
 
-    typedef struct symbolTab {
-        void *address;
-        const char *name;
-    } symbolTab_t;
-
-    /*@}*/
-
-    /**
-    * @addtogroup 导出符定义
-    */
-
-    /*@{*/
-
-    /**
-    * 内核导出符
-    *
-    * @param symbol 需要导出的函数
-    * 
-    * @return none
-    */
-    #define EXPORT_SYMBOL(symbol) \
-        const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \
-        const symbolTab_t export_##symbol OS_SECTION("kernelSymbol") = { \
-            (void *)&symbol, \
-            export_##symbol##_name \
-        };
-        
-    /*@}*/
-#else
-        
-    #define EXPORT_SYMBOL(symbol)
-        
-#endif
+/*@}*/
 
 #endif

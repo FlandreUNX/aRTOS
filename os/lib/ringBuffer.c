@@ -28,16 +28,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @addtogroup OS Include
- */
-
-/*@{*/
-
 #include "./ringBuffer.h"
-#include "./symbolExport.h"
-
-/*@}*/
 
 /**
  * @addtogroup ANSI-C Include
@@ -46,6 +37,16 @@
 /*@{*/
 
 #include <string.h>
+
+/*@}*/
+
+/**
+ * @addtogroup OS Include
+ */
+
+/*@{*/
+
+#include "./symbolExport.h"
 
 /*@}*/
 

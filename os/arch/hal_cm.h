@@ -9,8 +9,8 @@
  *　 　 　l　　　　　　　　　　　　 　　  l
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
- *　　　　　　　　　/`'''.‐‐──‐‐‐┬--- 
- * File      : symbolExport.h
+ *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
+ * File      : hal_cm.h
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,11 +25,11 @@
  *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.												 
  */
-
-#ifndef SYMBOLEXPORT_H_
-#define SYMBOLEXPORT_H_
+ 
+#ifndef HAL_CM_H_
+#define HAL_CM_H_
 
 /**
  * @addtogroup OS Include
@@ -37,50 +37,43 @@
 
 /*@{*/
 
-#include "../osConfig.h"
+#include "./util.h"
 
 /*@}*/
 
-#ifdef USING_SYMBOL_EXPORT
+/**
+ * @addtogroup register struct 
+ */
+ 
+/*@{*/
 
-    /**
-    * @addtogroup 导出符号类型定义
-    */
+/**
+ *  arm cortext-m 寄存器结构
+ */
+typedef struct cm_RegisterFrame {
+  uint32_t r4;
+  uint32_t r5;
+  uint32_t r6;
+  uint32_t r7;
+  uint32_t r8;
+  uint32_t r9;
+  uint32_t r10;
+  uint32_t r11;
+  
+  uint32_t exec;
+  
+  uint32_t r0;
+  uint32_t r1;
+  uint32_t r2;
+  uint32_t r3;
+  
+  uint32_t r12;
+  
+  uint32_t r14_LR;
+  uint32_t r15_PC;
+  uint32_t r13_SP;
+} cpuRegisters_t;
 
-    /*@{*/
-
-    typedef struct symbolTab {
-        void *address;
-        const char *name;
-    } symbolTab_t;
-
-    /*@}*/
-
-    /**
-    * @addtogroup 导出符定义
-    */
-
-    /*@{*/
-
-    /**
-    * 内核导出符
-    *
-    * @param symbol 需要导出的函数
-    * 
-    * @return none
-    */
-    #define EXPORT_SYMBOL(symbol) \
-        const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \
-        const symbolTab_t export_##symbol OS_SECTION("kernelSymbol") = { \
-            (void *)&symbol, \
-            export_##symbol##_name \
-        };
-        
-    /*@}*/
-#else
-        
-    #define EXPORT_SYMBOL(symbol)
-        
-#endif
+/*@}*/
 
 #endif
