@@ -28,6 +28,8 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "./buddy.h"
+
 /**
  * @addtogroup ANSI-C Include
  */
@@ -46,9 +48,10 @@
 
 /*@{*/
 
-#include "lib/symbolExport.h"
+#include "../lib/symbolExport.h"
+#include "../lib/list.h"
 
-#include "lib/list.h"
+#include "../arch/hal_cm.h"
 
 /*@}*/
 
@@ -67,7 +70,7 @@ typedef struct BuddyBlock {
   */
   uint8_t stage;
 	
-  osList_Head_t list;  /**< 该结构体是一个双向链表节点 */
+  struct osList_Head_t list;  /**< 该结构体是一个双向链表节点 */
 } BuddyBlock_t;
 
 /*@}*/
@@ -92,7 +95,7 @@ typedef struct BuddyBlock {
 #define BUDDY_MAX_ORDER     (BUDDY_ORDER - 1)
 
 /*buddy order 2^n阶 链表*/
-osList_Head_t buddy_list[BUDDY_ORDER];
+struct osList_Head_t buddy_list[BUDDY_ORDER];
 
 /*内存信息*/
 osMem_t osMem_Info;
@@ -118,9 +121,9 @@ osMem_t osMem_Info;
  * @param memStart 内存起址
  * @param memEnd 内存结束
  * 
- * @return 无
+ * @return none
  */
-void Buddy_Init(uint32_t memStart, uint32_t memEnd) {
+void mem_Init(uint32_t memStart, uint32_t memEnd) {
     /*内存对齐标志*/
     uint32_t memoryMask = ~(BUDDY_BLOCK_SIZE - 1);
 
@@ -167,7 +170,6 @@ void Buddy_Init(uint32_t memStart, uint32_t memEnd) {
         osList_AddTail(&(buddy_list[0]), &(block->list));
     }
 }
-EXPORT_SYMBOL(Buddy_Init);
 
 
 /**
@@ -175,13 +177,13 @@ EXPORT_SYMBOL(Buddy_Init);
  *
  * @param order 序列
  * 
- * @return 无
+ * @return none
  */
 static BuddyBlock_t* __AllocateBlock(uint32_t order) {
     BuddyBlock_t* block;
 
     /*寻找有没有空闲并且可用页面*/
-    for (uint32_t i = Order; i <= BUDDY_MAX_ORDER; i++) {
+    for (uint32_t i = order; i <= BUDDY_MAX_ORDER; i++) {
         /*查看当前指向的order链表有没有节点*/
         if (osList_CheckIsEmpty(&(buddy_list[i]))) {
             continue;
@@ -237,7 +239,7 @@ static BuddyBlock_t* __AllocateBlock(uint32_t order) {
  * 
  * @return 返回伙伴地址
  */
-static __inline void* __FindBuddyBlock(BuddyBlock_t* block, uint32_t order) {
+OS_INLINE void* __FindBuddyBlock(BuddyBlock_t* block, uint32_t order) {
     /*计算长度*/
     uint32_t length = ((uint32_t)block) - osMem_Info.heapStart;
 
@@ -254,7 +256,7 @@ static __inline void* __FindBuddyBlock(BuddyBlock_t* block, uint32_t order) {
  *
  * @param block 内存块
  * 
- * @return 无
+ * @return none
  */
 static void __FreeBlock(BuddyBlock_t * block) {
     uint8_t blockOrder;
@@ -309,22 +311,22 @@ static void __FreeBlock(BuddyBlock_t * block) {
 
 
 /**
- * 释放内存
+ * 申请内存
  *
  * @param size 申请大小
  * 
  * @return 内存地址
  */
-void* Buddy_Malloc(uint32_t size) {
-    //register uint32_t level;
+void* osMem_Malloc(uint32_t size) {
+    register uint32_t level;
 
     /*传入0,错误*/
-    if (!Size) {
+    if (!size) {
         return NULL;
     }
 
     /*计算需要哪个order的内存块*/
-    uint8_t calculateOrder = (Size + BLOCK_STRUCT_SIZE) / (BUDDY_BLOCK_SIZE);
+    uint8_t calculateOrder = (size + BLOCK_STRUCT_SIZE) / (BUDDY_BLOCK_SIZE);
     uint8_t wantOrder = 0;
     while (calculateOrder) {
         wantOrder++;
@@ -333,7 +335,7 @@ void* Buddy_Malloc(uint32_t size) {
 
     BuddyBlock_t* block;
 
-    //level = vPort_DisableINT();
+    level = hal_DisableINT();
 
     /*获取需要的页面*/
     block = __AllocateBlock(wantOrder);
@@ -343,37 +345,37 @@ void* Buddy_Malloc(uint32_t size) {
         return NULL;
     }
 
-    //vPort_EnableINT(level);
+    hal_EnableINT(level);
 
     /*返回地址*/
     /*将链表占用的空间也分配出去,剩余一个(stage)*/
     return (block + sizeof(uint8_t));
 }
-EXPORT_SYMBOL(Buddy_Malloc);
+EXPORT_SYMBOL(osMem_Malloc);
 
 
 /**
  * 释放内存
  *
- * @param void* 地址
+ * @param address 地址
  * 
- * @return 无
+ * @return none
  */
-void Buddy_Free(void* Address) {
-    //register uint32_t level;
+void osMem_Free(void* address) {
+    register uint32_t level;
 
-  /*内存块结构体基地址 = 分配出去的内存地址偏移-结构体大小*/
-  BuddyBlock_t* block = (BuddyBlock_t *) ((uint32_t)Address - (uint32_t) sizeof(uint8_t));
+    /*内存块结构体基地址 = 分配出去的内存地址偏移-结构体大小*/
+    BuddyBlock_t* block = (BuddyBlock_t *) ((uint32_t)address - (uint32_t) sizeof(uint8_t));
 
-    //level = vPort_DisableINT();
+    level = hal_DisableINT();
 
-  /*释放内存块*/
-  if (block) {
-    __FreeBlock(block);
-  }
+    /*释放内存块*/
+    if (block) {
+        __FreeBlock(block);
+    }
 
-    //vPort_EnableINT(level);
+    hal_EnableINT(level);
 }
-EXPORT_SYMBOL(Buddy_Free);
+EXPORT_SYMBOL(osMem_Free);
 
 /*@}*/

@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
- * File      : util.h
+ * File      : platform.h
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,8 +28,8 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */ 
 
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef PLATFORM_H_
+#define PLATFORM_H_
 
 /**
  * @addtogroup ANSI-C Include
@@ -57,6 +57,16 @@
 /*@}*/
 
 /**
+ * @addtogroup arch 定义
+ */
+ 
+/*@{*/
+
+#include "./msp432/msp432.h"
+
+/*@}*/
+
+/**
  * @addtogroup 编译平台相关
  */
  
@@ -70,10 +80,20 @@
 #ifdef __CC_ARM 
     #include <stdarg.h>
 
+    /**
+     * 
+     */
     #define OS_SECTION(x)      __attribute__((section(x)))
     #define OS_WEEK            __weak
     #define OS_INLINE          static __inline
     #define OS_NO_RETURN       __declspec(noreturn)
+
+    /**
+     * 内存堆起止
+     */
+    extern int Image$$RW_IRAM1$$ZI$$Limit;
+    #define HEAP_BEGIN  ((void *) &Image$$RW_IRAM1$$ZI$$Limit)
+    #define HEAP_END    (0x20000000 + 64 * 1024)
 #endif
 
 /*@}*/

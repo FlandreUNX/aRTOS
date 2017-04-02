@@ -37,7 +37,11 @@
 
 /*@{*/
 
-#include "../arch/util.h"
+#include "../arch/platform.h"
+
+#include "../lib/list.h"
+
+#include "../osConfig.h"
 
 /*@}*/
 
@@ -97,7 +101,7 @@ typedef struct Thread_Attr {
     /**
      *  其他属性
      */
-    osList_Head_t list;    /**< 链表节点 */
+    struct osList_Head_t list;    /**< 链表节点 */
 
     //osTimer_t timer;    /**< 运行时核心计数器 */
 
@@ -111,18 +115,6 @@ typedef struct Thread_Attr {
  *  Thread全局句柄
  */
 typedef void* osThread_ID_t;
-
-/**
- *  Thread创建器
- */
-#define osThread_Def(name, priority, stackSize, function) \
-    osThread_Attr_t os_Thread_##name = { \
-        .initTimeSlice = 1, \
-        .functions = (void *)function,  \
-        .stackSize = stackSize, \
-        .priority = priority    \
-    }; \
-    static OS_NO_RETURN name(void *argument)
 
 /*@}*/
 

@@ -77,6 +77,7 @@
         };
         
     /*@}*/
+    
 #else
             
     #define EXPORT_SYMBOL(symbol)

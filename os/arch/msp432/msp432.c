@@ -36,8 +36,6 @@
 
 /*@{*/
 
-#include "../util.h"
-
 /*@}*/
 
 /**
@@ -51,46 +49,10 @@
 /*@}*/
 
 /**
- * @addtogroup os运行必要接口
+ * @addtogroup msp432 hal functions
  */
 
 /*@{*/
-
-/**
- * 关闭全局中断
- *
- * @param 无
- * 
- * @return 无
- */
-__asm uint32_t hal_DisableINT(void) {
-    PRESERVE8
-
-    mrs r0, basepri
-    mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
-    msr basepri, r1
-
-    dsb
-    isb
-
-    bx r14
-}
-
-
-/**
- * 开启全局中断
- *
- * @param 无
- * 
- * @return 无
- */
-__asm void hal_EnableINT(uint32_t level) {
-	PRESERVE8
-	
-	msr basepri, r0
-	bx r14
-}
-
 
 /**
  * 标志pensv异常

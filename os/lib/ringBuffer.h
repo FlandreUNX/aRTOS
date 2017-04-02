@@ -43,7 +43,7 @@
 
 /*@{*/
 
-#include "../arch/util.h"
+#include "../arch/platform.h"
 
 /*@}*/
 
@@ -83,8 +83,8 @@ typedef struct ring_buffer {
  
 /*@{*/
        
-osRBuffer_t* osRBuffer_Create(uint16_t size);
-osRBuffer_t* osRBuffer_StaticCreate(void *pool, uint16_t size);
+extern osRBuffer_t* osRBuffer_Create(uint16_t size);
+extern osRBuffer_t* osRBuffer_StaticCreate(void *pool, uint16_t size);
 
 /*@}*/
 
@@ -94,10 +94,10 @@ osRBuffer_t* osRBuffer_StaticCreate(void *pool, uint16_t size);
  
 /*@{*/
 
-enum BUFFER_STAGE osRBuffer_GetStatus(osRBuffer_t *obj);
+extern enum BUFFER_STAGE osRBuffer_GetStatus(osRBuffer_t *obj);
         
-uint16_t osRBuffer_GetDataLen(osRBuffer_t *obj);
-uint16_t osRBuffer_GetSpaceLen(osRBuffer_t *obj);
+extern uint16_t osRBuffer_GetDataLen(osRBuffer_t *obj);
+extern uint16_t osRBuffer_GetSpaceLen(osRBuffer_t *obj);
 
 /*@}*/
 
@@ -107,13 +107,13 @@ uint16_t osRBuffer_GetSpaceLen(osRBuffer_t *obj);
  
 /*@{*/
         
-uint16_t osRBuffer_Put(osRBuffer_t *obj, const uint8_t *src, uint16_t len);
-uint16_t osRBuffer_Get(osRBuffer_t *obj, uint8_t *dest, uint16_t len);
+extern uint16_t osRBuffer_Put(osRBuffer_t *obj, const uint8_t *src, uint16_t len);
+extern uint16_t osRBuffer_Get(osRBuffer_t *obj, uint8_t *dest, uint16_t len);
         
-uint8_t osRBuffer_PutByte(osRBuffer_t *obj, uint8_t src);
-uint8_t osRBuffer_GetByte(osRBuffer_t *obj, uint8_t *dest);
+extern uint8_t osRBuffer_PutByte(osRBuffer_t *obj, uint8_t src);
+extern uint8_t osRBuffer_GetByte(osRBuffer_t *obj, uint8_t *dest);
 
-void osRBuffer_Clear(osRBuffer_t *obj);
+extern void osRBuffer_Clear(osRBuffer_t *obj);
         
 /*@}*/    
 #endif

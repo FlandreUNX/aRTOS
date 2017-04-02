@@ -31,7 +31,17 @@
 #include "./hal_cm.h"
 
 /**
- * @addtogroup cortex-m thread stack setup
+ * @addtogroup OS Include
+ */
+
+/*@{*/
+
+#include "../lib/symbolExport.h"
+
+/*@}*/
+
+/**
+ * @addtogroup cortex-m hal functions
  */
  
 /*@{*/
@@ -69,6 +79,42 @@ uint32_t* cpu_SetupRegisters(void *func, void *argument, uint32_t *stackTop) {
     regs->r5 = (uint32_t)0x00000005;
     regs->r4 = (uint32_t)0x00000004;
     return (uint32_t *)regs;
+}
+
+
+/**
+ * 关闭全局中断
+ *
+ * @param 无
+ * 
+ * @return 无
+ */
+__asm uint32_t hal_DisableINT(void) {
+    PRESERVE8
+
+    mrs r0, basepri
+    mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
+    msr basepri, r1
+
+    dsb
+    isb
+
+    bx r14
+}
+
+
+/**
+ * 开启全局中断
+ *
+ * @param 无
+ * 
+ * @return 无
+ */
+__asm void hal_EnableINT(uint32_t level) {
+	PRESERVE8
+	
+	msr basepri, r0
+	bx r14
 }
 
 

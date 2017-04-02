@@ -37,7 +37,7 @@
 
 /*@{*/
 
-#include "./util.h"
+#include "./platform.h"
 
 /*@}*/
 
@@ -51,28 +51,49 @@
  *  arm cortext-m 寄存器结构
  */
 typedef struct cm_RegisterFrame {
-  uint32_t r4;
-  uint32_t r5;
-  uint32_t r6;
-  uint32_t r7;
-  uint32_t r8;
-  uint32_t r9;
-  uint32_t r10;
-  uint32_t r11;
-  
-  uint32_t exec;
-  
-  uint32_t r0;
-  uint32_t r1;
-  uint32_t r2;
-  uint32_t r3;
-  
-  uint32_t r12;
-  
-  uint32_t r14_LR;
-  uint32_t r15_PC;
-  uint32_t r13_SP;
+    uint32_t r4;
+    uint32_t r5;
+    uint32_t r6;
+    uint32_t r7;
+    uint32_t r8;
+    uint32_t r9;
+    uint32_t r10;
+    uint32_t r11;
+    
+    uint32_t exec;
+    
+    uint32_t r0;
+    uint32_t r1;
+    uint32_t r2;
+    uint32_t r3;
+    
+    uint32_t r12;
+    
+    uint32_t r14_LR;
+    uint32_t r15_PC;
+    uint32_t r13_SP;
 } cpuRegisters_t;
+
+/*@}*/
+
+/**
+ * @addtogroup cm IRQ configure
+ */
+ 
+/*@{*/
+
+#define MAX_SYSCALL_INTERRUPT_PRIORITY		(5) << (8 - 3)
+
+/*@}*/
+
+/**
+ * @addtogroup cm_hal system functions 
+ */
+ 
+/*@{*/
+
+extern uint32_t hal_DisableINT(void);
+extern void hal_EnableINT(uint32_t level);
 
 /*@}*/
 

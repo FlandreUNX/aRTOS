@@ -9,8 +9,8 @@
  *　 　 　l　　　　　　　　　　　　 　　  l
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
- *　　　　　　　　　/`'''.‐‐──‐‐‐┬--- 
- * File      : msp432.h
+ *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
+ * File      : schedule.h
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,9 +27,9 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
-#ifndef MSP432_H_
-#define MSP432_H_
+ 
+#ifndef SCHEDULE_H_
+#define SCHEDULE_H_
 
 /**
  * @addtogroup OS Include
@@ -37,34 +37,40 @@
 
 /*@{*/
 
-/*@}*/
-
-/**
- * @addtogroup 硬件核心相关
- */
- 
-/*@{*/
-
-/**
- * CPU
- */
-#define MCU_MCLK    (48000000)
-
-/**
- * Systick 
- */
-#define SYSTICK_TICK_PER_SEC    (1000)     /**<  1000 = 1ms systick计数1000次中断一次 */
+#include "./thread.h"
 
 /*@}*/
 
 /**
- * @addtogroup IRQ system functions
+ * @addtogroup schedule extern system var
  */
  
 /*@{*/
 
-extern void hal_CallNMI(void);
-extern void hal_CallPendSV(void);
+/*@}*/
+
+/**
+ * @addtogroup schedule system functions
+ */
+ 
+/*@{*/
+
+extern void sche_Init(void);
+extern void sche_InsertThread(osThread_Attr_t* thread);
+extern void sche_RemoveThread(osThread_Attr_t* thread);
+extern void sche_NextToNow(void);
+extern void sche_ToNextThread(void);
+
+/*@}*/
+
+/**
+ * @addtogroup schedule user functions
+ */
+ 
+/*@{*/
+
+extern void osSche_Lock(void);
+extern void osSche_Unlock(void);
 
 /*@}*/
 

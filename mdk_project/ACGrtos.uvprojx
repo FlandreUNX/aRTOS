@@ -389,10 +389,47 @@
               <FileType>5</FileType>
               <FilePath>..\os\osConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>osAPI.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\os\osAPI.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>ACGrtos/pm</GroupName>
+          <GroupName>ACGrtos/kernel</GroupName>
+          <Files>
+            <File>
+              <FileName>schedule.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\os\kernel\schedule.c</FilePath>
+            </File>
+            <File>
+              <FileName>schedule.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\os\kernel\schedule.h</FilePath>
+            </File>
+            <File>
+              <FileName>thread.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\os\kernel\thread.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ACGrtos/mm</GroupName>
+          <Files>
+            <File>
+              <FileName>buddy.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\os\mm\buddy.c</FilePath>
+            </File>
+            <File>
+              <FileName>buddy.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\os\mm\buddy.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>ACGrtos/lib</GroupName>
@@ -423,11 +460,6 @@
           <GroupName>ACGrtos/arch</GroupName>
           <Files>
             <File>
-              <FileName>util.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\os\arch\util.h</FilePath>
-            </File>
-            <File>
               <FileName>hal_cm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\os\arch\hal_cm.c</FilePath>
@@ -436,6 +468,11 @@
               <FileName>hal_cm.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\os\arch\hal_cm.h</FilePath>
+            </File>
+            <File>
+              <FileName>platform.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\os\arch\platform.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -31,10 +31,12 @@
 #ifndef OSCONFIG_H_
 #define OSCONFIG_H_
 
-#define USING_SYMBOL_EXPORT     0
+#define USING_SYMBOL_EXPORT     1
 
 #define MAX_PRIORITY_LEVEL      128
 
 #define USING_BUDDY_MANAGER     1
+
+#define USE_DEID_THREAD_RM      1
 
 #endif
