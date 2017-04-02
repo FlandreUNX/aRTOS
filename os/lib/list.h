@@ -45,7 +45,7 @@
 
 /*@{*/
 
-typedef osList_Head_t {
+typedef struct osList_Head {
   osList_Head_t *previous;    /**< 前节点 */
   osList_Head_t *next;        /**< 后节点 */
 } osList_Head_t;

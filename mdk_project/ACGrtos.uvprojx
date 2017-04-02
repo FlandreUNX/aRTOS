@@ -393,13 +393,6 @@
         </Group>
         <Group>
           <GroupName>ACGrtos/pm</GroupName>
-          <Files>
-            <File>
-              <FileName>thread.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\os\pm\thread.h</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>ACGrtos/lib</GroupName>
