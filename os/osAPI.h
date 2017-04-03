@@ -130,11 +130,22 @@ extern void osSche_Unlock(void);
  */
 #define osThread_Def(name, priority, stackSize, function) \
     osThread_Attr_t os_Thread_##name = { \
-        .initTimeSlice = 1, \
+        .timeSlice = 1, \
         .functions = (void *)function,  \
         .stackSize = stackSize, \
         .priority = priority    \
     };
+
+
+/**
+ * 线程对象
+ *
+ * @param name  名称
+ * 
+ * @return none
+ */
+#define osThread_Obj(name) \
+    &os_Thread_##name
 
 /*@}*/
 

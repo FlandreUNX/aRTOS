@@ -30,6 +30,13 @@ Section Cross References
     schedule.o(kernelSymbol) refers to schedule.o(i.osSche_Lock) for osSche_Lock
     schedule.o(kernelSymbol) refers to schedule.o(.rodata.name) for export_osSche_Lock_name
     schedule.o(kernelSymbol) refers to schedule.o(i.osSche_Unlock) for osSche_Unlock
+    thread.o(i.osThread_Create) refers to buddy.o(i.osMem_Malloc) for osMem_Malloc
+    thread.o(i.osThread_Create) refers to hal_cm.o(i.cpu_SetupRegisters) for cpu_SetupRegisters
+    thread.o(i.osThread_Ready) refers to hal_cm.o(.emb_text) for hal_DisableINT
+    thread.o(i.osThread_Ready) refers to schedule.o(i.sche_InsertThread) for sche_InsertThread
+    thread.o(kernelSymbol) refers to thread.o(i.osThread_Create) for osThread_Create
+    thread.o(kernelSymbol) refers to thread.o(.rodata.name) for export_osThread_Create_name
+    thread.o(kernelSymbol) refers to thread.o(i.osThread_Ready) for osThread_Ready
     buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_DeleteNode) for osList_DeleteNode
     buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_HeadInit) for osList_HeadInit
     buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_AddTail) for osList_AddTail
@@ -516,6 +523,10 @@ Removing Unused input sections from the image.
     Removing schedule.o(.data), (24 bytes).
     Removing schedule.o(.rodata.name), (26 bytes).
     Removing schedule.o(kernelSymbol), (16 bytes).
+    Removing thread.o(i.osThread_Create), (120 bytes).
+    Removing thread.o(i.osThread_Ready), (32 bytes).
+    Removing thread.o(.rodata.name), (31 bytes).
+    Removing thread.o(kernelSymbol), (16 bytes).
     Removing buddy.o(i.__AllocateBlock), (164 bytes).
     Removing buddy.o(i.__FreeBlock), (140 bytes).
     Removing buddy.o(i.mem_Init), (196 bytes).
@@ -1181,7 +1192,7 @@ Removing Unused input sections from the image.
     Removing ffixui.o(.text), (40 bytes).
     Removing fepilogue.o(.text), (110 bytes).
 
-678 unused section(s) (total 32059 bytes) removed from the image.
+682 unused section(s) (total 32258 bytes) removed from the image.
 
 ==============================================================================
 
@@ -1192,19 +1203,19 @@ Image Symbol Table
     Symbol Name                              Value     Ov Type        Size  Object(Section)
 
     RESET                                    0x00000000   Section      324  startup_msp432p401r_uvision.o(RESET)
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
     ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpyb.o ABSOLUTE
     ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpya.o ABSOLUTE
     ../clib/microlib/string/memset.c         0x00000000   Number         0  memseta.o ABSOLUTE
@@ -1274,6 +1285,7 @@ Image Symbol Table
     ..\os\arch\msp432\driverlib\wdt_a.c      0x00000000   Number         0  wdt_a.o ABSOLUTE
     ..\os\arch\msp432\msp432.c               0x00000000   Number         0  msp432.o ABSOLUTE
     ..\os\kernel\schedule.c                  0x00000000   Number         0  schedule.o ABSOLUTE
+    ..\os\kernel\thread.c                    0x00000000   Number         0  thread.o ABSOLUTE
     ..\os\lib\ringBuffer.c                   0x00000000   Number         0  ringbuffer.o ABSOLUTE
     ..\os\mm\buddy.c                         0x00000000   Number         0  buddy.o ABSOLUTE
     RTE\Device\MSP432P401R\startup_msp432p401r_uvision.s 0x00000000   Number         0  startup_msp432p401r_uvision.o ABSOLUTE
@@ -1406,35 +1418,35 @@ Memory Map of the image
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x00000000   0x00000144   Data   RO         4238    RESET               startup_msp432p401r_uvision.o
-    0x00000144   0x00000000   Code   RO         4279  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x00000144   0x00000004   Code   RO         4302    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x00000148   0x00000004   Code   RO         4305    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x0000014c   0x00000000   Code   RO         4307    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x0000014c   0x00000000   Code   RO         4309    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x0000014c   0x00000008   Code   RO         4310    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x00000154   0x00000000   Code   RO         4312    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x00000154   0x00000000   Code   RO         4314    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x00000154   0x00000004   Code   RO         4303    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
-    0x00000158   0x00000090   Code   RO          283    .emb_text           hal_cm.o
-    0x000001e8   0x00000024   Code   RO         4239    .text               startup_msp432p401r_uvision.o
-    0x0000020c   0x00000024   Code   RO         4319    .text               mc_w.l(init.o)
-    0x00000230   0x00000002   Code   RO          284    i.SysTick_Handler   hal_cm.o
+    0x00000000   0x00000144   Data   RO         4284    RESET               startup_msp432p401r_uvision.o
+    0x00000144   0x00000000   Code   RO         4325  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x00000144   0x00000004   Code   RO         4348    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x00000148   0x00000004   Code   RO         4351    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x0000014c   0x00000000   Code   RO         4353    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x0000014c   0x00000000   Code   RO         4355    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x0000014c   0x00000008   Code   RO         4356    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x00000154   0x00000000   Code   RO         4358    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x00000154   0x00000000   Code   RO         4360    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x00000154   0x00000004   Code   RO         4349    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x00000158   0x00000090   Code   RO          329    .emb_text           hal_cm.o
+    0x000001e8   0x00000024   Code   RO         4285    .text               startup_msp432p401r_uvision.o
+    0x0000020c   0x00000024   Code   RO         4365    .text               mc_w.l(init.o)
+    0x00000230   0x00000002   Code   RO          330    i.SysTick_Handler   hal_cm.o
     0x00000232   0x00000002   PAD
-    0x00000234   0x0000005c   Code   RO         4247    i.SystemInit        system_msp432p401r.o
-    0x00000290   0x0000000e   Code   RO         4323    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x0000029e   0x00000002   Code   RO         4324    i.__scatterload_null  mc_w.l(handlers.o)
-    0x000002a0   0x0000000e   Code   RO         4325    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x00000234   0x0000005c   Code   RO         4293    i.SystemInit        system_msp432p401r.o
+    0x00000290   0x0000000e   Code   RO         4369    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x0000029e   0x00000002   Code   RO         4370    i.__scatterload_null  mc_w.l(handlers.o)
+    0x000002a0   0x0000000e   Code   RO         4371    i.__scatterload_zeroinit  mc_w.l(handlers.o)
     0x000002ae   0x00000004   Code   RO            1    i.main              startup.o
     0x000002b2   0x00000002   PAD
-    0x000002b4   0x00000010   Data   RO         4321    Region$$Table       anon$$obj.o
+    0x000002b4   0x00000010   Data   RO         4367    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00000200, Max: 0x00010000, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x00000200   Zero   RW         4236    STACK               startup_msp432p401r_uvision.o
+    0x20000000   0x00000200   Zero   RW         4282    STACK               startup_msp432p401r_uvision.o
 
 
 ==============================================================================
