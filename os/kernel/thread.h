@@ -116,7 +116,7 @@ typedef struct Thread_Attr {
 /**
  *  Thread全局句柄
  */
-typedef (void*) osThread_ID;
+typedef void* osThread_ID;
 
 /*@}*/
 

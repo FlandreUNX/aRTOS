@@ -87,7 +87,7 @@
     #define OS_SECTION(x)      __attribute__((section(x)))
     #define OS_WEEK            __weak
     #define OS_INLINE          static __inline
-    #define OS_NO_RETURN       __declspec(noreturn)
+    #define OS_NO_RETURN       int __declspec(noreturn)
 
     /**
      * 内存堆起止

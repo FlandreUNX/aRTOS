@@ -39,7 +39,6 @@
 #include "./schedule.h"
 #include "./thread.h"
 
-#include "../arch/platform.h"
 #include "../arch/hal_cm.h"
 
 #include "../lib/symbolExport.h"
@@ -60,8 +59,8 @@ struct osList_Head_t timer_HardList;
     struct osList_Head_t timer_softList;
 
     /*软定时器计时线程*/
-    struct osThread_ID timer_SoftThreadID;
-    extern static OS_NO_RETURN os_SoftTimer_Thread(void *argument);
+    osThread_ID timer_SoftThreadID;
+    extern OS_NO_RETURN os_SoftTimer_Thread(void *argument);
     osThread_Attr_t os_Thread_SoftTimer = { \
         .timeSlice = 1, \
         .functions = os_SoftTimer_Thread,  \
@@ -94,7 +93,7 @@ void timer_Init(void) {
         osList_HeadInit(&timer_softList);
 
         /*初始化线程*/
-        timer_SoftThreadID = osThread_Create(os_Thread_SoftTimer, NULL);
+        timer_SoftThreadID = osThread_Create(&os_Thread_SoftTimer, NULL);
         osThread_Ready(timer_SoftThreadID);
     #endif
 }
@@ -119,8 +118,10 @@ void timer_Check(void) {
     * 
     * @return none
     */
-    static OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
-
+    OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
+        for (;;) {
+            
+        }
     }
 #endif
 
@@ -141,8 +142,8 @@ void timer_Check(void) {
  * 
  * @return 定时器句柄
  */
-osTimer_ID osTimer_Create(osTimer_Attr_t *obj, uint8_t flag, void *arguments) {
-    obj->stage = OS_TIMER_STOP;
+osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag_t flag, void *arguments) {
+    obj->stage = osTimerStop;
     obj->flag = flag;
     obj->arguments = arguments;
 
@@ -165,7 +166,7 @@ void osTimer_SetTick(osTimer_ID id, uint32_t tick) {
     osTimer_Attr_t *obj = (osTimer_Attr_t *)id;
 
     /*检查定时运行状态*/
-    if (obj->flag == OS_TIMER_RUN) {
+    if (obj->flag == osTimerRunning) {
         return;
     }
 
@@ -195,7 +196,7 @@ EXPORT_SYMBOL(osTimer_Start);
  * 
  * @return none
  */
-void osTimer_Stop(osTimer_ID id, uint32_t tick) {
+void osTimer_Stop(osTimer_ID id) {
     
 }
 EXPORT_SYMBOL(osTimer_Stop);

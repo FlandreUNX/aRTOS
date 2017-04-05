@@ -172,15 +172,15 @@ extern void osSche_Unlock(void);
  * 定义定时器
  *
  * @param name 名称
- * @param flag 运行模式(hard|soft)
+ * @param mode 运行模式(hard|soft)
  * @param callback 超时回调函数
  * @param arguments 回调函数传入参数
  * 
  * @return none
  */
-#define osTimer_Def(name, flag, callback) \
+#define osTimer_Def(name, mode, callback) \
     osTimer_Attr_t os_Timer_##name = {
-        .flag = flag, \
+        .mode = mode, \
         .callback = callback \
     };
 

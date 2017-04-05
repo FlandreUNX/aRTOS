@@ -41,6 +41,8 @@
 
 #include "../lib/list.h"
 
+#include "../arch/platform.h"
+
 /*@}*/
 
 /**
@@ -49,15 +51,22 @@
  
 /*@{*/
 
-#define OS_TIMER_HARD            0x00    /**< Thread-Type定时器 硬模式 */
-
 #if USING_SOFT_TIMER == 1
-    #define OS_TIMER_SOFT        0x01    /**< Thread-Type定时器 软模式*/
+    typedef enum {
+        osTimerHard = 0x00,     /**< Thread-Type定时器 硬模式 */
+        osTimerSoft = 0x01      /**< Thread-Type定时器 软模式*/
+    }osTimer_Mode_t;
+#else
+    typedef enum {
+        osTimerHard = 0x00
+    }osTimer_Mode_t;
 #endif
 
-#define OS_TIMER_ONCE        0x02    /**< 单次模式 */
-#define OS_TIMER_PERIODIC    0x04    /**< 循环模式 */
-
+typedef enum {
+    osTimerOnce = 0x02,     /**< 单次模式 */
+    osTimerPeriodic = 0x04  /**< 循环模式 */
+}osTimer_Flag_t;
+  
 /*@}*/
 
 /**
@@ -70,8 +79,8 @@
  *  Timer运行状态
  */
 typedef enum {
-    OS_TIMER_RUN,
-    OS_TIMER_STOP
+    osTimerRunning,     /**< 正在运行 */
+    osTimerStop         /**< 停止 */
 }osTimer_Stage_t;
 
 /*@}*/
@@ -94,14 +103,15 @@ typedef struct osTimer {
     void (*callback)(void *arguments);     /**< 超时时的回调函数 */
     void *arguments;                        /**< 回调函数传入参数 */
 
-    uint8_t flag;               /**< 定时器配置寄存器 */
+    osTimer_Mode_t mode;         /**< 定时器依赖模式寄存器 */
+    osTimer_Flag_t flag;         /**< 定时器运行模式寄存器 */
     osTimer_Stage_t stage;      /**< 定时器状态寄存器 */
 }osTimer_Attr_t;
 
 /**
  *  Timer全局句柄
  */
-typedef (void*) osTimer_ID;
+typedef void* osTimer_ID;
 
 /*@}*/
 
@@ -121,10 +131,10 @@ extern void timer_Init(void);
  
 /*@{*/
 
-extern osTimer_ID osTimer_Create(osTimer_Attr_t *obj, uint8_t flag);
+extern osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag_t flag, void *arguments);
 extern void osTimer_SetTick(osTimer_ID id, uint32_t tick);
 extern void osTimer_Start(osTimer_ID id, uint32_t tick);
-extern void osTimer_Stop(osTimer_ID id, uint32_t tick);
+extern void osTimer_Stop(osTimer_ID id);
 
 /*@}*/
 

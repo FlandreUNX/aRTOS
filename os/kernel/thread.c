@@ -114,7 +114,7 @@ osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
     osList_HeadInit(&thread->list);
 
     /*初始化依赖定时器*/
-    osThread_Create(&thread->timer, OS_TIMER_PERIODIC, (void *)thread);
+    osTimer_Create(&thread->timer, osTimerPeriodic, (void *)thread);
 
     /*设置其他参数*/
     thread->stage = osThreadSuspend;
