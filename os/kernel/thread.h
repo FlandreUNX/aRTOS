@@ -37,6 +37,8 @@
 
 /*@{*/
 
+#include "./timer.h"
+
 #include "../arch/platform.h"
 
 #include "../lib/list.h"
@@ -81,6 +83,7 @@ typedef struct Thread_Attr {
     uint16_t stackSize;  /**< Thread栈大小 */
 
     void *functions;    /**< Thread运行主体 */
+    void *arguments;    /**< Thread主体变量 */
 
     /**
      *  Thread优先级
@@ -103,7 +106,7 @@ typedef struct Thread_Attr {
      */
     struct osList_Head_t list;    /**< 链表节点 */
 
-    //osTimer_t timer;    /**< 运行时核心计数器 */
+    osTimer_Attr_t timer;    /**< 运行时核心计数器 */
 
     uint16_t timeSlice;     /**< 时间片大小 */
 
@@ -113,7 +116,18 @@ typedef struct Thread_Attr {
 /**
  *  Thread全局句柄
  */
-typedef void* osThread_ID_t;
+typedef (void*) osThread_ID;
+
+/*@}*/
+
+/**
+ * @addtogroup thread user functions
+ */
+ 
+/*@{*/
+
+extern osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument);
+extern void osThread_Ready(osThread_ID id);
 
 /*@}*/
 

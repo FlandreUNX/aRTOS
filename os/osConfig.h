@@ -37,6 +37,13 @@
 
 #define USING_BUDDY_MANAGER     1
 
-#define USE_DEID_THREAD_RM      1
+#define USING_DEID_THREAD_RM      1
+
+#define USING_SOFT_TIMER        1
+#if USING_SOFT_TIMER == 1
+    #define SOFT_TIMER_PRIORITY     MAX_PRIORITY_LEVEL - 1
+
+    #define SOFT_TIMER_STACK_SIZE   256
+#endif
 
 #endif

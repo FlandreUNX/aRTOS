@@ -110,7 +110,7 @@ extern void osSche_Unlock(void);
 /**
  * 线程运行时
  *
- * @param name  名称
+ * @param name 名称
  * 
  * @return NO_RETURN
  */
@@ -119,12 +119,12 @@ extern void osSche_Unlock(void);
 
 
 /**
- * 创建线程
+ * 定义线程
  *
- * @param name  名称
- * @param priority  优先级
- * @param stackSize  堆栈大小
- * @param function  运行方法
+ * @param name 名称
+ * @param priority 优先级
+ * @param stackSize 堆栈大小
+ * @param function 运行方法
  * 
  * @return none
  */
@@ -140,12 +140,60 @@ extern void osSche_Unlock(void);
 /**
  * 线程对象
  *
- * @param name  名称
+ * @param name 名称
  * 
  * @return none
  */
 #define osThread_Obj(name) \
     &os_Thread_##name
+
+/*@}*/
+
+/**
+ * @addtogroup ------------------Timer manager------------------
+ */
+
+/*@{*/
+
+#include "./kernel/timer.h"
+
+/**
+ * 定时器超时处理函数
+ *
+ * @param name  名称
+ * 
+ * @return none
+ */
+#define osTimer_Callback(name) \
+    void name(void *arguments)
+
+
+/**
+ * 定义定时器
+ *
+ * @param name 名称
+ * @param flag 运行模式(hard|soft)
+ * @param callback 超时回调函数
+ * @param arguments 回调函数传入参数
+ * 
+ * @return none
+ */
+#define osTimer_Def(name, flag, callback) \
+    osTimer_Attr_t os_Timer_##name = {
+        .flag = flag, \
+        .callback = callback \
+    };
+
+
+/**
+ * 定时器对象
+ *
+ * @param name 名称
+ * 
+ * @return none
+ */
+#define osTimer_Obj(name) \
+    &os_Timer_##name
 
 /*@}*/
 

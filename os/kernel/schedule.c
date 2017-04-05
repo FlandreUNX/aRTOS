@@ -135,7 +135,7 @@ static const uint8_t BITMAP[] = { \
 /*每一优先级组的任务链表*/
 struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 
-#if USE_DEID_THREAD_RM == 1
+#if USING_DEID_THREAD_RM == 1
     struct osList_Head_t sche_NoReadyList;
 #endif
 
@@ -175,7 +175,7 @@ void sche_Init(void) {
         osList_HeadInit(&(sche_ReadyList[offset]));
     }
 
-    #if USE_DEID_THREAD_RM == 1
+    #if USING_DEID_THREAD_RM == 1
         osList_HeadInit(&(sche_NoReadyList));
     #endif
 }

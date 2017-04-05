@@ -76,7 +76,7 @@ extern struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
  *
  * @return 线程句柄
  */
-osThread_ID_t osThread_Create(osThread_Attr_t *thread, void *argument) {
+osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
     /*调整堆栈大小,4字节对齐*/
     thread->stackSize = ALIGN(thread->stackSize, 4);
 
@@ -94,6 +94,7 @@ osThread_ID_t osThread_Create(osThread_Attr_t *thread, void *argument) {
 
     /*初始化任务CPU栈寄存器*/
     thread->stackTop = cpu_SetupRegisters(thread->functions, argument, thread->stackTop);
+    thread->arguments = argument;
 
     /*超出最大设定组别*/
     if (thread->priority > MAX_PRIORITY_LEVEL) {
@@ -110,12 +111,15 @@ osThread_ID_t osThread_Create(osThread_Attr_t *thread, void *argument) {
     #endif
    
     /*初始化节点*/
-    osList_HeadInit(&(thread->list));
+    osList_HeadInit(&thread->list);
+
+    /*初始化依赖定时器*/
+    osThread_Create(&thread->timer, OS_TIMER_PERIODIC, (void *)thread);
 
     /*设置其他参数*/
     thread->stage = osThreadSuspend;
 
-    return (osThread_ID_t) thread;
+    return (osThread_ID)thread;
 }
 EXPORT_SYMBOL(osThread_Create);
 
@@ -127,7 +131,7 @@ EXPORT_SYMBOL(osThread_Create);
  *
  * @return none
  */
-void osThread_Ready(osThread_ID_t id) {
+void osThread_Ready(osThread_ID id) {
     register uint32_t level;
     osThread_Attr_t *thread = (osThread_Attr_t *)id;
 
@@ -138,7 +142,7 @@ void osThread_Ready(osThread_ID_t id) {
     thread->stage = osThreadReady;
 
     /*关闭定时器*/
-    //nyaTimer_Control(&tub->timer, NYA_TIMER_STOP);
+    osTimer_Stop((osTimer_ID)&thread->timer);
 
     /*插入调度器*/
     sche_InsertThread(thread);
@@ -146,5 +150,8 @@ void osThread_Ready(osThread_ID_t id) {
     hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osThread_Ready);
+
+
+
 
 /*@}*/
