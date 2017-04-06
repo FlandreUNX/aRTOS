@@ -55,7 +55,7 @@
 
 /**
  *  Thread状态
- *  @note 用于标记任务运行状态
+ *  @note 用于标记线程运行状态
  */
 typedef enum {
     osThreadReady,      /**< 就绪 */
@@ -63,7 +63,7 @@ typedef enum {
     osThreadRunning,    /**< 运行中 */
     osThreadBlocked,    /**< 堵塞 */
     osThreadTerminated  /**< 结束 */
-}osThread_Stage;
+}osThread_Stage_t;
 
 /*@}*/
 
@@ -110,7 +110,7 @@ typedef struct Thread_Attr {
 
     uint16_t timeSlice;     /**< 时间片大小 */
 
-    osThread_Stage stage;    /**< 状态 */
+    osThread_Stage_t stage;    /**< 状态 */
 }osThread_Attr_t;
 
 /**
@@ -127,7 +127,13 @@ typedef void* osThread_ID;
 /*@{*/
 
 extern osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument);
+
 extern void osThread_Ready(osThread_ID id);
+extern void osThread_Suspend(osThread_ID id);
+
+extern osThread_ID osThread_Self(void);
+
+extern void osThread_Yield(void);
 
 /*@}*/
 

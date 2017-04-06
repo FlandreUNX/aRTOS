@@ -30,6 +30,8 @@
 
 #include "./buddy.h"
 
+#if USING_BUDDY_MANAGER == 1
+
 /**
  * @addtogroup ANSI-C Include
  */
@@ -67,7 +69,7 @@ typedef struct BuddyBlock {
    * 状态标识
    * bit0-3表示该内存块是2^n
    * bit7-> 1=正在使用 0=可用
-  */
+   */
   uint8_t stage;
 	
   struct osList_Head_t list;  /**< 该结构体是一个双向链表节点 */
@@ -318,8 +320,6 @@ static void __FreeBlock(BuddyBlock_t * block) {
  * @return 内存地址
  */
 void* osMem_Malloc(uint32_t size) {
-    register uint32_t level;
-
     /*传入0,错误*/
     if (!size) {
         return NULL;
@@ -334,7 +334,8 @@ void* osMem_Malloc(uint32_t size) {
     };
 
     BuddyBlock_t* block;
-
+    
+    register uint32_t level;
     level = hal_DisableINT();
 
     /*获取需要的页面*/
@@ -363,11 +364,10 @@ EXPORT_SYMBOL(osMem_Malloc);
  */
 void osMem_Free(void* address) {
     register uint32_t level;
-
+    level = hal_DisableINT();
+    
     /*内存块结构体基地址 = 分配出去的内存地址偏移-结构体大小*/
     BuddyBlock_t* block = (BuddyBlock_t *) ((uint32_t)address - (uint32_t) sizeof(uint8_t));
-
-    level = hal_DisableINT();
 
     /*释放内存块*/
     if (block) {
@@ -379,3 +379,5 @@ void osMem_Free(void* address) {
 EXPORT_SYMBOL(osMem_Free);
 
 /*@}*/
+
+#endif

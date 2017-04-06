@@ -107,6 +107,7 @@ extern void osSche_Unlock(void);
 
 #include "./kernel/thread.h"
 
+
 /**
  * 线程运行时
  *
@@ -156,6 +157,7 @@ extern void osSche_Unlock(void);
 /*@{*/
 
 #include "./kernel/timer.h"
+
 
 /**
  * 定时器超时处理函数

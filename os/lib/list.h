@@ -40,6 +40,16 @@
 #define LIST_H_
 
 /**
+ * @addtogroup OS Include
+ */
+
+/*@{*/
+
+#include "../arch/platform.h"
+
+/*@}*/
+
+/**
  * @addtogroup list节点基本模型
  */
 
@@ -67,7 +77,7 @@ struct osList_Head_t {
  * 
  * @return none
  */
-static __inline void __DROP__ListAdd(struct osList_Head_t* new_lst, struct osList_Head_t* previous_list, struct osList_Head_t* next_list) {
+OS_INLINE void __DROP__ListAdd(struct osList_Head_t* new_lst, struct osList_Head_t* previous_list, struct osList_Head_t* next_list) {
 	next_list->previous = new_lst;
 	new_lst->next = next_list;
 	new_lst->previous = previous_list;
@@ -83,7 +93,7 @@ static __inline void __DROP__ListAdd(struct osList_Head_t* new_lst, struct osLis
  * 
  * @return none
  */
-static __inline void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* next) {
+OS_INLINE void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* next) {
 	next->previous = prev;
 	prev->next = next;
 }
@@ -159,7 +169,7 @@ static __inline void __DROP__Delete(struct osList_Head_t* prev, struct osList_He
  * 
  * @return none
  */	
-static __inline void osList_HeadInit(struct osList_Head_t* head) {
+OS_INLINE void osList_HeadInit(struct osList_Head_t* head) {
 	head->next = head;
 	head->previous = head;
 }
@@ -173,7 +183,7 @@ static __inline void osList_HeadInit(struct osList_Head_t* head) {
  * 
  * @return none
  */	
-static __inline void osList_AddTail(struct osList_Head_t* list, struct osList_Head_t* newNode) {
+OS_INLINE void osList_AddTail(struct osList_Head_t* list, struct osList_Head_t* newNode) {
 	//__ListAdd(node, list->previous, list);
   list->previous->next = newNode;
   newNode->previous = list->previous;
@@ -191,7 +201,7 @@ static __inline void osList_AddTail(struct osList_Head_t* list, struct osList_He
  * 
  * @return none
  */	
-static __inline void osList_Add(struct osList_Head_t* list, struct osList_Head_t* newNode) {
+OS_INLINE void osList_Add(struct osList_Head_t* list, struct osList_Head_t* newNode) {
 	//__ListAdd(node, list, node->next);
   list->next->previous = newNode;
   newNode->next = list->next;
@@ -208,7 +218,7 @@ static __inline void osList_Add(struct osList_Head_t* list, struct osList_Head_t
  * 
  * @return none
  */	
-static __inline void osList_DeleteNode(struct osList_Head_t* node) {
+OS_INLINE void osList_DeleteNode(struct osList_Head_t* node) {
 	node->next->previous = node->previous;
 	node->previous->next = node->next;
 
@@ -224,7 +234,7 @@ static __inline void osList_DeleteNode(struct osList_Head_t* node) {
  * 
  * @return bool
  */	
-static __inline int osList_CheckIsLast(struct osList_Head_t* head, struct osList_Head_t* node) {
+OS_INLINE int osList_CheckIsLast(struct osList_Head_t* head, struct osList_Head_t* node) {
 	return (node->next == head);
 }
 
@@ -236,7 +246,7 @@ static __inline int osList_CheckIsLast(struct osList_Head_t* head, struct osList
  * 
  * @return bool
  */	
-static __inline int osList_CheckIsEmpty(struct osList_Head_t* head) {
+OS_INLINE int osList_CheckIsEmpty(struct osList_Head_t* head) {
 	return (head->next == head);
 }
 
@@ -249,7 +259,7 @@ static __inline int osList_CheckIsEmpty(struct osList_Head_t* head) {
  * 
  * @return none
  */	
-static __inline void osList_Move(struct osList_Head_t* head, struct osList_Head_t* node) {
+OS_INLINE void osList_Move(struct osList_Head_t* head, struct osList_Head_t* node) {
 	osList_DeleteNode(node);
 	osList_Add(node, head);
 }
@@ -263,7 +273,7 @@ static __inline void osList_Move(struct osList_Head_t* head, struct osList_Head_
  * 
  * @return none
  */	
-static __inline void osList_MoveTail(struct osList_Head_t* head, struct osList_Head_t* node) {
+OS_INLINE void osList_MoveTail(struct osList_Head_t* head, struct osList_Head_t* node) {
 	osList_DeleteNode(node);
 	osList_AddTail(node, head);
 }
@@ -277,7 +287,7 @@ static __inline void osList_MoveTail(struct osList_Head_t* head, struct osList_H
  * 
  * @return none
  */	
-static __inline void osList_Splice(struct osList_Head_t* head, struct osList_Head_t* list) {
+OS_INLINE void osList_Splice(struct osList_Head_t* head, struct osList_Head_t* list) {
 	if (!osList_CheckIsEmpty(list)) {
 		struct osList_Head_t *first = list->next;
 		struct osList_Head_t *last = list->previous;

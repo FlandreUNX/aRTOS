@@ -50,12 +50,12 @@
  * cpu寄存器初始化
  *
  * @param func thread函数
- * @param argument thread传递参数
+ * @param arguments thread传递参数
  * @param stackTop thread堆栈起点
  * 
  * @return 修改后的堆栈指针
  */
-uint32_t* cpu_SetupRegisters(void *func, void *argument, uint32_t *stackTop) {
+uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
     cpuRegisters_t *regs = (cpuRegisters_t *)((uint32_t)stackTop - sizeof(cpuRegisters_t));
 
     regs->r13_SP = (uint32_t)0x01000000;
@@ -66,7 +66,7 @@ uint32_t* cpu_SetupRegisters(void *func, void *argument, uint32_t *stackTop) {
     regs->r3 = (uint32_t)0x00000003;
     regs->r2 = (uint32_t)0x00000002;
     regs->r1 = (uint32_t)0x00000001;
-    regs->r0 = (uint32_t)argument;
+    regs->r0 = (uint32_t)arguments;
 
     regs->exec = (uint32_t)0xFFFFFFFD;
 
@@ -83,175 +83,183 @@ uint32_t* cpu_SetupRegisters(void *func, void *argument, uint32_t *stackTop) {
 
 
 /**
- * 关闭全局中断
- *
- * @param 无
- * 
- * @return 无
+ *  KEIL CMSIS平台
+ *  @note 使用keil目标平台的starup_文件和编译器特性
  */
-__asm uint32_t hal_DisableINT(void) {
-    PRESERVE8
+#ifdef __CC_ARM 
 
-    mrs r0, basepri
-    mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
-    msr basepri, r1
+    /**
+     * 关闭全局中断
+     *
+     * @param 无
+     * 
+     * @return 无
+     */
+    __asm uint32_t hal_DisableINT(void) {
+        PRESERVE8
 
-    dsb
-    isb
+        mrs r0, basepri
+        mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
+        msr basepri, r1
 
-    bx r14
-}
+        dsb
+        isb
 
-
-/**
- * 开启全局中断
- *
- * @param 无
- * 
- * @return 无
- */
-__asm void hal_EnableINT(uint32_t level) {
-	PRESERVE8
-	
-	msr basepri, r0
-	bx r14
-}
+        bx r14
+    }
 
 
-/**
- * 进入第一个任务
- *
- * @param 无
- * 
- * @return 无
- */
-__asm void cpu_GotoFisrtTask(void) {
-	/*SCB->VTOR 0xE000ED08*/
-	/*保存指针*/
-	ldr r0, =0xE000ED08
-
-	/*保存指针所指的值*/
-	ldr r0, [r0]						
-	ldr r0, [r0]						
-
-	isb
-
-	/*将SP指针指回__initial_sp*/
-	msr msp, r0						
-	
-	dsb							   
-	isb								
-	
-	/*开放中断*/
-	mrs 		r0, PRIMASK					
-	cpsie 	i
-
-	svc 0
-	
-	align 4
-}
+    /**
+     * 开启全局中断
+     *
+     * @param 无
+     * 
+     * @return 无
+     */
+    __asm void hal_EnableINT(uint32_t level) {
+        PRESERVE8
+        
+        msr basepri, r0
+        bx r14
+    }
 
 
-/**
- * SVC
- *
- * @param 无
- * 
- * @return 无
- */
-__asm void SVC_Handler(void) {
-	//extern schedule_NowThread;
-	
-	PRESERVE8
-	
-	/*最近任务TUB地址写进R3*/
-	//ldr 	r3, =__cpp(&schedule_NowThread)
-	
-	/*将TUB的栈中的SP写进R1*/
-	ldr 	r1, [r3]			
-	
-	/*恢复SP*/
-	ldr 	r0, [r1]		
-	
-	/*恢复R4-R11, R14*/
-	ldmia 	r0!, { r4 - r11, r14 } 
-	
-	isb
-	
-	/*恢复PSP*/
-	msr 	psp, r0
-		
-	isb
-		
-	/*恢复中断*/
-	mov 	r0, #0
-	msr 	basepri, r0	
-		
-	/*返回任务*/
-	bx 	r14
-		
-	align 4					
-}
+    /**
+     * 进入第一个任务
+     *
+     * @param 无
+     * 
+     * @return 无
+     */
+    __asm void cpu_GotoFisrtTask(void) {
+        /*SCB->VTOR 0xE000ED08*/
+        /*保存指针*/
+        ldr r0, =0xE000ED08
+
+        /*保存指针所指的值*/
+        ldr r0, [r0]						
+        ldr r0, [r0]						
+
+        isb
+
+        /*将SP指针指回__initial_sp*/
+        msr msp, r0						
+        
+        dsb							   
+        isb								
+        
+        /*开放中断*/
+        mrs r0, PRIMASK					
+        cpsie 	i
+
+        svc 0
+        
+        align 4
+    }
 
 
-/**
- * PendSV
- *
- * @param 无
- * 
- * @return 无
- */
-__asm void PendSV_Handler(void) {
-	//extern schedule_NowThread;
-	//extern schedule_NextThread;
-	
-	//extern Schedule_NextToNow;
-	
-	PRESERVE8	
-	
-	/*关中断*/
-	mrs r1, PRIMASK								
-	cpsid i		
-	isb
-	
-	mrs 	r0, psp
-	
-	//ldr 	r3, =__cpp(&schedule_NowThread)						
-	ldr 	r2, [r3]	
-		
-	stmdb 	r0!, {r4 - r11, r14}					
-	str     r0, [r2]									
-	stmdb 	sp!, {r3}										
-
-	/*仅消耗4条ASM指令,不修改*/
-	//bl __cpp(Schedule_NextToNow)										
-
-	ldmia 	sp!, {r3}								
-	ldr 	r1, [r3]									
-	ldr 	r0, [r1]								
-	ldmia 	r0!, {r4 - r11, r14}				
-
-	msr 	psp, r0					
-	
-	/*恢复中断*/
-	msr     PRIMASK, r1;								
-	isb											
-
-	bx 		r14									
-		
-	align 4										
-}
+    /**
+     * SVC
+     *
+     * @param 无
+     * 
+     * @return 无
+     */
+    __asm void SVC_Handler(void) {
+        //extern schedule_NowThread;
+        
+        PRESERVE8
+        
+        /*最近任务TUB地址写进R3*/
+        //ldr 	r3, =__cpp(&schedule_NowThread)
+        
+        /*将TUB的栈中的SP写进R1*/
+        ldr r1, [r3]			
+        
+        /*恢复SP*/
+        ldr r0, [r1]		
+        
+        /*恢复R4-R11, R14*/
+        ldmia r0!, {r4 - r11, r14} 
+        
+        isb
+        
+        /*恢复PSP*/
+        msr psp, r0
+            
+        isb
+            
+        /*恢复中断*/
+        mov r0, #0
+        msr basepri, r0	
+            
+        /*返回任务*/
+        bx 	r14
+            
+        align 4					
+    }
 
 
-/**
- * Systick IRQ
- *
- * @param 无
- * 
- * @return 无
- */	
-void SysTick_Handler(void) {
+    /**
+     * PendSV
+     *
+     * @param 无
+     * 
+     * @return 无
+     */
+    __asm void PendSV_Handler(void) {
+        //extern schedule_NowThread;
+        //extern schedule_NextThread;
+        
+        //extern Schedule_NextToNow;
+        
+        PRESERVE8	
+        
+        /*关中断*/
+        mrs r1, PRIMASK								
+        cpsid i		
+        isb
+        
+        mrs r0, psp
+        
+        //ldr r3, =__cpp(&schedule_NowThread)						
+        ldr r2, [r3]	
+            
+        stmdb r0!, {r4 - r11, r14}					
+        str    r0, [r2]									
+        stmdb sp!, {r3}										
 
-}
+        /*仅消耗4条ASM指令,不修改*/
+        //bl __cpp(Schedule_NextToNow)										
 
-/*@}*/
+        ldmia sp!, {r3}								
+        ldr r1, [r3]									
+        ldr r0, [r1]								
+        ldmia r0!, {r4 - r11, r14}				
+
+        msr psp, r0					
+        
+        /*恢复中断*/
+        msr    PRIMASK, r1;								
+        isb											
+
+        bx r14									
+            
+        align 4										
+    }
+
+
+    /**
+     * Systick IRQ
+     *
+     * @param 无
+     * 
+     * @return 无
+     */	
+    void SysTick_Handler(void) {
+
+    }
+
+    /*@}*/
+
+#endif

@@ -53,18 +53,18 @@
 
 #if USING_SOFT_TIMER == 1
     typedef enum {
-        osTimerHard = 0x00,     /**< Thread-Type定时器 硬模式 */
-        osTimerSoft = 0x01      /**< Thread-Type定时器 软模式*/
+        osTimerHard = 0x01,     /**< 硬模式 */
+        osTimerSoft = 0x02      /**< 软模式*/
     }osTimer_Mode_t;
 #else
     typedef enum {
-        osTimerHard = 0x00
+        osTimerHard = 0x01
     }osTimer_Mode_t;
 #endif
 
 typedef enum {
-    osTimerOnce = 0x02,     /**< 单次模式 */
-    osTimerPeriodic = 0x04  /**< 循环模式 */
+    osTimerOnce = 0x01,     /**< 单次模式 */
+    osTimerPeriodic = 0x02  /**< 循环模式 */
 }osTimer_Flag_t;
   
 /*@}*/
@@ -79,8 +79,8 @@ typedef enum {
  *  Timer运行状态
  */
 typedef enum {
-    osTimerRunning,     /**< 正在运行 */
-    osTimerStop         /**< 停止 */
+    osTimerRunning = 0x01,     /**< 正在运行 */
+    osTimerStop = 0x02         /**< 停止 */
 }osTimer_Stage_t;
 
 /*@}*/
@@ -132,7 +132,9 @@ extern void timer_Init(void);
 /*@{*/
 
 extern osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag_t flag, void *arguments);
+
 extern void osTimer_SetTick(osTimer_ID id, uint32_t tick);
+
 extern void osTimer_Start(osTimer_ID id, uint32_t tick);
 extern void osTimer_Stop(osTimer_ID id);
 

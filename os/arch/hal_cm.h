@@ -92,7 +92,7 @@ typedef struct cm_RegisterFrame {
  
 /*@{*/
 
-extern uint32_t* cpu_SetupRegisters(void *func, void *argument, uint32_t *stackTop);
+extern uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop);
 
 extern uint32_t hal_DisableINT(void);
 extern void hal_EnableINT(uint32_t level);

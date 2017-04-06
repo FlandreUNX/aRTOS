@@ -67,10 +67,10 @@
 /*调度器加锁指示*/
 volatile int8_t sche_LockNest;
 
-/*当前运行中任务的优先级 PS:等于最高优先级的任务组*/
+/*当前运行中线程的优先级 PS:等于最高优先级的线程组*/
 volatile uint8_t sche_CurrPriority;
 
-/*调度器任务运行指示*/
+/*调度器线程运行指示*/
 volatile osThread_Attr_t *sche_NowThread, *sche_NextThread;
 
 /*@}*/
@@ -105,7 +105,7 @@ static const uint8_t BITMAP[] = { \
 };
 
 /**
- * 任务优先级排序表的L1_bitmap
+ * 线程优先级排序表的L1_bitmap
  * 如果优先级组别大于32就启动L2位图 否则只使用1级位图
  * 小于32的情况->32bit对应32个优先级
  * 大于32的情况->一共32bit 对应32组 共256bit 对应256个优先级
@@ -117,7 +117,7 @@ static const uint8_t BITMAP[] = { \
 #endif
 
 /**
- * 任务优先级排序L2_bitmap
+ * 线程优先级排序L2_bitmap
  * 共32个字节 对应256bit 等于256个优先级
 */
 #if MAX_PRIORITY_LEVEL > 32
@@ -132,7 +132,7 @@ static const uint8_t BITMAP[] = { \
  
 /*@{*/
 
-/*每一优先级组的任务链表*/
+/*每一优先级组的线程链表*/
 struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 
 #if USING_DEID_THREAD_RM == 1
@@ -156,6 +156,8 @@ struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
  */
 void sche_Init(void) {
     sche_LockNest = 0;
+    sche_NowThread = 0;
+    sche_NextThread = 0;
 
     /*初始状态,只有IDLE*/
     sche_CurrPriority = MAX_PRIORITY_LEVEL - 1;
@@ -170,7 +172,7 @@ void sche_Init(void) {
         memset(bitmap_L2, 0x00, sizeof(bitmap_L2));
     #endif
 
-    /*对所有任务链表组初始化*/
+    /*对所有线程链表组初始化*/
     for (uint16_t offset = 0; offset < MAX_PRIORITY_LEVEL; offset++) {
         osList_HeadInit(&(sche_ReadyList[offset]));
     }
@@ -182,9 +184,9 @@ void sche_Init(void) {
 
 
 /**
- * 插入任务
+ * 插入线程
  *
- * @param thread 任务单元
+ * @param thread 线程单元
  * 
  * @return none
  */
@@ -195,7 +197,7 @@ void sche_InsertThread(osThread_Attr_t *thread) {
     osList_DeleteNode(&(thread->list));
     osList_AddTail(&(sche_ReadyList[thread->priority]), &(thread->list));
 
-    /*任务bitmap插入到内核bitmap里面*/
+    /*线程bitmap插入到内核bitmap里面*/
     bitmap_L1 |= thread->bitmap_Mask;	
 
     #if MAX_PRIORITY_LEVEL > 32
@@ -207,9 +209,9 @@ void sche_InsertThread(osThread_Attr_t *thread) {
 
 
 /**
- * 移除任务
+ * 移除线程
  *
- * @param thread 任务单元
+ * @param thread 线程单元
  * 
  * @return 无
  */
@@ -224,9 +226,9 @@ void sche_RemoveThread(osThread_Attr_t* thread) {
         osList_Add(&sche_NoReadyList, &thread->list);
     #endif
 
-    /*检查剩余任务*/
+    /*检查剩余线程*/
     if (osList_CheckIsEmpty(&sche_ReadyList[thread->priority])) {
-        /*移去内核任务队列*/
+        /*移去内核线程队列*/
         #if MAX_PRIORITY_LEVEL <= 32
             bitmap_L1 &= ~thread->bitmap_Mask;
         #else
@@ -243,7 +245,7 @@ void sche_RemoveThread(osThread_Attr_t* thread) {
 
 
 /**
- * 交换任务
+ * 交换线程
  *
  * @param none
  * 
@@ -255,7 +257,7 @@ void sche_NextToNow(void) {
 
 
 /**
- * 核心调度任务
+ * 核心调度线程
  *
  * @param none
  * 
@@ -263,9 +265,12 @@ void sche_NextToNow(void) {
  */
 void sche_ToNextThread(void) {
     register uint8_t highestPriority;
+    
+    /*关中断*/
+    register uint32_t level;
+    level = hal_DisableINT();
 
-    register uint32_t level = hal_DisableINT();
-
+    /*检查调度器是否被锁定*/
     if (sche_LockNest == 0) {
         #if MAX_PRIORITY_LEVEL <= 8
             highestPriority = BITMAP[bitmap_L1];
@@ -296,21 +301,25 @@ void sche_ToNextThread(void) {
             #endif
         #endif
 
-        /*选定最新的任务Block*/
+        /*选定最新的线程Block*/
         sche_NextThread = osList_Entry(sche_ReadyList[highestPriority].next, osThread_Attr_t, list);
 
-        /*判断TUB是否相同*/
+        /*判断线程是否相同*/
         if(sche_NowThread != sche_NextThread) {
-
-            /*当前最高任务优先级*/
+            /*当前最高线程优先级*/
             sche_CurrPriority = highestPriority;
+
+            /*标记线程状态*/
+            sche_NextThread->stage = osThreadRunning;
+            sche_NowThread->stage = osThreadReady;
 
             /*调度Call*/
             hal_CallPendSV();
         }
     }
 
-  hal_EnableINT(level);
+    /*开中断*/
+    hal_EnableINT(level);
 }
 
 

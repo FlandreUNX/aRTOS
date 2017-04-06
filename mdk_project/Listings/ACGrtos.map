@@ -33,13 +33,33 @@ Section Cross References
     thread.o(i.osThread_Create) refers to buddy.o(i.osMem_Malloc) for osMem_Malloc
     thread.o(i.osThread_Create) refers to hal_cm.o(i.cpu_SetupRegisters) for cpu_SetupRegisters
     thread.o(i.osThread_Create) refers to timer.o(i.osTimer_Create) for osTimer_Create
+    thread.o(i.osThread_Create) refers to thread.o(i.thread_TimerCallback) for thread_TimerCallback
     thread.o(i.osThread_Ready) refers to hal_cm.o(.emb_text) for hal_DisableINT
     thread.o(i.osThread_Ready) refers to timer.o(i.osTimer_Stop) for osTimer_Stop
     thread.o(i.osThread_Ready) refers to schedule.o(i.sche_InsertThread) for sche_InsertThread
+    thread.o(i.osThread_Self) refers to hal_cm.o(.emb_text) for hal_DisableINT
+    thread.o(i.osThread_Self) refers to schedule.o(.data) for sche_NowThread
+    thread.o(i.osThread_Suspend) refers to hal_cm.o(.emb_text) for hal_DisableINT
+    thread.o(i.osThread_Suspend) refers to timer.o(i.osTimer_Stop) for osTimer_Stop
+    thread.o(i.osThread_Suspend) refers to schedule.o(i.sche_RemoveThread) for sche_RemoveThread
+    thread.o(i.osThread_Yield) refers to hal_cm.o(.emb_text) for hal_DisableINT
+    thread.o(i.osThread_Yield) refers to schedule.o(i.sche_ToNextThread) for sche_ToNextThread
+    thread.o(i.osThread_Yield) refers to schedule.o(.data) for sche_NowThread
+    thread.o(i.osThread_Yield) refers to schedule.o(.bss) for sche_ReadyList
+    thread.o(i.thread_TimerCallback) refers to schedule.o(i.sche_InsertThread) for sche_InsertThread
+    thread.o(i.thread_TimerCallback) refers to schedule.o(i.sche_ToNextThread) for sche_ToNextThread
     thread.o(kernelSymbol) refers to thread.o(i.osThread_Create) for osThread_Create
     thread.o(kernelSymbol) refers to thread.o(.rodata.name) for export_osThread_Create_name
     thread.o(kernelSymbol) refers to thread.o(i.osThread_Ready) for osThread_Ready
+    thread.o(kernelSymbol) refers to thread.o(i.osThread_Suspend) for osThread_Suspend
+    thread.o(kernelSymbol) refers to thread.o(i.osThread_Self) for osThread_Self
+    thread.o(kernelSymbol) refers to thread.o(i.osThread_Yield) for osThread_Yield
     timer.o(i.osTimer_Create) refers to timer.o(i.osList_HeadInit) for osList_HeadInit
+    timer.o(i.osTimer_Start) refers to hal_cm.o(.emb_text) for hal_DisableINT
+    timer.o(i.osTimer_Start) refers to timer.o(i.osList_CheckIsEmpty) for osList_CheckIsEmpty
+    timer.o(i.osTimer_Start) refers to timer.o(i.osList_AddTail) for osList_AddTail
+    timer.o(i.osTimer_Start) refers to thread.o(i.osThread_Ready) for osThread_Ready
+    timer.o(i.osTimer_Start) refers to timer.o(.data) for timer_softList
     timer.o(i.timer_Init) refers to timer.o(i.osList_HeadInit) for osList_HeadInit
     timer.o(i.timer_Init) refers to thread.o(i.osThread_Create) for osThread_Create
     timer.o(i.timer_Init) refers to thread.o(i.osThread_Ready) for osThread_Ready
@@ -526,24 +546,30 @@ Removing Unused input sections from the image.
     Removing schedule.o(i.osList_HeadInit), (6 bytes).
     Removing schedule.o(i.osSche_Lock), (32 bytes).
     Removing schedule.o(i.osSche_Unlock), (52 bytes).
-    Removing schedule.o(i.sche_Init), (84 bytes).
+    Removing schedule.o(i.sche_Init), (100 bytes).
     Removing schedule.o(i.sche_InsertThread), (92 bytes).
     Removing schedule.o(i.sche_NextToNow), (20 bytes).
     Removing schedule.o(i.sche_RemoveThread), (96 bytes).
-    Removing schedule.o(i.sche_ToNextThread), (192 bytes).
+    Removing schedule.o(i.sche_ToNextThread), (212 bytes).
     Removing schedule.o(.bss), (1056 bytes).
     Removing schedule.o(.constdata), (256 bytes).
     Removing schedule.o(.data), (24 bytes).
     Removing schedule.o(.rodata.name), (26 bytes).
     Removing schedule.o(kernelSymbol), (16 bytes).
-    Removing thread.o(i.osThread_Create), (132 bytes).
-    Removing thread.o(i.osThread_Ready), (40 bytes).
-    Removing thread.o(.rodata.name), (31 bytes).
-    Removing thread.o(kernelSymbol), (16 bytes).
+    Removing thread.o(i.osThread_Create), (148 bytes).
+    Removing thread.o(i.osThread_Ready), (64 bytes).
+    Removing thread.o(i.osThread_Self), (28 bytes).
+    Removing thread.o(i.osThread_Suspend), (66 bytes).
+    Removing thread.o(i.osThread_Yield), (88 bytes).
+    Removing thread.o(i.thread_TimerCallback), (24 bytes).
+    Removing thread.o(.rodata.name), (77 bytes).
+    Removing thread.o(kernelSymbol), (40 bytes).
+    Removing timer.o(i.osList_AddTail), (14 bytes).
+    Removing timer.o(i.osList_CheckIsEmpty), (16 bytes).
     Removing timer.o(i.osList_HeadInit), (6 bytes).
     Removing timer.o(i.osTimer_Create), (28 bytes).
-    Removing timer.o(i.osTimer_SetTick), (14 bytes).
-    Removing timer.o(i.osTimer_Start), (2 bytes).
+    Removing timer.o(i.osTimer_SetTick), (16 bytes).
+    Removing timer.o(i.osTimer_Start), (196 bytes).
     Removing timer.o(i.osTimer_Stop), (2 bytes).
     Removing timer.o(i.os_SoftTimer_Thread), (4 bytes).
     Removing timer.o(i.timer_Check), (2 bytes).
@@ -1216,7 +1242,7 @@ Removing Unused input sections from the image.
     Removing ffixui.o(.text), (40 bytes).
     Removing fepilogue.o(.text), (110 bytes).
 
-693 unused section(s) (total 32542 bytes) removed from the image.
+699 unused section(s) (total 33120 bytes) removed from the image.
 
 ==============================================================================
 
@@ -1443,35 +1469,35 @@ Memory Map of the image
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x00000000   0x00000144   Data   RO         4367    RESET               startup_msp432p401r_uvision.o
-    0x00000144   0x00000000   Code   RO         4408  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x00000144   0x00000004   Code   RO         4431    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x00000148   0x00000004   Code   RO         4434    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x0000014c   0x00000000   Code   RO         4436    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x0000014c   0x00000000   Code   RO         4438    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x0000014c   0x00000008   Code   RO         4439    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x00000154   0x00000000   Code   RO         4441    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x00000154   0x00000000   Code   RO         4443    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x00000154   0x00000004   Code   RO         4432    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
-    0x00000158   0x00000090   Code   RO          412    .emb_text           hal_cm.o
-    0x000001e8   0x00000024   Code   RO         4368    .text               startup_msp432p401r_uvision.o
-    0x0000020c   0x00000024   Code   RO         4448    .text               mc_w.l(init.o)
-    0x00000230   0x00000002   Code   RO          413    i.SysTick_Handler   hal_cm.o
+    0x00000000   0x00000144   Data   RO         4401    RESET               startup_msp432p401r_uvision.o
+    0x00000144   0x00000000   Code   RO         4442  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x00000144   0x00000004   Code   RO         4465    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x00000148   0x00000004   Code   RO         4468    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x0000014c   0x00000000   Code   RO         4470    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x0000014c   0x00000000   Code   RO         4472    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x0000014c   0x00000008   Code   RO         4473    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x00000154   0x00000000   Code   RO         4475    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x00000154   0x00000000   Code   RO         4477    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x00000154   0x00000004   Code   RO         4466    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x00000158   0x00000090   Code   RO          446    .emb_text           hal_cm.o
+    0x000001e8   0x00000024   Code   RO         4402    .text               startup_msp432p401r_uvision.o
+    0x0000020c   0x00000024   Code   RO         4482    .text               mc_w.l(init.o)
+    0x00000230   0x00000002   Code   RO          447    i.SysTick_Handler   hal_cm.o
     0x00000232   0x00000002   PAD
-    0x00000234   0x0000005c   Code   RO         4376    i.SystemInit        system_msp432p401r.o
-    0x00000290   0x0000000e   Code   RO         4452    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x0000029e   0x00000002   Code   RO         4453    i.__scatterload_null  mc_w.l(handlers.o)
-    0x000002a0   0x0000000e   Code   RO         4454    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x00000234   0x0000005c   Code   RO         4410    i.SystemInit        system_msp432p401r.o
+    0x00000290   0x0000000e   Code   RO         4486    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x0000029e   0x00000002   Code   RO         4487    i.__scatterload_null  mc_w.l(handlers.o)
+    0x000002a0   0x0000000e   Code   RO         4488    i.__scatterload_zeroinit  mc_w.l(handlers.o)
     0x000002ae   0x00000004   Code   RO            1    i.main              startup.o
     0x000002b2   0x00000002   PAD
-    0x000002b4   0x00000010   Data   RO         4450    Region$$Table       anon$$obj.o
+    0x000002b4   0x00000010   Data   RO         4484    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00000200, Max: 0x00010000, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x00000200   Zero   RW         4365    STACK               startup_msp432p401r_uvision.o
+    0x20000000   0x00000200   Zero   RW         4399    STACK               startup_msp432p401r_uvision.o
 
 
 ==============================================================================

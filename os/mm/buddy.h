@@ -38,34 +38,12 @@
 /*@{*/
 
 #include "../arch/platform.h"
+
 #include "../osConfig.h"
 
 /*@}*/
 
 #if USING_BUDDY_MANAGER == 1
-
-    /**
-    * @addtogroup buddy configure 
-    */
-    
-    /*@{*/
-
-    /**
-    * buddy 阶 order 链表数量
-    * 例如:一块内存块为32B
-    * 2^(0, 1, 2, 3, 4, 5)
-    *      0 ->  32 * 1    = 32      (2^0)
-    *      1 ->  32 * 2    = 64      (2^1)
-    *      2 ->  32 * 4    = 128     (2^2)
-    *      3 ->  32 * 8    = 256     (2^3)
-    *      4 ->  32 * 16   = 512     (2^4)
-    *      5 ->  32 * 32   = 1024    (2^5)
-    */
-    #define BUDDY_BLOCK_SIZE    32  /**< buddy块大小 单位(byte)*/
-    #define BUDDY_ORDER         6   /**< buddy块阶 */
-
-    /*@}*/
-
     /**
     * @addtogroup buddy Memory info 
     */
@@ -81,6 +59,8 @@
     } osMem_t;
 
     extern osMem_t osMem_Info;
+    
+    /*@}*/
 
     /**
     * @addtogroup buddy system functions
@@ -102,7 +82,11 @@
     extern void osMem_Free(void* address);
 
     /*@}*/
-
-    /*@}*/
+    
+#else
+    #include <stdlib.h>
+    
+    #define osMem_Malloc malloc
+    #define osMem_Free free
 #endif
 #endif

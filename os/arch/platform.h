@@ -43,6 +43,16 @@
 /*@}*/
 
 /**
+ * @addtogroup arch 定义
+ */
+ 
+/*@{*/
+
+#include "./msp432/msp432.h"
+
+/*@}*/
+
+/**
  * @addtogroup 32位CPU相关
  */
  
@@ -54,16 +64,6 @@
 #define OS_WAIT_FOREVER     (CPU_TICK_MAX)              /**< 系统无限等待数 */
 
 #define MAGIC_WORD          (uint32_t)(0xE25A2EA5)      /**< 魔幻数,用于检验thread的堆栈溢出 */
-
-/*@}*/
-
-/**
- * @addtogroup arch 定义
- */
- 
-/*@{*/
-
-#include "./msp432/msp432.h"
 
 /*@}*/
 
@@ -129,4 +129,5 @@
     ((number) & ~((align) - 1))
 
 /*@}*/
+
 #endif

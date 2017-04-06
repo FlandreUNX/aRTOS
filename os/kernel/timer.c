@@ -63,9 +63,9 @@ struct osList_Head_t timer_HardList;
     extern OS_NO_RETURN os_SoftTimer_Thread(void *argument);
     osThread_Attr_t os_Thread_SoftTimer = { \
         .timeSlice = 1, \
-        .functions = os_SoftTimer_Thread,  \
+        .functions = os_SoftTimer_Thread, \
         .stackSize = SOFT_TIMER_STACK_SIZE, \
-        .priority = SOFT_TIMER_PRIORITY    \
+        .priority = SOFT_TIMER_PRIORITY \
     };
 #endif
 
@@ -143,6 +143,8 @@ void timer_Check(void) {
  * @return 定时器句柄
  */
 osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag_t flag, void *arguments) {
+    //OS_ASSERT
+
     obj->stage = osTimerStop;
     obj->flag = flag;
     obj->arguments = arguments;
@@ -163,10 +165,14 @@ EXPORT_SYMBOL(osTimer_Create);
  * @return none
  */
 void osTimer_SetTick(osTimer_ID id, uint32_t tick) {
+    //OS_ASSERT
+
     osTimer_Attr_t *obj = (osTimer_Attr_t *)id;
 
     /*检查定时运行状态*/
     if (obj->flag == osTimerRunning) {
+        //OS_ASSERT
+
         return;
     }
 
@@ -184,7 +190,77 @@ EXPORT_SYMBOL(osTimer_SetTick);
  * @return none
  */
 void osTimer_Start(osTimer_ID id, uint32_t tick) {
+    //OS_ASSERT
 
+    struct osList_Head_t *timerList;
+
+    /*关中断*/
+    register uint32_t level;
+    level = hal_DisableINT();
+
+    osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
+    osTimer_Attr_t *timerNext;
+
+    /*清空关联*/
+    osList_DeleteNode(&(timer->list));
+
+    /*标记运行状态*/
+    timer->stage = osTimerRunning;
+
+    /*设置超时的Tick*/
+    timer->perTick = tick;
+    //timer->timeoutTick = osTick_GetSysTick() + timer->perTick;
+
+    /*选择定时器运行列表*/
+    #if USING_SOFT_TIMER == 1
+        if (timer->mode == osTimerSoft) {
+            timerList = &timer_softList;
+        }
+        else {
+            timerList = &timer_HardList;
+        }
+    #else
+        timerList = &timer_HardList;
+    #endif
+
+    if (osList_CheckIsEmpty(timerList)) {
+        /*第一个list,直接加入*/
+        osList_AddTail(timerList, &(timer->list));
+    }
+    else {
+        /*循环取出最小timer值并插入到其中*/
+        struct osList_Head_t *pos, *list;
+        for (pos = (timerList)->next, list = pos->next; \
+            pos != (timerList); \
+            pos = list, list = pos->next) {
+
+            timerNext = osList_Entry(pos, osTimer_Attr_t, list);
+
+            /*如果Timer超时值小于原有list最小值,插到他前面,否则continue*/
+            if (timer->timeoutTick <= timerNext->timeoutTick) {
+                osList_AddTail(pos, &(timer->list));
+                break;
+            }
+        }
+
+        /*检查timer->list是否还没插到list中*/
+        if (osList_CheckIsEmpty(&(timer->list))) {
+            /* 这个定时器为最大值 */
+            osList_AddTail(timerList, &timer->list);
+        }
+    }
+
+    #if USING_SOFT_TIMER == 1
+        /*唤醒os_SoftTimer_Thread*/
+        if (timer->mode == osTimerSoft) {
+            if (os_Thread_SoftTimer.stage == osThreadSuspend) {
+                osThread_Ready(timer_SoftThreadID);
+            }
+        }
+    #endif
+
+    /*开中断*/
+    hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osTimer_Start);
 
@@ -197,6 +273,7 @@ EXPORT_SYMBOL(osTimer_Start);
  * @return none
  */
 void osTimer_Stop(osTimer_ID id) {
+    //OS_ASSERT
     
 }
 EXPORT_SYMBOL(osTimer_Stop);
