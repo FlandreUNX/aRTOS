@@ -9,8 +9,8 @@
  *　 　 　l　　　　　　　　　　　　 　　  l
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
- *　　　　　　　　　/`'''.‐‐──‐‐‐┬--- 
- * File      : msp432.c
+ *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
+ * File      : irq.h
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,8 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "./msp432.h"
+#ifndef IRQ_H_
+#define IRQ_H_
 
 /**
  * @addtogroup OS Include
@@ -36,45 +37,21 @@
 
 /*@{*/
 
+#include "../arch/platform.h"
+
 /*@}*/
 
 /**
- * @addtogroup ARCH Include
+ * @addtogroup irq user functions
  */
-
+ 
 /*@{*/
 
-#include "./driverlib/driverlib.h"
+extern void osIRQ_ISRLeave(void);
+extern void osIRQ_ISREnter(void);
+
+extern int8_t osIRQ_GetNest(void);
 
 /*@}*/
 
-/**
- * @addtogroup msp432 hal functions
- */
-
-/*@{*/
-
-/**
- * 标志pensv异常
- *
- * @param 无
- * 
- * @return 无
- */
-void hal_CallPendSV(void) {
-    Interrupt_pendInterrupt(FAULT_PENDSV);
-}
-
-
-/**
- * 进入NMI异常
- *
- * @param 无
- * 
- * @return 无
- */
-void hal_CallNMI(void) {
-    Interrupt_pendInterrupt(FAULT_NMI);
-}
-
-/*@}*/
+#endif

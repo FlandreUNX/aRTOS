@@ -123,6 +123,8 @@ typedef void* osTimer_ID;
 
 extern void timer_Init(void);
 
+extern void timer_TickCheck(void);
+
 /*@}*/
 
 /**

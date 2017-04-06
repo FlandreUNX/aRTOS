@@ -429,6 +429,16 @@
               <FileType>5</FileType>
               <FilePath>..\os\kernel\timer.h</FilePath>
             </File>
+            <File>
+              <FileName>irq.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\os\kernel\irq.c</FilePath>
+            </File>
+            <File>
+              <FileName>irq.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\os\kernel\irq.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -488,21 +498,6 @@
               <FileName>platform.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\os\arch\platform.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>ACGrtos/arch/msp432</GroupName>
-          <Files>
-            <File>
-              <FileName>msp432.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\os\arch\msp432\msp432.c</FilePath>
-            </File>
-            <File>
-              <FileName>msp432.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\os\arch\msp432\msp432.h</FilePath>
             </File>
           </Files>
         </Group>

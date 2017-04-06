@@ -88,7 +88,7 @@ typedef struct Thread_Attr {
     /**
      *  Thread优先级
      */
-    uint8_t priority;
+    uint8_t priority;   /**< 优先级 */
 
     #if MAX_PRIORITY_LEVEL > 32
         uint8_t bitmap_Low_Mask;    /**< low bitmap 标志 */
@@ -108,7 +108,8 @@ typedef struct Thread_Attr {
 
     osTimer_Attr_t timer;    /**< 运行时核心计数器 */
 
-    uint16_t timeSlice;     /**< 时间片大小 */
+    uint16_t initTimeSlice;     /**< 初始时间片大小 */
+    uint16_t timeSlice;         /**< 时间片大小 */
 
     osThread_Stage_t stage;    /**< 状态 */
 }osThread_Attr_t;
@@ -130,6 +131,8 @@ extern osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument);
 
 extern void osThread_Ready(osThread_ID id);
 extern void osThread_Suspend(osThread_ID id);
+
+extern void osThread_Delay(uint32_t tick);
 
 extern osThread_ID osThread_Self(void);
 

@@ -53,8 +53,20 @@
 #include "../lib/list.h"
 
 #include "./thread.h"
+#include "./timer.h"
+#include "./irq.h"
 
 #include "../osConfig.h"
+
+/*@}*/
+
+/**
+ * @addtogroup os tick
+ */
+ 
+/*@{*/
+
+static volatile uint32_t sys_TickCount;
 
 /*@}*/
 
@@ -65,10 +77,10 @@
 /*@{*/
 
 /*调度器加锁指示*/
-volatile int8_t sche_LockNest;
+static volatile int8_t sche_LockNest;
 
 /*当前运行中线程的优先级 PS:等于最高优先级的线程组*/
-volatile uint8_t sche_CurrPriority;
+static volatile uint8_t sche_CurrPriority;
 
 /*调度器线程运行指示*/
 volatile osThread_Attr_t *sche_NowThread, *sche_NextThread;
@@ -142,7 +154,7 @@ struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 /*@}*/
 
 /**
- * @addtogroup schedule functions
+ * @addtogroup schedule system functions
  */
  
 /*@{*/
@@ -252,7 +264,7 @@ void sche_RemoveThread(osThread_Attr_t* thread) {
  * @return none
  */
 void sche_NextToNow(void) {
-  sche_NowThread = sche_NextThread;
+    sche_NowThread = sche_NextThread;
 }
 
 
@@ -324,6 +336,45 @@ void sche_ToNextThread(void) {
 
 
 /**
+ * os调度器时间处理函数
+ *
+ * @param none
+ * 
+ * @return none
+ */
+void sys_TickHandler(void) {
+    /*中断嵌套+1*/
+    osIRQ_ISREnter();
+
+    /*系统节拍+1*/
+    ++sys_TickCount;
+
+    /*线程时间片-1*/
+    --sche_NowThread->timeSlice;
+
+    /*时间片耗尽重新调度*/
+    if (sche_NowThread->timeSlice == 0) {
+        sche_NowThread->timeSlice = sche_NowThread->initTimeSlice;
+
+        osThread_Yield();
+    }
+
+    /*检查定时器*/
+    timer_TickCheck();
+
+    /*中断嵌套-1*/
+    osIRQ_ISRLeave();
+}
+
+/*@}*/
+
+/**
+ * @addtogroup schedule user functions
+ */
+ 
+/*@{*/
+
+/**
  * 锁定调度器
  *
  * @param none
@@ -331,11 +382,11 @@ void sche_ToNextThread(void) {
  * @return none
  */
 void osSche_Lock(void) {
-  register uint32_t level = hal_DisableINT();
+    register uint32_t level = hal_DisableINT();
 
-  sche_LockNest++;
+    sche_LockNest++;
 
-  hal_EnableINT(level);
+    hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osSche_Lock);
 
@@ -348,21 +399,34 @@ EXPORT_SYMBOL(osSche_Lock);
  * @return none
  */
 void osSche_Unlock(void) {
-  register uint32_t level = hal_DisableINT();
+    register uint32_t level = hal_DisableINT();
 
-  sche_LockNest --;
+    sche_LockNest --;
 
-  if (sche_LockNest <= 0) {
-    /*恢复调度*/
-    sche_LockNest = 0;
+    if (sche_LockNest <= 0) {
+        /*恢复调度*/
+        sche_LockNest = 0;
 
-    /*调度*/
-    sche_ToNextThread();
-  }
+        /*调度*/
+        sche_ToNextThread();
+    }
 
-  /*打开中断*/
-  hal_EnableINT(level);
+    /*打开中断*/
+    hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osSche_Unlock);
+
+
+/**
+ * 获取最近的tick数
+ *
+ * @param none
+ * 
+ * @return none
+ */
+uint32_t osSys_GetNowTick(void) {
+    return sys_TickCount;
+}
+EXPORT_SYMBOL(osSys_GetNowTick);
 
 /*@}*/

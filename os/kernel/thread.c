@@ -144,10 +144,11 @@ osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
     /*初始化依赖定时器*/
     thread->timer.callback = thread_TimerCallback;
     thread->timer.mode = osTimerHard;
-    osTimer_Create(&(thread->timer), osTimerPeriodic, (void *)thread);
+    osTimer_Create(&(thread->timer), osTimerOnce, (void *)thread);
 
     /*设置其他参数*/
     thread->stage = osThreadSuspend;
+    thread->timeSlice = thread->initTimeSlice;
 
     return (osThread_ID)thread;
 }
@@ -183,7 +184,7 @@ void osThread_Ready(osThread_ID id) {
     thread->stage = osThreadReady;
 
     /*关闭定时器*/
-    osTimer_Stop((osTimer_ID)&(thread->timer));
+    osTimer_Stop(&(thread->timer));
 
     /*插入调度器*/
     sche_InsertThread(thread);
@@ -284,5 +285,36 @@ void osThread_Yield(void) {
     sche_ToNextThread();
 }
 EXPORT_SYMBOL(osThread_Yield);
+
+
+/**
+ * 对当前线程进行延时
+ *
+ * @param tick 延时数
+ *
+ * @return none
+ */
+void osThread_Delay(uint32_t tick) {
+    /*关中断*/
+    register uint32_t level;
+    level = hal_DisableINT();
+
+    /*获取当前线程*/
+    osThread_Attr_t *thread = (osThread_Attr_t *)sche_NowThread;
+    /*标记堵塞态*/
+    thread->stage = osThreadBlocked;
+
+    /*移除调度*/
+    sche_RemoveThread(thread);
+
+    /*设置堵塞tick*/
+    osTimer_Start(&(thread->timer), tick);
+
+    /*进行一次调度*/
+    sche_ToNextThread();
+
+    /*开中断*/
+    hal_EnableINT(level);
+}
 
 /*@}*/

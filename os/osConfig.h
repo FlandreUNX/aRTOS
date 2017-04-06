@@ -31,6 +31,16 @@
 #ifndef OSCONFIG_H_
 #define OSCONFIG_H_
 
+#define OS_CLOCK       (48000000)
+ 
+#define OS_TICK        (1000)
+
+#define ARCH_CM4_MSP432
+
+#define IDLE_STACK_SIZE     (256)
+
+#define IDLE_PRIORITY     MAX_PRIORITY_LEVEL - 1
+
 #define USING_SYMBOL_EXPORT     (1)
 
 #define MAX_PRIORITY_LEVEL      (128)

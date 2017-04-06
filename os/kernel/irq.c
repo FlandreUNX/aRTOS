@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
- * File      : hal_cm.h
+ * File      : irq.c
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,11 +25,10 @@
  *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.												 
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
-#ifndef HAL_CM_H_
-#define HAL_CM_H_
+
+#include "./irq.h"
 
 /**
  * @addtogroup OS Include
@@ -37,69 +36,79 @@
 
 /*@{*/
 
-#include "./platform.h"
+#include "../arch/hal_cm.h"
+
+#include "../lib/symbolExport.h"
 
 /*@}*/
 
 /**
- * @addtogroup register struct 
+ * irq.c 函数用于OS跟其他额外组件进行交互
+ * 例如BSP中断交互,或者是TCP/IP模组的交互
+ */
+ 
+/**
+ * @addtogroup irq vars
+ */
+ 
+/*@{*/
+
+static volatile int8_t interruptNest = 0;
+
+/*@}*/
+
+/**
+ * @addtogroup irq user functions
  */
  
 /*@{*/
 
 /**
- *  arm cortext-m 寄存器结构
+ * 退出中断后调用
+ *
+ * @param none
+ *
+ * @return none
  */
-typedef struct cm_RegisterFrame {
-    uint32_t r4;
-    uint32_t r5;
-    uint32_t r6;
-    uint32_t r7;
-    uint32_t r8;
-    uint32_t r9;
-    uint32_t r10;
-    uint32_t r11;
-    
-    uint32_t exec;
-    
-    uint32_t r0;
-    uint32_t r1;
-    uint32_t r2;
-    uint32_t r3;
-    
-    uint32_t r12;
-    
-    uint32_t r14_LR;
-    uint32_t r15_PC;
-    uint32_t r13_SP;
-} cpuRegisters_t;
+void osIRQ_ISRLeave(void) {
+    register uint32_t level;
+    level = hal_DisableINT();
 
-/*@}*/
+    interruptNest --;
+
+    hal_EnableINT(level);
+}
+EXPORT_SYMBOL(osIRQ_ISRLeave);
+
 
 /**
- * @addtogroup cm IRQ configure
+ * 进入中断后调用
+ *
+ * @param none
+ *
+ * @return none
  */
- 
-/*@{*/
+void osIRQ_ISREnter(void) {
+    register uint32_t level;
+    level = hal_DisableINT();
 
-#define MAX_SYSCALL_INTERRUPT_PRIORITY		(5) << (8 - 3)
+    interruptNest ++;
 
-/*@}*/
+    hal_EnableINT(level);
+}
+EXPORT_SYMBOL(osIRQ_ISREnter);
+
 
 /**
- * @addtogroup cm_hal system functions 
+ * 获取中断嵌套数
+ *
+ * @param none
+ *
+ * @return 中断嵌套数
  */
- 
-/*@{*/
-
-extern uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop);
-
-extern uint32_t hal_DisableINT(void);
-extern void hal_EnableINT(uint32_t level);
-
-extern void hal_CallPendSV(void);
-extern void hal_CallNMI(void);
+int8_t osIRQ_GetNest(void) {
+    return interruptNest;
+}
+EXPORT_SYMBOL(osIRQ_GetNest);
 
 /*@}*/
-
-#endif

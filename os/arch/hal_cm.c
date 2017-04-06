@@ -36,7 +36,17 @@
 
 /*@{*/
 
-#include "../lib/symbolExport.h"
+#include "../kernel/schedule.h"
+
+/*@}*/
+
+/**
+ * @addtogroup os schedule extern
+ */
+ 
+/*@{*/
+
+extern volatile osThread_Attr_t *sche_NowThread, *sche_NextThread;
 
 /*@}*/
 
@@ -89,11 +99,47 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 #ifdef __CC_ARM 
 
     /**
+     * @addtogroup Cortex-M define
+     */
+
+    /*@{*/
+
+    #ifdef ARCH_CM4_MSP432
+        #include "msp.h"                        // Device header
+    #endif
+
+    /*@}*/
+
+    /**
+     * 标记pensv中断
+     *
+     * @param none
+     * 
+     * @return none
+     */
+    void hal_CallPendSV(void) {
+        SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+    }
+
+
+    /**
+     * 标记NMI中断
+     *
+     * @param none
+     * 
+     * @return none
+     */
+    void hal_CallNMI(void) {
+        SCB->ICSR |= SCB_ICSR_NMIPENDSET_Msk;
+    }
+
+
+    /**
      * 关闭全局中断
      *
-     * @param 无
+     * @param none
      * 
-     * @return 无
+     * @return none
      */
     __asm uint32_t hal_DisableINT(void) {
         PRESERVE8
@@ -112,9 +158,9 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
     /**
      * 开启全局中断
      *
-     * @param 无
+     * @param none
      * 
-     * @return 无
+     * @return none
      */
     __asm void hal_EnableINT(uint32_t level) {
         PRESERVE8
@@ -127,9 +173,9 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
     /**
      * 进入第一个任务
      *
-     * @param 无
+     * @param none
      * 
-     * @return 无
+     * @return none
      */
     __asm void cpu_GotoFisrtTask(void) {
         /*SCB->VTOR 0xE000ED08*/
@@ -161,17 +207,17 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
     /**
      * SVC
      *
-     * @param 无
+     * @param none
      * 
-     * @return 无
+     * @return none
      */
     __asm void SVC_Handler(void) {
-        //extern schedule_NowThread;
+        extern sche_NowThread;
         
         PRESERVE8
         
         /*最近任务TUB地址写进R3*/
-        //ldr 	r3, =__cpp(&schedule_NowThread)
+        ldr r3, =__cpp(&sche_NowThread)
         
         /*将TUB的栈中的SP写进R1*/
         ldr r1, [r3]			
@@ -203,15 +249,15 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
     /**
      * PendSV
      *
-     * @param 无
+     * @param none
      * 
-     * @return 无
+     * @return none
      */
     __asm void PendSV_Handler(void) {
-        //extern schedule_NowThread;
-        //extern schedule_NextThread;
+        extern sche_NowThread;
+        extern sche_NextThread;
         
-        //extern Schedule_NextToNow;
+        extern sche_NextToNow;
         
         PRESERVE8	
         
@@ -222,7 +268,7 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
         
         mrs r0, psp
         
-        //ldr r3, =__cpp(&schedule_NowThread)						
+        ldr r3, =__cpp(&sche_NowThread)						
         ldr r2, [r3]	
             
         stmdb r0!, {r4 - r11, r14}					
@@ -230,7 +276,7 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
         stmdb sp!, {r3}										
 
         /*仅消耗4条ASM指令,不修改*/
-        //bl __cpp(Schedule_NextToNow)										
+        bl __cpp(sche_NextToNow)										
 
         ldmia sp!, {r3}								
         ldr r1, [r3]									
@@ -250,14 +296,14 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 
 
     /**
-     * Systick IRQ
+     * Systick
      *
-     * @param 无
+     * @param none
      * 
-     * @return 无
+     * @return none
      */	
     void SysTick_Handler(void) {
-
+        sys_TickHandler();
     }
 
     /*@}*/

@@ -106,21 +106,124 @@ void timer_Init(void) {
  * 
  * @return none
  */
-void timer_Check(void) {
+void timer_TickCheck(void) {
+    /*关中断*/
+    register uint32_t level;
+    level = hal_DisableINT();
 
+    /*获取最近的TICK*/
+    uint32_t currentTick = osSys_GetNowTick();
+
+    /*遍历list*/
+    osTimer_Attr_t *timer;
+    while(!osList_CheckIsEmpty(&timer_HardList)) {
+        /*取出timer*/
+        timer = osList_Entry(timer_HardList.next, osTimer_Attr_t, list);
+
+        /*判断是否超时*/
+        if (timer->timeoutTick == currentTick) {
+            /*删除节点*/
+            osList_DeleteNode(&timer->list);
+
+            /*改变状态*/
+            timer->stage = osTimerStop;
+
+            /*回调该定时器的函数*/
+            timer->callback(timer->arguments);
+
+            /*检查定时器运行类型*/
+            if (timer->flag == osTimerPeriodic) {
+                /*重启定时器*/
+                osTimer_Start(timer, timer->perTick);
+            }
+        }
+        else {
+            break;
+        }
+    }
+
+    /*开中断*/
+    hal_EnableINT(level);
 }
 
 #if USING_SOFT_TIMER == 1
     /**
-    * 软定时器核心线程
-    *
-    * @param none
-    * 
-    * @return none
-    */
+     * 软定时器核心线程
+     *
+     * @param none
+     * 
+     * @return none
+     */
     OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
+        uint32_t currentTick;
+        uint32_t nextTimeout;
+        osTimer_Attr_t *timer;
+
         for (;;) {
-            
+            if (osList_CheckIsEmpty(&timer_softList)) {
+                nextTimeout = CPU_TICK_MAX;
+            }
+            else {
+                timer = osList_Entry(timer_softList.next, osTimer_Attr_t, list);
+                nextTimeout = timer->timeoutTick;
+            }
+
+            /*无定时器挂载,先挂起*/
+            if (nextTimeout == CPU_TICK_MAX) {
+                osThread_Suspend(osThread_Self());
+                osThread_Yield();
+            }
+            else {
+                /*获取最近的TICK*/
+                currentTick = osSys_GetNowTick();
+                if ((nextTimeout - currentTick) < (CPU_TICK_MAX / 2)) {
+                    /*延时相对时间*/
+                    nextTimeout = nextTimeout - currentTick;
+                    if (nextTimeout != 0) {
+                        osThread_Delay(nextTimeout);
+                    }
+                }
+            }
+
+            /*锁定调度器*/
+            osSche_Lock();
+
+            /*操作定时器*/
+            while(!osList_CheckIsEmpty(&timer_softList)) {
+                /*取出定时器*/
+                timer = osList_Entry(timer_softList.next, osTimer_Attr_t, list);
+
+                /*获取最近的TICK*/
+                currentTick = osSys_GetNowTick();
+
+                if (timer->timeoutTick == currentTick) {
+                    /*从timer_list中删除节点*/
+                    osList_DeleteNode(&(timer->list));
+
+                    /*解锁调度器*/
+                    osSche_Unlock();
+
+                    /*回调该定时器的函数*/
+                    timer->callback(timer->arguments);
+
+                    /*Relock*/
+                    osSche_Lock();
+                    
+                    /*标记定时器该周期结束*/
+                    timer->stage = osTimerStop;
+
+                    if (timer->flag == osTimerPeriodic) {
+                        /*重启定时器*/
+                        osTimer_Start(timer, timer->perTick);
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+
+            /*解锁调度器*/
+            osSche_Unlock();
         }
     }
 #endif
@@ -209,7 +312,7 @@ void osTimer_Start(osTimer_ID id, uint32_t tick) {
 
     /*设置超时的Tick*/
     timer->perTick = tick;
-    //timer->timeoutTick = osTick_GetSysTick() + timer->perTick;
+    timer->timeoutTick = osSys_GetNowTick() + timer->perTick;
 
     /*选择定时器运行列表*/
     #if USING_SOFT_TIMER == 1
@@ -274,7 +377,22 @@ EXPORT_SYMBOL(osTimer_Start);
  */
 void osTimer_Stop(osTimer_ID id) {
     //OS_ASSERT
-    
+
+    /*关中断*/
+    register uint32_t level;
+    level = hal_DisableINT();
+
+    osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
+
+    /*从timer_list中删除节点*/
+    osList_DeleteNode(&(timer->list));
+
+    /*清除定时器运行状态*/
+    timer->stage = osTimerStop;
+    timer->timeoutTick = 0;
+
+    /*开中断*/
+    hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osTimer_Stop);
 

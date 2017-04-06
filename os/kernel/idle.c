@@ -9,8 +9,8 @@
  *　 　 　l　　　　　　　　　　　　 　　  l
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
- *　　　　　　　　　/`'''.‐‐──‐‐‐┬--- 
- * File      : msp432.h
+ *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
+ * File      : idle.c
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,44 +28,66 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef MSP432_H_
-#define MSP432_H_
-
 /**
  * @addtogroup OS Include
  */
 
 /*@{*/
 
+#include "../arch/platform.h"
+#include "../arch/hal_cm.h"
+
+#include "../mm/buddy.h"
+
+#include "../lib/list.h"
+#include "../lib/symbolExport.h"
+
+#include "../osConfig.h"
+
+#include "./schedule.h"
+
 /*@}*/
 
 /**
- * @addtogroup 硬件核心相关
+ * @addtogroup schedule extern 
  */
  
 /*@{*/
 
-/**
- * CPU
- */
-#define MCU_MCLK    (48000000)
-
-/**
- * Systick 
- */
-#define SYSTICK_TICK_PER_SEC    (1000)     /**<  1000 = 1ms systick计数1000次中断一次 */
+extern struct osList_Head_t schedule_NoReadyList;
 
 /*@}*/
 
 /**
- * @addtogroup IRQ system functions
+ * @addtogroup idle thread define 
  */
  
 /*@{*/
 
-extern void hal_CallNMI(void);
-extern void hal_CallPendSV(void);
+osThread_ID idle_ThreadID;
+extern OS_NO_RETURN os_Idle_Thread(void *argument);
+osThread_Attr_t os_Thread_Idle = { \
+    .timeSlice = 1, \
+    .functions = os_Idle_Thread, \
+    .stackSize = IDLE_STACK_SIZE, \
+    .priority = IDLE_PRIORITY \
+};
 
 /*@}*/
 
-#endif
+/**
+ * @addtogroup idle thread 
+ */
+ 
+/*@{*/
+
+OS_NO_RETURN os_Idle_Thread(void *argument) {
+    for (;;) {
+        /*****************************************
+        * 所有IDLE任务完成,CPU待机,等待中断发生
+        ******************************************/
+        __wfi();
+    }
+}
+
+/*@}*/

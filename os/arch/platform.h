@@ -43,16 +43,6 @@
 /*@}*/
 
 /**
- * @addtogroup arch 定义
- */
- 
-/*@{*/
-
-#include "./msp432/msp432.h"
-
-/*@}*/
-
-/**
  * @addtogroup 32位CPU相关
  */
  

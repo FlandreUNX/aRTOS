@@ -56,10 +56,15 @@
 /*@{*/
 
 extern void sche_Init(void);
+
 extern void sche_InsertThread(osThread_Attr_t* thread);
 extern void sche_RemoveThread(osThread_Attr_t* thread);
+
 extern void sche_NextToNow(void);
+
 extern void sche_ToNextThread(void);
+
+extern void sys_TickHandler(void);
 
 /*@}*/
 
@@ -71,6 +76,8 @@ extern void sche_ToNextThread(void);
 
 extern void osSche_Lock(void);
 extern void osSche_Unlock(void);
+
+extern uint32_t osSys_GetNowTick(void);
 
 /*@}*/
 

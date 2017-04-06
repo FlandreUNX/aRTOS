@@ -131,7 +131,7 @@ extern void osSche_Unlock(void);
  */
 #define osThread_Def(name, priority, stackSize, function) \
     osThread_Attr_t os_Thread_##name = { \
-        .timeSlice = 1, \
+        .initTimeSlice = 1, \
         .functions = (void *)function,  \
         .stackSize = stackSize, \
         .priority = priority    \
