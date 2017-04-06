@@ -47,10 +47,10 @@
  
 /*@{*/
 
-extern void osIRQ_ISRLeave(void);
-extern void osIRQ_ISREnter(void);
+extern void osSys_ISRLeave(void);
+extern void osSys_ISREnter(void);
 
-extern int8_t osIRQ_GetNest(void);
+extern int8_t osSys_GetNest(void);
 
 /*@}*/
 

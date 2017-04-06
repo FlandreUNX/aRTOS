@@ -28,10 +28,10 @@ Section Cross References
     schedule.o(i.sche_ToNextThread) refers to schedule.o(.data) for sche_LockNest
     schedule.o(i.sche_ToNextThread) refers to schedule.o(.constdata) for BITMAP
     schedule.o(i.sche_ToNextThread) refers to schedule.o(.bss) for bitmap_L2
-    schedule.o(i.sys_TickHandler) refers to irq.o(i.osIRQ_ISREnter) for osIRQ_ISREnter
+    schedule.o(i.sys_TickHandler) refers to irq.o(i.osSys_ISREnter) for osSys_ISREnter
     schedule.o(i.sys_TickHandler) refers to thread.o(i.osThread_Yield) for osThread_Yield
     schedule.o(i.sys_TickHandler) refers to timer.o(i.timer_TickCheck) for timer_TickCheck
-    schedule.o(i.sys_TickHandler) refers to irq.o(i.osIRQ_ISRLeave) for osIRQ_ISRLeave
+    schedule.o(i.sys_TickHandler) refers to irq.o(i.osSys_ISRLeave) for osSys_ISRLeave
     schedule.o(i.sys_TickHandler) refers to schedule.o(.data) for sys_TickCount
     schedule.o(kernelSymbol) refers to schedule.o(i.osSche_Lock) for osSche_Lock
     schedule.o(kernelSymbol) refers to schedule.o(.rodata.name) for export_osSche_Lock_name
@@ -103,15 +103,15 @@ Section Cross References
     timer.o(kernelSymbol) refers to timer.o(i.osTimer_SetTick) for osTimer_SetTick
     timer.o(kernelSymbol) refers to timer.o(i.osTimer_Start) for osTimer_Start
     timer.o(kernelSymbol) refers to timer.o(i.osTimer_Stop) for osTimer_Stop
-    irq.o(i.osIRQ_GetNest) refers to irq.o(.data) for interruptNest
-    irq.o(i.osIRQ_ISREnter) refers to hal_cm.o(.emb_text) for hal_DisableINT
-    irq.o(i.osIRQ_ISREnter) refers to irq.o(.data) for interruptNest
-    irq.o(i.osIRQ_ISRLeave) refers to hal_cm.o(.emb_text) for hal_DisableINT
-    irq.o(i.osIRQ_ISRLeave) refers to irq.o(.data) for interruptNest
-    irq.o(kernelSymbol) refers to irq.o(i.osIRQ_ISRLeave) for osIRQ_ISRLeave
-    irq.o(kernelSymbol) refers to irq.o(.rodata.name) for export_osIRQ_ISRLeave_name
-    irq.o(kernelSymbol) refers to irq.o(i.osIRQ_ISREnter) for osIRQ_ISREnter
-    irq.o(kernelSymbol) refers to irq.o(i.osIRQ_GetNest) for osIRQ_GetNest
+    irq.o(i.osSys_GetNest) refers to irq.o(.data) for interruptNest
+    irq.o(i.osSys_ISREnter) refers to hal_cm.o(.emb_text) for hal_DisableINT
+    irq.o(i.osSys_ISREnter) refers to irq.o(.data) for interruptNest
+    irq.o(i.osSys_ISRLeave) refers to hal_cm.o(.emb_text) for hal_DisableINT
+    irq.o(i.osSys_ISRLeave) refers to irq.o(.data) for interruptNest
+    irq.o(kernelSymbol) refers to irq.o(i.osSys_ISRLeave) for osSys_ISRLeave
+    irq.o(kernelSymbol) refers to irq.o(.rodata.name) for export_osSys_ISRLeave_name
+    irq.o(kernelSymbol) refers to irq.o(i.osSys_ISREnter) for osSys_ISREnter
+    irq.o(kernelSymbol) refers to irq.o(i.osSys_GetNest) for osSys_GetNest
     buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_DeleteNode) for osList_DeleteNode
     buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_HeadInit) for osList_HeadInit
     buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_AddTail) for osList_AddTail
@@ -599,7 +599,7 @@ Removing Unused input sections from the image.
     Removing timer.o(i.timer_Init), (52 bytes).
     Removing timer.o(.rodata.name), (58 bytes).
     Removing timer.o(kernelSymbol), (32 bytes).
-    Removing irq.o(i.osIRQ_GetNest), (12 bytes).
+    Removing irq.o(i.osSys_GetNest), (12 bytes).
     Removing irq.o(.rodata.name), (44 bytes).
     Removing irq.o(kernelSymbol), (24 bytes).
     Removing buddy.o(i.__AllocateBlock), (164 bytes).
@@ -1389,19 +1389,19 @@ Image Symbol Table
     i.__scatterload_zeroinit                 0x000002b4   Section       14  handlers.o(i.__scatterload_zeroinit)
     i.hal_CallPendSV                         0x000002c4   Section        0  hal_cm.o(i.hal_CallPendSV)
     i.main                                   0x000002d8   Section        0  startup.o(i.main)
-    i.osIRQ_ISREnter                         0x000002dc   Section        0  irq.o(i.osIRQ_ISREnter)
-    i.osIRQ_ISRLeave                         0x000002fc   Section        0  irq.o(i.osIRQ_ISRLeave)
-    i.osList_AddTail                         0x0000031c   Section        0  timer.o(i.osList_AddTail)
-    osList_AddTail                           0x0000031d   Thumb Code    14  timer.o(i.osList_AddTail)
-    i.osList_CheckIsEmpty                    0x0000032a   Section        0  timer.o(i.osList_CheckIsEmpty)
-    osList_CheckIsEmpty                      0x0000032b   Thumb Code    16  timer.o(i.osList_CheckIsEmpty)
-    i.osList_DeleteNode                      0x0000033a   Section        0  schedule.o(i.osList_DeleteNode)
-    osList_DeleteNode                        0x0000033b   Thumb Code    18  schedule.o(i.osList_DeleteNode)
-    i.osList_DeleteNode                      0x0000034c   Section        0  timer.o(i.osList_DeleteNode)
-    osList_DeleteNode                        0x0000034d   Thumb Code    18  timer.o(i.osList_DeleteNode)
-    i.osSche_Lock                            0x00000360   Section        0  schedule.o(i.osSche_Lock)
-    i.osSche_Unlock                          0x00000380   Section        0  schedule.o(i.osSche_Unlock)
-    i.osSys_GetNowTick                       0x000003b4   Section        0  schedule.o(i.osSys_GetNowTick)
+    i.osList_AddTail                         0x000002dc   Section        0  timer.o(i.osList_AddTail)
+    osList_AddTail                           0x000002dd   Thumb Code    14  timer.o(i.osList_AddTail)
+    i.osList_CheckIsEmpty                    0x000002ea   Section        0  timer.o(i.osList_CheckIsEmpty)
+    osList_CheckIsEmpty                      0x000002eb   Thumb Code    16  timer.o(i.osList_CheckIsEmpty)
+    i.osList_DeleteNode                      0x000002fa   Section        0  schedule.o(i.osList_DeleteNode)
+    osList_DeleteNode                        0x000002fb   Thumb Code    18  schedule.o(i.osList_DeleteNode)
+    i.osList_DeleteNode                      0x0000030c   Section        0  timer.o(i.osList_DeleteNode)
+    osList_DeleteNode                        0x0000030d   Thumb Code    18  timer.o(i.osList_DeleteNode)
+    i.osSche_Lock                            0x00000320   Section        0  schedule.o(i.osSche_Lock)
+    i.osSche_Unlock                          0x00000340   Section        0  schedule.o(i.osSche_Unlock)
+    i.osSys_GetNowTick                       0x00000374   Section        0  schedule.o(i.osSys_GetNowTick)
+    i.osSys_ISREnter                         0x00000380   Section        0  irq.o(i.osSys_ISREnter)
+    i.osSys_ISRLeave                         0x000003a0   Section        0  irq.o(i.osSys_ISRLeave)
     i.osThread_Delay                         0x000003c0   Section        0  thread.o(i.osThread_Delay)
     i.osThread_Ready                         0x000003f4   Section        0  thread.o(i.osThread_Ready)
     i.osThread_Self                          0x00000434   Section        0  thread.o(i.osThread_Self)
@@ -1515,11 +1515,11 @@ Image Symbol Table
     __scatterload_zeroinit                   0x000002b5   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
     hal_CallPendSV                           0x000002c5   Thumb Code    14  hal_cm.o(i.hal_CallPendSV)
     main                                     0x000002d9   Thumb Code     4  startup.o(i.main)
-    osIRQ_ISREnter                           0x000002dd   Thumb Code    28  irq.o(i.osIRQ_ISREnter)
-    osIRQ_ISRLeave                           0x000002fd   Thumb Code    28  irq.o(i.osIRQ_ISRLeave)
-    osSche_Lock                              0x00000361   Thumb Code    28  schedule.o(i.osSche_Lock)
-    osSche_Unlock                            0x00000381   Thumb Code    46  schedule.o(i.osSche_Unlock)
-    osSys_GetNowTick                         0x000003b5   Thumb Code     6  schedule.o(i.osSys_GetNowTick)
+    osSche_Lock                              0x00000321   Thumb Code    28  schedule.o(i.osSche_Lock)
+    osSche_Unlock                            0x00000341   Thumb Code    46  schedule.o(i.osSche_Unlock)
+    osSys_GetNowTick                         0x00000375   Thumb Code     6  schedule.o(i.osSys_GetNowTick)
+    osSys_ISREnter                           0x00000381   Thumb Code    28  irq.o(i.osSys_ISREnter)
+    osSys_ISRLeave                           0x000003a1   Thumb Code    28  irq.o(i.osSys_ISRLeave)
     osThread_Delay                           0x000003c1   Thumb Code    48  thread.o(i.osThread_Delay)
     osThread_Ready                           0x000003f5   Thumb Code    64  thread.o(i.osThread_Ready)
     osThread_Self                            0x00000435   Thumb Code    22  thread.o(i.osThread_Self)
@@ -1581,16 +1581,16 @@ Memory Map of the image
     0x000002c2   0x00000002   PAD
     0x000002c4   0x00000014   Code   RO          503    i.hal_CallPendSV    hal_cm.o
     0x000002d8   0x00000004   Code   RO            1    i.main              startup.o
-    0x000002dc   0x00000020   Code   RO          295    i.osIRQ_ISREnter    irq.o
-    0x000002fc   0x00000020   Code   RO          296    i.osIRQ_ISRLeave    irq.o
-    0x0000031c   0x0000000e   Code   RO          205    i.osList_AddTail    timer.o
-    0x0000032a   0x00000010   Code   RO          206    i.osList_CheckIsEmpty  timer.o
-    0x0000033a   0x00000012   Code   RO           12    i.osList_DeleteNode  schedule.o
-    0x0000034c   0x00000012   Code   RO          207    i.osList_DeleteNode  timer.o
-    0x0000035e   0x00000002   PAD
-    0x00000360   0x00000020   Code   RO           14    i.osSche_Lock       schedule.o
-    0x00000380   0x00000034   Code   RO           15    i.osSche_Unlock     schedule.o
-    0x000003b4   0x0000000c   Code   RO           16    i.osSys_GetNowTick  schedule.o
+    0x000002dc   0x0000000e   Code   RO          205    i.osList_AddTail    timer.o
+    0x000002ea   0x00000010   Code   RO          206    i.osList_CheckIsEmpty  timer.o
+    0x000002fa   0x00000012   Code   RO           12    i.osList_DeleteNode  schedule.o
+    0x0000030c   0x00000012   Code   RO          207    i.osList_DeleteNode  timer.o
+    0x0000031e   0x00000002   PAD
+    0x00000320   0x00000020   Code   RO           14    i.osSche_Lock       schedule.o
+    0x00000340   0x00000034   Code   RO           15    i.osSche_Unlock     schedule.o
+    0x00000374   0x0000000c   Code   RO           16    i.osSys_GetNowTick  schedule.o
+    0x00000380   0x00000020   Code   RO          295    i.osSys_ISREnter    irq.o
+    0x000003a0   0x00000020   Code   RO          296    i.osSys_ISRLeave    irq.o
     0x000003c0   0x00000034   Code   RO          130    i.osThread_Delay    thread.o
     0x000003f4   0x00000040   Code   RO          131    i.osThread_Ready    thread.o
     0x00000434   0x0000001c   Code   RO          132    i.osThread_Self     thread.o

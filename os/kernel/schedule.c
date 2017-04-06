@@ -344,7 +344,7 @@ void sche_ToNextThread(void) {
  */
 void sys_TickHandler(void) {
     /*中断嵌套+1*/
-    osIRQ_ISREnter();
+    osSys_ISREnter();
 
     /*系统节拍+1*/
     ++sys_TickCount;
@@ -363,7 +363,7 @@ void sys_TickHandler(void) {
     timer_TickCheck();
 
     /*中断嵌套-1*/
-    osIRQ_ISRLeave();
+    osSys_ISRLeave();
 }
 
 /*@}*/
