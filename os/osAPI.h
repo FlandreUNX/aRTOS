@@ -132,9 +132,9 @@ extern void osSche_Unlock(void);
 #define osThread_Def(name, priority, stackSize, function) \
     osThread_Attr_t os_Thread_##name = { \
         .initTimeSlice = 1, \
-        .functions = (void *)function,  \
+        .functions = (void *)function, \
         .stackSize = stackSize, \
-        .priority = priority    \
+        .priority = priority \
     };
 
 
@@ -181,7 +181,7 @@ extern void osSche_Unlock(void);
  * @return none
  */
 #define osTimer_Def(name, mode, callback) \
-    osTimer_Attr_t os_Timer_##name = {
+    osTimer_Attr_t os_Timer_##name = { \
         .mode = mode, \
         .callback = callback \
     };

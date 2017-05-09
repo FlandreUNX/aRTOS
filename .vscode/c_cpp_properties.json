@@ -26,7 +26,8 @@
             "name": "Win32",
             "includePath": [
                 "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include/*",
-                "G:/Program Files/Develop/keil5/ARM/ARMCC/include/*"
+                "G:/Program Files/Develop/keil5/ARM/ARMCC/include/*",
+                "C:/My Program/Develop/keil_5/ARM/ARMCC/include/*"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,

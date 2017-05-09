@@ -294,7 +294,7 @@ EXPORT_SYMBOL(osThread_Yield);
  *
  * @return none
  */
-void osThread_Delay(uint32_t tick) {
+void osThread_Delay(osTick_t tick) {
     /*关中断*/
     register uint32_t level;
     level = hal_DisableINT();

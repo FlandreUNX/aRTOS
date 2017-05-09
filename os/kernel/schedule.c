@@ -66,7 +66,7 @@
  
 /*@{*/
 
-static volatile uint32_t sys_TickCount;
+static volatile osTick_t sys_TickCount;
 
 /*@}*/
 
@@ -424,7 +424,7 @@ EXPORT_SYMBOL(osSche_Unlock);
  * 
  * @return none
  */
-uint32_t osSys_GetNowTick(void) {
+osTick_t osSys_GetNowTick(void) {
     return sys_TickCount;
 }
 EXPORT_SYMBOL(osSys_GetNowTick);

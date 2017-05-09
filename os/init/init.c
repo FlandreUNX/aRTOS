@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
- * File      : schedule.h
+ * File      : init.c
  * This file is part of ACGrtos
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,9 +27,6 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
-#ifndef SCHEDULE_H_
-#define SCHEDULE_H_
 
 /**
  * @addtogroup OS Include
@@ -37,48 +34,43 @@
 
 /*@{*/
 
-#include "./thread.h"
+#include "../arch/platform.h"
+#include "../arch/hal_cm.h"
+
+#include "../mm/buddy.h"
+
+#include "../lib/list.h"
+#include "../lib/symbolExport.h"
+
+#include "../osConfig.h"
+
+#include "../kernel/schedule.h"
+#include "../kernel/timer.h"
 
 /*@}*/
 
 /**
- * @addtogroup schedule extern system var
+ * @addtogroup OS init user functions
  */
- 
-/*@{*/
 
-/*@}*/
+/*@{*/
 
 /**
- * @addtogroup schedule system functions
+ * 初始化os内核
+ *
+ * @param none
+ *
+ * @return none
  */
- 
-/*@{*/
+void osSys_KernelInitialize(void) {
+    /*调度器初始化*/
+    sche_Init();
 
-extern void sche_Init(void);
-
-extern void sche_InsertThread(osThread_Attr_t* thread);
-extern void sche_RemoveThread(osThread_Attr_t* thread);
-
-extern void sche_NextToNow(void);
-
-extern void sche_ToNextThread(void);
-
-extern void sys_TickHandler(void);
+    /*定时器初始化*/
+    timer_Init();
+    
+    /*动态内存库初始化*/
+    mem_Init((uint32_t)HEAP_BEGIN, HEAP_END);
+}
 
 /*@}*/
-
-/**
- * @addtogroup schedule user functions
- */
- 
-/*@{*/
-
-extern void osSche_Lock(void);
-extern void osSche_Unlock(void);
-
-extern osTick_t osSys_GetNowTick(void);
-
-/*@}*/
-
-#endif

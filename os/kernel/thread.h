@@ -132,7 +132,7 @@ extern osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument);
 extern void osThread_Ready(osThread_ID id);
 extern void osThread_Suspend(osThread_ID id);
 
-extern void osThread_Delay(uint32_t tick);
+extern void osThread_Delay(osTick_t tick);
 
 extern osThread_ID osThread_Self(void);
 

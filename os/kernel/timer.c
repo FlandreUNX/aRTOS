@@ -112,7 +112,7 @@ void timer_TickCheck(void) {
     level = hal_DisableINT();
 
     /*获取最近的TICK*/
-    uint32_t currentTick = osSys_GetNowTick();
+    osTick_t currentTick = osSys_GetNowTick();
 
     /*遍历list*/
     osTimer_Attr_t *timer;
@@ -155,8 +155,8 @@ void timer_TickCheck(void) {
      * @return none
      */
     OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
-        uint32_t currentTick;
-        uint32_t nextTimeout;
+        osTick_t currentTick;
+        osTick_t nextTimeout;
         osTimer_Attr_t *timer;
 
         for (;;) {
@@ -267,7 +267,7 @@ EXPORT_SYMBOL(osTimer_Create);
  * 
  * @return none
  */
-void osTimer_SetTick(osTimer_ID id, uint32_t tick) {
+void osTimer_SetTick(osTimer_ID id, osTick_t tick) {
     //OS_ASSERT
 
     osTimer_Attr_t *obj = (osTimer_Attr_t *)id;
@@ -292,7 +292,7 @@ EXPORT_SYMBOL(osTimer_SetTick);
  * 
  * @return none
  */
-void osTimer_Start(osTimer_ID id, uint32_t tick) {
+void osTimer_Start(osTimer_ID id, osTick_t tick) {
     //OS_ASSERT
 
     struct osList_Head_t *timerList;
@@ -395,5 +395,65 @@ void osTimer_Stop(osTimer_ID id) {
     hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osTimer_Stop);
+
+
+/**
+ * 设置定时器回调函数的传入参数
+ *
+ * @param id 定时器句柄
+ * @param arguments 参数指针
+ * 
+ * @return none
+ */
+void osTimer_SetArgument(osTimer_ID id, void *arguments) {
+    //OS_ASSERT
+
+    /*关中断*/
+    register uint32_t level;
+    level = hal_DisableINT();
+
+    osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
+
+    if (timer->stage != osTimerStop) {
+        //OS_ASSERT
+        
+        /*开中断*/
+        hal_EnableINT(level);
+
+        return;
+    }
+
+    timer->arguments = arguments;
+
+    /*开中断*/
+    hal_EnableINT(level);
+}
+EXPORT_SYMBOL(osTimer_SetArgument);
+
+
+/**
+ * 获取定时器的剩余时间
+ *
+ * @param id 定时器句柄
+ * 
+ * @return tick剩余值
+ */
+osTick_t osTimer_GetResidueTick(osTimer_ID id) {
+    //OS_ASSERT
+
+    /*关中断*/
+    register uint32_t level;
+    level = hal_DisableINT();
+
+    osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
+    
+    osTick_t tick = timer->timeoutTick - osSys_GetNowTick();
+
+    /*开中断*/
+    hal_EnableINT(level);  
+
+    return tick; 
+}
+EXPORT_SYMBOL(osTimer_GetResidueTick);
 
 /*@}*/

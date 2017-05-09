@@ -95,8 +95,8 @@ typedef enum {
  *  Timer描述符
  */
 typedef struct osTimer {
-    uint32_t perTick;       /**< 每周期tick */
-    uint32_t timeoutTick;   /**< 超时时的tick */
+    osTick_t perTick;       /**< 每周期tick */
+    osTick_t timeoutTick;   /**< 超时时的tick */
 
     struct osList_Head_t list;      /**< 节点 */
 
@@ -135,9 +135,11 @@ extern void timer_TickCheck(void);
 
 extern osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag_t flag, void *arguments);
 
-extern void osTimer_SetTick(osTimer_ID id, uint32_t tick);
+extern void osTimer_SetTick(osTimer_ID id, osTick_t tick);
+extern osTick_t osTimer_GetResidueTick(osTimer_ID id);
+extern void osTimer_SetArgument(osTimer_ID id, void *arguments);
 
-extern void osTimer_Start(osTimer_ID id, uint32_t tick);
+extern void osTimer_Start(osTimer_ID id, osTick_t tick);
 extern void osTimer_Stop(osTimer_ID id);
 
 /*@}*/
