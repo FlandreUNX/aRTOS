@@ -73,4 +73,25 @@ void osSys_KernelInitialize(void) {
   mem_Init((uint32_t)HEAP_BEGIN, HEAP_END);
 }
 
+
+/**
+ * 启动os
+ *
+ * @param none
+ *
+ * @return none
+ */
+void osSys_KernelStartup(void) {
+  /*初始化并启动idle*/
+  extern osThread_ID idle_ThreadID;
+  extern osThread_Attr_t os_Thread_Idle;
+  idle_ThreadID = osThread_Create(osThread_Obj(Idle), (void*)0);
+  if (idle_ThreadID == 0) {
+    //OS_ASSERT
+  }
+  osThread_Ready(idle_ThreadID);
+
+  cpu_GotoFisrtTask();
+}
+
 /*@}*/

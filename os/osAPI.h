@@ -54,6 +54,33 @@
 /*@}*/
 
 /**
+ * @addtogroup ------------------System manager------------------
+ */
+
+/*@{*/
+
+/**
+ * 初始化os内核
+ *
+ * @param none
+ *
+ * @return none
+ */
+extern void osSys_KernelInitialize(void);
+
+
+/**
+ * 启动os
+ *
+ * @param none
+ *
+ * @return none
+ */
+extern void osSys_KernelStartup(void);
+
+/*@}*/
+
+/**
  * @addtogroup ------------------Memory manager------------------
  */
  
