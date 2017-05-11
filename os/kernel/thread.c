@@ -68,7 +68,7 @@ extern struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 
 /*@{*/
 
-void thread_TimerCallback(void *arguments) {
+void threadTimerCallback(void *arguments) {
   //OS_ASSERT
 
   osThread_Attr_t *thread = (osThread_Attr_t *)arguments;
@@ -142,7 +142,7 @@ osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
   osList_HeadInit(&(thread->list));
 
   /*初始化依赖定时器*/
-  thread->timer.callback = thread_TimerCallback;
+  thread->timer.callback = threadTimerCallback;
   thread->timer.mode = osTimerHard;
   osTimer_Create(&(thread->timer), osTimerOnce, (void *)thread);
 
@@ -217,7 +217,7 @@ void osThread_Suspend(osThread_ID id) {
     //OS_ASSERT
 
     /*开中断*/
-      hal_EnableINT(level);
+    hal_EnableINT(level);
 
     return;
   }
