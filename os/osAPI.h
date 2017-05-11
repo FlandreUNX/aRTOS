@@ -32,6 +32,20 @@
 #define OSAPI_H_
 
 /**
+ * @addtogroup ------------------os函数定义方式------------------
+ */
+
+/*@{*/
+
+/**
+ *  1. 带os + osXX_Xxx的为用户函数
+ *  2. 不带os + xx_Xxx的为系统内部函数
+ *  3. 不带os + aaBbCc的为模块内联函数
+ */
+
+/*@}*/
+
+/**
  * @addtogroup ------------------Platform Arch------------------
  */
 
@@ -116,7 +130,7 @@ extern void osSche_Unlock(void);
  * @return NO_RETURN
  */
 #define osThread_Func(name) \
-    static OS_NO_RETURN name(void *argument)
+  static OS_NO_RETURN name(void *argument)
 
 
 /**
@@ -130,12 +144,12 @@ extern void osSche_Unlock(void);
  * @return none
  */
 #define osThread_Def(name, priority, stackSize, function) \
-    osThread_Attr_t os_Thread_##name = { \
-        .initTimeSlice = 1, \
-        .functions = (void *)function, \
-        .stackSize = stackSize, \
-        .priority = priority \
-    };
+  osThread_Attr_t os_Thread_##name = { \
+    .initTimeSlice = 1, \
+    .functions = (void *)function, \
+    .stackSize = stackSize, \
+    .priority = priority \
+  };
 
 
 /**
@@ -146,7 +160,7 @@ extern void osSche_Unlock(void);
  * @return none
  */
 #define osThread_Obj(name) \
-    &os_Thread_##name
+  &os_Thread_##name
 
 /*@}*/
 
@@ -167,7 +181,7 @@ extern void osSche_Unlock(void);
  * @return none
  */
 #define osTimer_Callback(name) \
-    void name(void *arguments)
+  void name(void *arguments)
 
 
 /**
@@ -181,10 +195,10 @@ extern void osSche_Unlock(void);
  * @return none
  */
 #define osTimer_Def(name, mode, callback) \
-    osTimer_Attr_t os_Timer_##name = { \
-        .mode = mode, \
-        .callback = callback \
-    };
+  osTimer_Attr_t os_Timer_##name = { \
+    .mode = mode, \
+    .callback = callback \
+  };
 
 
 /**
@@ -195,7 +209,7 @@ extern void osSche_Unlock(void);
  * @return none
  */
 #define osTimer_Obj(name) \
-    &os_Timer_##name
+  &os_Timer_##name
 
 /*@}*/
 

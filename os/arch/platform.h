@@ -51,9 +51,9 @@
 #define CPU_UINT32_MAX      (0xFFFFFFFF)                /**< Maxium number of UINT32 */
 #define CPU_TICK_MAX        (uint32_t)(CPU_UINT32_MAX)  /**< Maxium number of tick */
 
-#define osTick_t            (uint32_t)
+#define osTick_t            (uint32_t)    /**< osTick最大计量 */
 
-#define OS_WAIT_FOREVER     (CPU_TICK_MAX)              /**< 系统无限等待数 */
+#define OS_WAIT_FOREVER     (CPU_TICK_MAX)    /**< 系统无限等待数 */
 
 #define MAGIC_WORD          (uint32_t)(0xE25A2EA5)      /**< 魔幻数,用于检验thread的堆栈溢出 */
 
@@ -71,22 +71,22 @@
  *  @note 对于keil平台,结构对齐建议使用"#pragma pack()"
  */
 #ifdef __CC_ARM 
-    #include <stdarg.h>
+  #include <stdarg.h>
 
-    /**
-     * 
-     */
-    #define OS_SECTION(x)      __attribute__((section(x)))
-    #define OS_WEEK            __weak
-    #define OS_INLINE          static __inline
-    #define OS_NO_RETURN       int __declspec(noreturn)
+  /**
+    * 
+    */
+  #define OS_SECTION(x)      __attribute__((section(x)))
+  #define OS_WEEK            __weak
+  #define OS_INLINE          static __inline
+  #define OS_NO_RETURN       int __declspec(noreturn)
 
-    /**
-     * 内存堆起止
-     */
-    extern int Image$$RW_IRAM1$$ZI$$Limit;
-    #define HEAP_BEGIN  ((void *) &Image$$RW_IRAM1$$ZI$$Limit)
-    #define HEAP_END    (0x20000000 + 64 * 1024)
+  /**
+    * 内存堆起止
+    */
+  extern int Image$$RW_IRAM1$$ZI$$Limit;
+  #define HEAP_BEGIN  ((void *) &Image$$RW_IRAM1$$ZI$$Limit)
+  #define HEAP_END    (0x20000000 + 64 * 1024)
 #endif
 
 /*@}*/
@@ -106,7 +106,7 @@
  * 例如:ALIGN(13, 4) = 16
  */
 #define ALIGN(number, align) \
-    (((number) + (align) - 1) & ~((align) - 1))
+  (((number) + (align) - 1) & ~((align) - 1))
 
 
 /**
@@ -118,7 +118,7 @@
  * 例如:ALIGN_DOWN(13, 4) = 12
  */
 #define ALIGN_DOWN(number, align) \
-    ((number) & ~((align) - 1))
+  ((number) & ~((align) - 1))
 
 /*@}*/
 

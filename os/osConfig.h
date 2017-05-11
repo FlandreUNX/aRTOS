@@ -39,7 +39,7 @@
 
 #define IDLE_STACK_SIZE     (256)
 
-#define IDLE_PRIORITY     MAX_PRIORITY_LEVEL - 1
+#define IDLE_PRIORITY     (MAX_PRIORITY_LEVEL - 1)
 
 #define USING_SYMBOL_EXPORT     (1)
 
@@ -47,36 +47,36 @@
 
 #define USING_BUDDY_MANAGER     (1)
 #if USING_BUDDY_MANAGER == 1
-    /**
-    * @addtogroup buddy configure 
-    */
-    
-    /*@{*/
+  /**
+  * @addtogroup buddy configure 
+  */
+  
+  /*@{*/
 
-    /**
-    * buddy 阶 order 链表数量
-    * 例如:一块内存块为32B
-    * 2^(0, 1, 2, 3, 4, 5)
-    *      0 ->  32 * 1    = 32      (2^0)
-    *      1 ->  32 * 2    = 64      (2^1)
-    *      2 ->  32 * 4    = 128     (2^2)
-    *      3 ->  32 * 8    = 256     (2^3)
-    *      4 ->  32 * 16   = 512     (2^4)
-    *      5 ->  32 * 32   = 1024    (2^5)
-    */
-    #define BUDDY_BLOCK_SIZE    32  /**< buddy块大小,单位(byte)*/
-    #define BUDDY_ORDER         6   /**< buddy块阶 */
+  /**
+  * buddy 阶 order 链表数量
+  * 例如:一块内存块为32B
+  * 2^(0, 1, 2, 3, 4, 5)
+  *      0 ->  32 * 1    = 32      (2^0)
+  *      1 ->  32 * 2    = 64      (2^1)
+  *      2 ->  32 * 4    = 128     (2^2)
+  *      3 ->  32 * 8    = 256     (2^3)
+  *      4 ->  32 * 16   = 512     (2^4)
+  *      5 ->  32 * 32   = 1024    (2^5)
+  */
+  #define BUDDY_BLOCK_SIZE    (32)  /**< buddy块大小,单位(byte)*/
+  #define BUDDY_ORDER         (6)   /**< buddy块阶 */
 
-    /*@}*/
+  /*@}*/
 #endif
 
 #define USING_DEID_THREAD_RM      (1)
 
 #define USING_SOFT_TIMER        (1)
 #if USING_SOFT_TIMER == 1
-    #define SOFT_TIMER_PRIORITY     MAX_PRIORITY_LEVEL - 1
+  #define SOFT_TIMER_PRIORITY     (MAX_PRIORITY_LEVEL - 1)
 
-    #define SOFT_TIMER_STACK_SIZE   256
+  #define SOFT_TIMER_STACK_SIZE   (256)
 #endif
 
 #endif

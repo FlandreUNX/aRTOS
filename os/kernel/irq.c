@@ -71,12 +71,12 @@ static volatile int8_t interruptNest = 0;
  * @return none
  */
 void osSys_ISRLeave(void) {
-    register uint32_t level;
-    level = hal_DisableINT();
+  register uint32_t level;
+  level = hal_DisableINT();
 
-    interruptNest --;
+  interruptNest --;
 
-    hal_EnableINT(level);
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osSys_ISRLeave);
 
@@ -89,12 +89,12 @@ EXPORT_SYMBOL(osSys_ISRLeave);
  * @return none
  */
 void osSys_ISREnter(void) {
-    register uint32_t level;
-    level = hal_DisableINT();
+  register uint32_t level;
+  level = hal_DisableINT();
 
-    interruptNest ++;
+  interruptNest ++;
 
-    hal_EnableINT(level);
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osSys_ISREnter);
 
@@ -107,7 +107,7 @@ EXPORT_SYMBOL(osSys_ISREnter);
  * @return 中断嵌套数
  */
 int8_t osSys_GetNest(void) {
-    return interruptNest;
+  return interruptNest;
 }
 EXPORT_SYMBOL(osSys_GetNest);
 

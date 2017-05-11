@@ -57,22 +57,22 @@
  *  @note buffer储存状态
  */
 enum BUFFER_STAGE {
-    RBUFFER_EMPTY,
-    RBUFFER_FULL,
-    RBUFFER_HALFFULL
+  RBUFFER_EMPTY,
+  RBUFFER_FULL,
+  RBUFFER_HALFFULL
 };
 
 /**
  *  @note buffer对象结构体
  */
 typedef struct ring_buffer {
-    uint16_t size;        /**< 缓冲器大小 */
-    uint8_t *pBuffer;     /**< 缓冲器指针 */
+  uint16_t size;        /**< 缓冲器大小 */
+  uint8_t *pBuffer;     /**< 缓冲器指针 */
 
-    uint16_t in : 15;             /**< 进指标 */
-    uint16_t out : 15;            /**< 出指标 */
-    uint16_t in_Mirror : 1;       /**< 进指标_镜像 标记是否回绕 */
-    uint16_t out_Mirror : 1;      /**< 出指标_镜像 标记是否回绕 */  
+  uint16_t in : 15;             /**< 进指标 */
+  uint16_t out : 15;            /**< 出指标 */
+  uint16_t in_Mirror : 1;       /**< 进指标_镜像 标记是否回绕 */
+  uint16_t out_Mirror : 1;      /**< 出指标_镜像 标记是否回绕 */  
 }osRBuffer_t;
 
 /*@}*/

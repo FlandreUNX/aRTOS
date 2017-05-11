@@ -66,29 +66,29 @@ extern volatile osThread_Attr_t *sche_NowThread, *sche_NextThread;
  * @return 修改后的堆栈指针
  */
 uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
-    cpuRegisters_t *regs = (cpuRegisters_t *)((uint32_t)stackTop - sizeof(cpuRegisters_t));
+  cpuRegisters_t *regs = (cpuRegisters_t *)((uint32_t)stackTop - sizeof(cpuRegisters_t));
 
-    regs->r13_SP = (uint32_t)0x01000000;
-    regs->r15_PC = (uint32_t)func;
-    regs->r14_LR = (uint32_t)0;
+  regs->r13_SP = (uint32_t)0x01000000;
+  regs->r15_PC = (uint32_t)func;
+  regs->r14_LR = (uint32_t)0;
 
-    regs->r12 = (uint32_t)0x00000012;
-    regs->r3 = (uint32_t)0x00000003;
-    regs->r2 = (uint32_t)0x00000002;
-    regs->r1 = (uint32_t)0x00000001;
-    regs->r0 = (uint32_t)arguments;
+  regs->r12 = (uint32_t)0x00000012;
+  regs->r3 = (uint32_t)0x00000003;
+  regs->r2 = (uint32_t)0x00000002;
+  regs->r1 = (uint32_t)0x00000001;
+  regs->r0 = (uint32_t)arguments;
 
-    regs->exec = (uint32_t)0xFFFFFFFD;
+  regs->exec = (uint32_t)0xFFFFFFFD;
 
-    regs->r11 = (uint32_t)0x00000011;
-    regs->r10 = (uint32_t)0x00000010;
-    regs->r9 = (uint32_t)0x00000009;
-    regs->r8 = (uint32_t)0x00000008;
-    regs->r7 = (uint32_t)0x00000007;
-    regs->r6 = (uint32_t)0x00000006;
-    regs->r5 = (uint32_t)0x00000005;
-    regs->r4 = (uint32_t)0x00000004;
-    return (uint32_t *)regs;
+  regs->r11 = (uint32_t)0x00000011;
+  regs->r10 = (uint32_t)0x00000010;
+  regs->r9 = (uint32_t)0x00000009;
+  regs->r8 = (uint32_t)0x00000008;
+  regs->r7 = (uint32_t)0x00000007;
+  regs->r6 = (uint32_t)0x00000006;
+  regs->r5 = (uint32_t)0x00000005;
+  regs->r4 = (uint32_t)0x00000004;
+  return (uint32_t *)regs;
 }
 
 
@@ -98,214 +98,210 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
  */
 #ifdef __CC_ARM 
 
-    /**
-     * @addtogroup Cortex-M define
-     */
+  /**
+    * @addtogroup Cortex-M device define
+    */
 
-    /*@{*/
+  /*@{*/
 
-    #ifdef ARCH_CM4_MSP432
-        #include "msp.h"                        // Device header
-    #endif
+  /*@}*/
 
-    /*@}*/
-
-    /**
-     * 标记pensv中断
-     *
-     * @param none
-     * 
-     * @return none
-     */
-    void hal_CallPendSV(void) {
-        SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
-    }
+  /**
+    * 标记pensv中断
+    *
+    * @param none
+    * 
+    * @return none
+    */
+  void hal_CallPendSV(void) {
+    SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+  }
 
 
-    /**
-     * 标记NMI中断
-     *
-     * @param none
-     * 
-     * @return none
-     */
-    void hal_CallNMI(void) {
-        SCB->ICSR |= SCB_ICSR_NMIPENDSET_Msk;
-    }
+  /**
+    * 标记NMI中断
+    *
+    * @param none
+    * 
+    * @return none
+    */
+  void hal_CallNMI(void) {
+    SCB->ICSR |= SCB_ICSR_NMIPENDSET_Msk;
+  }
 
 
-    /**
-     * 关闭全局中断
-     *
-     * @param none
-     * 
-     * @return none
-     */
-    __asm uint32_t hal_DisableINT(void) {
-        PRESERVE8
+  /**
+    * 关闭全局中断
+    *
+    * @param none
+    * 
+    * @return none
+    */
+  __asm uint32_t hal_DisableINT(void) {
+    PRESERVE8
 
-        mrs r0, basepri
-        mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
-        msr basepri, r1
+    mrs r0, basepri
+    mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
+    msr basepri, r1
 
-        dsb
-        isb
+    dsb
+    isb
 
-        bx r14
-    }
+    bx r14
+  }
 
 
-    /**
-     * 开启全局中断
-     *
-     * @param none
-     * 
-     * @return none
-     */
-    __asm void hal_EnableINT(uint32_t level) {
-        PRESERVE8
+  /**
+    * 开启全局中断
+    *
+    * @param none
+    * 
+    * @return none
+    */
+  __asm void hal_EnableINT(uint32_t level) {
+    PRESERVE8
+    
+    msr basepri, r0
+    bx r14
+  }
+
+
+  /**
+    * 进入第一个任务
+    *
+    * @param none
+    * 
+    * @return none
+    */
+  __asm void cpu_GotoFisrtTask(void) {
+    /*SCB->VTOR 0xE000ED08*/
+    /*保存指针*/
+    ldr r0, =0xE000ED08
+
+    /*保存指针所指的值*/
+    ldr r0, [r0]						
+    ldr r0, [r0]						
+
+    isb
+
+    /*将SP指针指回__initial_sp*/
+    msr msp, r0						
+    
+    dsb							   
+    isb								
+    
+    /*开放中断*/
+    mrs r0, PRIMASK					
+    cpsie 	i
+
+    svc 0
+    
+    align 4
+  }
+
+
+  /**
+    * SVC
+    *
+    * @param none
+    * 
+    * @return none
+    */
+  __asm void SVC_Handler(void) {
+    extern sche_NowThread;
+    
+    PRESERVE8
+    
+    /*最近任务TUB地址写进R3*/
+    ldr r3, =__cpp(&sche_NowThread)
+    
+    /*将TUB的栈中的SP写进R1*/
+    ldr r1, [r3]			
+    
+    /*恢复SP*/
+    ldr r0, [r1]		
+    
+    /*恢复R4-R11, R14*/
+    ldmia r0!, {r4 - r11, r14} 
+    
+    isb
+    
+    /*恢复PSP*/
+    msr psp, r0
         
-        msr basepri, r0
-        bx r14
-    }
-
-
-    /**
-     * 进入第一个任务
-     *
-     * @param none
-     * 
-     * @return none
-     */
-    __asm void cpu_GotoFisrtTask(void) {
-        /*SCB->VTOR 0xE000ED08*/
-        /*保存指针*/
-        ldr r0, =0xE000ED08
-
-        /*保存指针所指的值*/
-        ldr r0, [r0]						
-        ldr r0, [r0]						
-
-        isb
-
-        /*将SP指针指回__initial_sp*/
-        msr msp, r0						
+    isb
         
-        dsb							   
-        isb								
+    /*恢复中断*/
+    mov r0, #0
+    msr basepri, r0	
         
-        /*开放中断*/
-        mrs r0, PRIMASK					
-        cpsie 	i
-
-        svc 0
+    /*返回任务*/
+    bx 	r14
         
-        align 4
-    }
+    align 4					
+  }
 
 
-    /**
-     * SVC
-     *
-     * @param none
-     * 
-     * @return none
-     */
-    __asm void SVC_Handler(void) {
-        extern sche_NowThread;
+  /**
+    * PendSV
+    *
+    * @param none
+    * 
+    * @return none
+    */
+  __asm void PendSV_Handler(void) {
+    extern sche_NowThread;
+    extern sche_NextThread;
+    
+    extern sche_NextToNow;
+    
+    PRESERVE8	
+    
+    /*关中断*/
+    mrs r1, PRIMASK								
+    cpsid i		
+    isb
+    
+    mrs r0, psp
+    
+    ldr r3, =__cpp(&sche_NowThread)						
+    ldr r2, [r3]	
         
-        PRESERVE8
+    stmdb r0!, {r4 - r11, r14}					
+    str    r0, [r2]									
+    stmdb sp!, {r3}										
+
+    /*仅消耗4条ASM指令,不修改*/
+    bl __cpp(sche_NextToNow)										
+
+    ldmia sp!, {r3}								
+    ldr r1, [r3]									
+    ldr r0, [r1]								
+    ldmia r0!, {r4 - r11, r14}				
+
+    msr psp, r0					
+    
+    /*恢复中断*/
+    msr    PRIMASK, r1;								
+    isb											
+
+    bx r14									
         
-        /*最近任务TUB地址写进R3*/
-        ldr r3, =__cpp(&sche_NowThread)
-        
-        /*将TUB的栈中的SP写进R1*/
-        ldr r1, [r3]			
-        
-        /*恢复SP*/
-        ldr r0, [r1]		
-        
-        /*恢复R4-R11, R14*/
-        ldmia r0!, {r4 - r11, r14} 
-        
-        isb
-        
-        /*恢复PSP*/
-        msr psp, r0
-            
-        isb
-            
-        /*恢复中断*/
-        mov r0, #0
-        msr basepri, r0	
-            
-        /*返回任务*/
-        bx 	r14
-            
-        align 4					
-    }
+    align 4										
+  }
 
 
-    /**
-     * PendSV
-     *
-     * @param none
-     * 
-     * @return none
-     */
-    __asm void PendSV_Handler(void) {
-        extern sche_NowThread;
-        extern sche_NextThread;
-        
-        extern sche_NextToNow;
-        
-        PRESERVE8	
-        
-        /*关中断*/
-        mrs r1, PRIMASK								
-        cpsid i		
-        isb
-        
-        mrs r0, psp
-        
-        ldr r3, =__cpp(&sche_NowThread)						
-        ldr r2, [r3]	
-            
-        stmdb r0!, {r4 - r11, r14}					
-        str    r0, [r2]									
-        stmdb sp!, {r3}										
+  /**
+    * Systick
+    *
+    * @param none
+    * 
+    * @return none
+    */	
+  void SysTick_Handler(void) {
+    sys_TickHandler();
+  }
 
-        /*仅消耗4条ASM指令,不修改*/
-        bl __cpp(sche_NextToNow)										
-
-        ldmia sp!, {r3}								
-        ldr r1, [r3]									
-        ldr r0, [r1]								
-        ldmia r0!, {r4 - r11, r14}				
-
-        msr psp, r0					
-        
-        /*恢复中断*/
-        msr    PRIMASK, r1;								
-        isb											
-
-        bx r14									
-            
-        align 4										
-    }
-
-
-    /**
-     * Systick
-     *
-     * @param none
-     * 
-     * @return none
-     */	
-    void SysTick_Handler(void) {
-        sys_TickHandler();
-    }
-
-    /*@}*/
+  /*@}*/
 
 #endif

@@ -63,14 +63,14 @@
  * @return none
  */
 void osSys_KernelInitialize(void) {
-    /*调度器初始化*/
-    sche_Init();
+  /*调度器初始化*/
+  sche_Init();
 
-    /*定时器初始化*/
-    timer_Init();
-    
-    /*动态内存库初始化*/
-    mem_Init((uint32_t)HEAP_BEGIN, HEAP_END);
+  /*定时器初始化*/
+  timer_Init();
+  
+  /*动态内存库初始化*/
+  mem_Init((uint32_t)HEAP_BEGIN, HEAP_END);
 }
 
 /*@}*/

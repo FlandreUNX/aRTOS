@@ -43,45 +43,43 @@
 
 #if USING_SYMBOL_EXPORT == 1
 
-    /**
-    * @addtogroup 导出符号类型定义
-    */
+  /**
+  * @addtogroup 导出符号类型定义
+  */
 
-    /*@{*/
+  /*@{*/
 
-    typedef struct symbolTab {
-        void *address;
-        const char *name;
-    } symbolTab_t;
+  typedef struct symbolTab {
+    void *address;
+    const char *name;
+  } symbolTab_t;
 
-    /*@}*/
+  /*@}*/
 
-    /**
-    * @addtogroup 导出符定义
-    */
+  /**
+  * @addtogroup 导出符定义
+  */
 
-    /*@{*/
+  /*@{*/
 
-    /**
-    * 内核导出符
-    *
-    * @param symbol 需要导出的函数
-    * 
-    * @return none
-    */
-    #define EXPORT_SYMBOL(symbol) \
-        const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \
-        const symbolTab_t export_##symbol OS_SECTION("kernelSymbol") = { \
-            (void *)&symbol, \
-            export_##symbol##_name \
-        };
-        
-    /*@}*/
+  /**
+  * 内核导出符
+  *
+  * @param symbol 需要导出的函数
+  * 
+  * @return none
+  */
+  #define EXPORT_SYMBOL(symbol) \
+    const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \
+    const symbolTab_t export_##symbol OS_SECTION("kernelSymbol") = { \
+      (void *)&symbol, \
+      export_##symbol##_name \
+    };
+      
+  /*@}*/
     
-#else
-            
-    #define EXPORT_SYMBOL(symbol)
-        
+#else       
+  #define EXPORT_SYMBOL(symbol)     
 #endif
 
 #endif

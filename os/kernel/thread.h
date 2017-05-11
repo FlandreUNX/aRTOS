@@ -58,11 +58,11 @@
  *  @note 用于标记线程运行状态
  */
 typedef enum {
-    osThreadReady,      /**< 就绪 */
-    osThreadSuspend,    /**< 挂起 */
-    osThreadRunning,    /**< 运行中 */
-    osThreadBlocked,    /**< 堵塞 */
-    osThreadTerminated  /**< 结束 */
+  osThreadReady,      /**< 就绪 */
+  osThreadSuspend,    /**< 挂起 */
+  osThreadRunning,    /**< 运行中 */
+  osThreadBlocked,    /**< 堵塞 */
+  osThreadTerminated  /**< 结束 */
 }osThread_Stage_t;
 
 /*@}*/
@@ -74,44 +74,44 @@ typedef enum {
 /*@{*/
 
 typedef struct Thread_Attr {
-    /**
-     *  Thread堆栈储存指针
-     *  @note 禁止变更位置
-     */
-    void *stackTop;      /**< Thread栈顶指针 */
-    void *stackEnd;      /**< Thread栈底指针 */
-    uint16_t stackSize;  /**< Thread栈大小 */
+  /**
+    *  Thread堆栈储存指针
+    *  @note 禁止变更位置
+    */
+  void *stackTop;      /**< Thread栈顶指针 */
+  void *stackEnd;      /**< Thread栈底指针 */
+  uint16_t stackSize;  /**< Thread栈大小 */
 
-    void *functions;    /**< Thread运行主体 */
-    void *arguments;    /**< Thread主体变量 */
+  void *functions;    /**< Thread运行主体 */
+  void *arguments;    /**< Thread主体变量 */
 
-    /**
-     *  Thread优先级
-     */
-    uint8_t priority;   /**< 优先级 */
+  /**
+    *  Thread优先级
+    */
+  uint8_t priority;   /**< 优先级 */
 
-    #if MAX_PRIORITY_LEVEL > 32
-        uint8_t bitmap_Low_Mask;    /**< low bitmap 标志 */
-        uint8_t bitmap_High_Mask;   /**< high bitmap 标志 */
-    #endif
+  #if MAX_PRIORITY_LEVEL > 32
+    uint8_t bitmap_Low_Mask;    /**< low bitmap 标志 */
+    uint8_t bitmap_High_Mask;   /**< high bitmap 标志 */
+  #endif
 
-    #if MAX_PRIORITY_LEVEL <= 8
-        uint8_t bitmap_Mask;    /**< 8优先级以内bitmap标志 */
-    #else
-        uint32_t bitmap_Mask;   /**< 大于8级的bitmap标志 */
-    #endif
+  #if MAX_PRIORITY_LEVEL <= 8
+    uint8_t bitmap_Mask;    /**< 8优先级以内bitmap标志 */
+  #else
+    uint32_t bitmap_Mask;   /**< 大于8级的bitmap标志 */
+  #endif
 
-    /**
-     *  其他属性
-     */
-    struct osList_Head_t list;    /**< 链表节点 */
+  /**
+    *  其他属性
+    */
+  struct osList_Head_t list;    /**< 链表节点 */
 
-    osTimer_Attr_t timer;    /**< 运行时核心计数器 */
+  osTimer_Attr_t timer;    /**< 运行时核心计数器 */
 
-    uint16_t initTimeSlice;     /**< 初始时间片大小 */
-    uint16_t timeSlice;         /**< 时间片大小 */
+  uint16_t initTimeSlice;     /**< 初始时间片大小 */
+  uint16_t timeSlice;         /**< 时间片大小 */
 
-    osThread_Stage_t stage;    /**< 状态 */
+  osThread_Stage_t stage;    /**< 状态 */
 }osThread_Attr_t;
 
 /**

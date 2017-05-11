@@ -69,16 +69,16 @@ extern struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 /*@{*/
 
 void thread_TimerCallback(void *arguments) {
-    //OS_ASSERT
+  //OS_ASSERT
 
-    osThread_Attr_t *thread = (osThread_Attr_t *)arguments;
+  osThread_Attr_t *thread = (osThread_Attr_t *)arguments;
 
-    /*标记线程就绪态*/
-    thread->stage = osThreadReady;
+  /*标记线程就绪态*/
+  thread->stage = osThreadReady;
 
-    /*插入调度器,切换下一线程*/
-    sche_InsertThread(thread);
-    sche_ToNextThread();
+  /*插入调度器,切换下一线程*/
+  sche_InsertThread(thread);
+  sche_ToNextThread();
 }
 
 /*@}*/
@@ -98,59 +98,59 @@ void thread_TimerCallback(void *arguments) {
  * @return 线程句柄
  */
 osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
+  //OS_ASSERT
+
+  /*调整堆栈大小,4字节对齐*/
+  thread->stackSize = ALIGN(thread->stackSize, 4);
+  //OS_ASSERT
+
+  /*申请栈空间*/
+  thread->stackEnd = (void *)osMem_Malloc(thread->stackSize);
+  if (thread->stackEnd == NULL) {
     //OS_ASSERT
 
-    /*调整堆栈大小,4字节对齐*/
-    thread->stackSize = ALIGN(thread->stackSize, 4);
+    return 0;
+  }
+
+  /*最后栈底最后一个字节写入一个固定数值,用于检测栈溢出*/
+  *((uint32_t*) thread->stackEnd) = (uint32_t) MAGIC_WORD;
+
+  /*设置栈顶*/
+  thread->stackTop = (void *)((uint32_t)thread->stackEnd + thread->stackSize);
+
+  /*初始化线程CPU栈寄存器*/
+  thread->stackTop = cpu_SetupRegisters(thread->functions, argument, thread->stackTop);
+  thread->arguments = argument;
+
+  /*超出最大设定组别*/
+  if (thread->priority > MAX_PRIORITY_LEVEL) {
     //OS_ASSERT
 
-    /*申请栈空间*/
-    thread->stackEnd = (void *)osMem_Malloc(thread->stackSize);
-    if (thread->stackEnd == NULL) {
-        //OS_ASSERT
+    thread->priority = MAX_PRIORITY_LEVEL;
+  }
 
-        return 0;
-    }
-
-    /*最后栈底最后一个字节写入一个固定数值,用于检测栈溢出*/
-    *((uint32_t*) thread->stackEnd) = (uint32_t) MAGIC_WORD;
-
-    /*设置栈顶*/
-    thread->stackTop = (void *)((uint32_t)thread->stackEnd + thread->stackSize);
-
-    /*初始化线程CPU栈寄存器*/
-    thread->stackTop = cpu_SetupRegisters(thread->functions, argument, thread->stackTop);
-    thread->arguments = argument;
-
-    /*超出最大设定组别*/
-    if (thread->priority > MAX_PRIORITY_LEVEL) {
-        //OS_ASSERT
-
-        thread->priority = MAX_PRIORITY_LEVEL;
-    }
-
-    /*确定线程在优先bitmap的位置*/
-    #if MAX_PRIORITY_LEVEL > 32
-        thread->bitmap_Low_Mask = thread->priority >> 3;
-        thread->bitmap_High_Mask = 1L << (thread->priority & 0x07);
-        thread->bitmap_Mask = 1L << thread->bitmap_Low_Mask;
-    #else
-        thread->bitmap_Mask = 1L << thread->priority;
-    #endif
+  /*确定线程在优先bitmap的位置*/
+  #if MAX_PRIORITY_LEVEL > 32
+    thread->bitmap_Low_Mask = thread->priority >> 3;
+    thread->bitmap_High_Mask = 1L << (thread->priority & 0x07);
+    thread->bitmap_Mask = 1L << thread->bitmap_Low_Mask;
+  #else
+    thread->bitmap_Mask = 1L << thread->priority;
+  #endif
    
-    /*初始化节点*/
-    osList_HeadInit(&(thread->list));
+  /*初始化节点*/
+  osList_HeadInit(&(thread->list));
 
-    /*初始化依赖定时器*/
-    thread->timer.callback = thread_TimerCallback;
-    thread->timer.mode = osTimerHard;
-    osTimer_Create(&(thread->timer), osTimerOnce, (void *)thread);
+  /*初始化依赖定时器*/
+  thread->timer.callback = thread_TimerCallback;
+  thread->timer.mode = osTimerHard;
+  osTimer_Create(&(thread->timer), osTimerOnce, (void *)thread);
 
-    /*设置其他参数*/
-    thread->stage = osThreadSuspend;
-    thread->timeSlice = thread->initTimeSlice;
+  /*设置其他参数*/
+  thread->stage = osThreadSuspend;
+  thread->timeSlice = thread->initTimeSlice;
 
-    return (osThread_ID)thread;
+  return (osThread_ID)thread;
 }
 EXPORT_SYMBOL(osThread_Create);
 
@@ -164,32 +164,32 @@ EXPORT_SYMBOL(osThread_Create);
  * @return none
  */
 void osThread_Ready(osThread_ID id) {
+  //OS_ASSERT
+
+  /*关中断*/
+  register uint32_t level;
+  level = hal_DisableINT();
+
+  osThread_Attr_t *thread = (osThread_Attr_t *)id;
+
+  /*标记就绪态,并加入调度行列*/
+  if (thread->stage == osThreadTerminated ||
+    thread->stage == osThreadReady) {
     //OS_ASSERT
 
-    /*关中断*/
-    register uint32_t level;
-    level = hal_DisableINT();
-
-    osThread_Attr_t *thread = (osThread_Attr_t *)id;
-
-    /*标记就绪态,并加入调度行列*/
-    if (thread->stage == osThreadTerminated ||
-        thread->stage == osThreadReady) {
-        //OS_ASSERT
-
-        hal_EnableINT(level);
-
-        return;
-    }
-    thread->stage = osThreadReady;
-
-    /*关闭定时器*/
-    osTimer_Stop(&(thread->timer));
-
-    /*插入调度器*/
-    sche_InsertThread(thread);
-
     hal_EnableINT(level);
+
+    return;
+  }
+  thread->stage = osThreadReady;
+
+  /*关闭定时器*/
+  osTimer_Stop(&(thread->timer));
+
+  /*插入调度器*/
+  sche_InsertThread(thread);
+
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osThread_Ready);
 
@@ -203,34 +203,34 @@ EXPORT_SYMBOL(osThread_Ready);
  * @return none
  */
 void osThread_Suspend(osThread_ID id) {
+  //OS_ASSERT
+
+  /*关中断*/
+  register uint32_t level;
+  level = hal_DisableINT();
+
+  osThread_Attr_t *thread = (osThread_Attr_t *)id;
+
+  /*标记挂起状态*/
+  if (thread->stage == osThreadSuspend ||
+    thread->stage == osThreadTerminated) {
     //OS_ASSERT
 
-    /*关中断*/
-    register uint32_t level;
-    level = hal_DisableINT();
-
-    osThread_Attr_t *thread = (osThread_Attr_t *)id;
-
-    /*标记挂起状态*/
-    if (thread->stage == osThreadSuspend ||
-        thread->stage == osThreadTerminated) {
-        //OS_ASSERT
-
-        /*开中断*/
-         hal_EnableINT(level);
-
-        return;
-    }
-    thread->stage = osThreadSuspend;
-
-    /*清除定时器状态*/
-    osTimer_Stop(&(thread->timer));
-
-    /*调度器移除线程*/
-    sche_RemoveThread(thread);
-
     /*开中断*/
-    hal_EnableINT(level);
+      hal_EnableINT(level);
+
+    return;
+  }
+  thread->stage = osThreadSuspend;
+
+  /*清除定时器状态*/
+  osTimer_Stop(&(thread->timer));
+
+  /*调度器移除线程*/
+  sche_RemoveThread(thread);
+
+  /*开中断*/
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osThread_Suspend);
 
@@ -243,16 +243,16 @@ EXPORT_SYMBOL(osThread_Suspend);
  * @return 线程句柄
  */
 osThread_ID osThread_Self(void) {
-    /*关中断*/
-    register uint32_t level;
-    level = hal_DisableINT();
+  /*关中断*/
+  register uint32_t level;
+  level = hal_DisableINT();
 
-    osThread_ID self = (osThread_ID)sche_NowThread;
+  osThread_ID self = (osThread_ID)sche_NowThread;
 
-    /*开中断*/
-    hal_EnableINT(level);
+  /*开中断*/
+  hal_EnableINT(level);
 
-    return self;
+  return self;
 }
 EXPORT_SYMBOL(osThread_Self);
 
@@ -265,24 +265,24 @@ EXPORT_SYMBOL(osThread_Self);
  * @return none
  */
 void osThread_Yield(void) {
-    /*关中断*/
-    register uint32_t level;
-    level = hal_DisableINT();
+  /*关中断*/
+  register uint32_t level;
+  level = hal_DisableINT();
 
-    osThread_Attr_t *thread = (osThread_Attr_t *)sche_NowThread;
+  osThread_Attr_t *thread = (osThread_Attr_t *)sche_NowThread;
 
-    /*标记就绪态*/
-    thread->stage = osThreadReady;
+  /*标记就绪态*/
+  thread->stage = osThreadReady;
 
-    /*线程移至调度器容器末尾*/
-    osList_DeleteNode(&(thread->list));
-    osList_AddTail(&(sche_ReadyList[thread->priority]), &(thread->list));
+  /*线程移至调度器容器末尾*/
+  osList_DeleteNode(&(thread->list));
+  osList_AddTail(&(sche_ReadyList[thread->priority]), &(thread->list));
 
-    /*开中断*/
-    hal_EnableINT(level);
+  /*开中断*/
+  hal_EnableINT(level);
 
-    /*切换下一线程*/
-    sche_ToNextThread();
+  /*切换下一线程*/
+  sche_ToNextThread();
 }
 EXPORT_SYMBOL(osThread_Yield);
 
@@ -295,26 +295,26 @@ EXPORT_SYMBOL(osThread_Yield);
  * @return none
  */
 void osThread_Delay(osTick_t tick) {
-    /*关中断*/
-    register uint32_t level;
-    level = hal_DisableINT();
+  /*关中断*/
+  register uint32_t level;
+  level = hal_DisableINT();
 
-    /*获取当前线程*/
-    osThread_Attr_t *thread = (osThread_Attr_t *)sche_NowThread;
-    /*标记堵塞态*/
-    thread->stage = osThreadBlocked;
+  /*获取当前线程*/
+  osThread_Attr_t *thread = (osThread_Attr_t *)sche_NowThread;
+  /*标记堵塞态*/
+  thread->stage = osThreadBlocked;
 
-    /*移除调度*/
-    sche_RemoveThread(thread);
+  /*移除调度*/
+  sche_RemoveThread(thread);
 
-    /*设置堵塞tick*/
-    osTimer_Start(&(thread->timer), tick);
+  /*设置堵塞tick*/
+  osTimer_Start(&(thread->timer), tick);
 
-    /*进行一次调度*/
-    sche_ToNextThread();
+  /*进行一次调度*/
+  sche_ToNextThread();
 
-    /*开中断*/
-    hal_EnableINT(level);
+  /*开中断*/
+  hal_EnableINT(level);
 }
 
 /*@}*/
