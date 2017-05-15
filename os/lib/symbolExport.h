@@ -52,7 +52,7 @@
   typedef struct symbolTab {
     void *address;
     const char *name;
-  } symbolTab_t;
+  }symbolTab_t;
 
   /*@}*/
 
