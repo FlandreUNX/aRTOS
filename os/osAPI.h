@@ -86,6 +86,9 @@ extern void osSys_KernelStartup(void);
  
 /*@{*/
 
+/**
+ *  core include file 
+ */
 #include "./mm/buddy.h"
 
 
@@ -116,6 +119,9 @@ extern void osMem_Free(void* address);
 
 /*@{*/
 
+/**
+ *  core include file 
+ */
 #include "./kernel/schedule.h"
 
 
@@ -146,6 +152,9 @@ extern void osSche_Unlock(void);
 
 /*@{*/
 
+/**
+ *  core include file 
+ */
 #include "./kernel/thread.h"
 
 
@@ -189,6 +198,69 @@ extern void osSche_Unlock(void);
 #define osThread_Obj(name) \
   &os_Thread_##name
 
+
+/**
+ * 创建线程
+ *
+ * @param thread 线程对象
+ * @param argument 入口函数的传入参数
+ *
+ * @return 线程句柄
+ */
+extern osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument);
+
+
+/**
+ * 就绪线程
+ * 除了osThreadTerminated|osThreadReady,就绪任务会强制退出其他状态
+ *
+ * @param id 线程句柄
+ *
+ * @return none
+ */
+extern void osThread_Ready(osThread_ID id);
+
+
+/**
+ * 挂起线程
+ * 除了osThreadTerminated|osThreadSuspend,挂起任务会强制退出其他状态
+ *
+ * @param id 线程句柄
+ *
+ * @return none
+ */
+extern void osThread_Suspend(osThread_ID id);
+
+
+/**
+ * 对当前线程进行延时
+ *
+ * @param tick 延时数
+ *
+ * @return none
+ */
+extern void osThread_Delay(osTick_t tick);
+
+
+/**
+ * 返回当前线程自己的句柄
+ *
+ * @param none
+ *
+ * @return 线程句柄
+ */
+extern osThread_ID osThread_Self(void);
+
+
+/**
+ * 主动放弃CPU占用
+ *
+ * @param none
+ *
+ * @return none
+ */
+extern void osThread_Yield(void);
+
 /*@}*/
 
 /**
@@ -197,6 +269,9 @@ extern void osSche_Unlock(void);
 
 /*@{*/
 
+/**
+ *  core include file 
+ */
 #include "./kernel/timer.h"
 
 
@@ -237,6 +312,71 @@ extern void osSche_Unlock(void);
  */
 #define osTimer_Obj(name) \
   &os_Timer_##name
+
+
+/**
+ * 创建定时器
+ *
+ * @param obj 定时器对象
+ * @param flag 模式(once|periodic)
+ * @param arguments 回调函数传入参数
+ * 
+ * @return 定时器句柄
+ */
+extern osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag_t flag, void *arguments);
+
+
+/**
+ * 设置的定时器周期
+ *
+ * @param id 定时器句柄
+ * @param tick 周期长度
+ * 
+ * @return none
+ */
+extern void osTimer_SetTick(osTimer_ID id, osTick_t tick);
+
+
+/**
+ * 获取定时器的剩余时间
+ *
+ * @param id 定时器句柄
+ * 
+ * @return tick剩余值
+ */
+extern osTick_t osTimer_GetResidueTick(osTimer_ID id);
+
+
+/**
+ * 设置定时器回调函数的传入参数
+ *
+ * @param id 定时器句柄
+ * @param arguments 参数指针
+ * 
+ * @return none
+ */
+extern void osTimer_SetArgument(osTimer_ID id, void *arguments);
+
+
+/**
+ * 定时器启动
+ *
+ * @param id 定时器句柄
+ * @param tick 定时器定时值
+ * 
+ * @return none
+ */
+extern void osTimer_Start(osTimer_ID id, osTick_t tick);
+
+
+/**
+ * 定时器停止
+ *
+ * @param id 定时器句柄
+ * 
+ * @return none
+ */
+extern void osTimer_Stop(osTimer_ID id);
 
 /*@}*/
 
