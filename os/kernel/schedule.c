@@ -83,7 +83,8 @@ static volatile int8_t sche_LockNest;
 static volatile uint8_t sche_CurrPriority;
 
 /*调度器线程运行指示*/
-volatile osThread_Attr_t *sche_NowThread, *sche_NextThread;
+volatile struct threadSwitchInfo_t sche_ThreadSwitchStatus;
+
 
 /*@}*/
 
@@ -168,8 +169,8 @@ struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
  */
 void sche_Init(void) {
   sche_LockNest = 0;
-  sche_NowThread = 0;
-  sche_NextThread = 0;
+  sche_ThreadSwitchStatus.nowThread = 0;
+  sche_ThreadSwitchStatus.nextThread = 0;
 
   /*初始状态,只有IDLE*/
   sche_CurrPriority = MAX_PRIORITY_LEVEL - 1;
@@ -264,7 +265,7 @@ void sche_RemoveThread(osThread_Attr_t* thread) {
  * @return none
  */
 void sche_NextToNow(void) {
-  sche_NowThread = sche_NextThread;
+  sche_ThreadSwitchStatus.nowThread = sche_ThreadSwitchStatus.nextThread;
 }
 
 
@@ -314,16 +315,16 @@ void sche_ToNextThread(void) {
     #endif
 
     /*选定最新的线程Block*/
-    sche_NextThread = osList_Entry(sche_ReadyList[highestPriority].next, osThread_Attr_t, list);
+    sche_ThreadSwitchStatus.nextThread = osList_Entry(sche_ReadyList[highestPriority].next, osThread_Attr_t, list);
 
     /*判断线程是否相同*/
-    if(sche_NowThread != sche_NextThread) {
+    if(sche_ThreadSwitchStatus.nowThread != sche_ThreadSwitchStatus.nextThread) {
       /*当前最高线程优先级*/
       sche_CurrPriority = highestPriority;
 
       /*标记线程状态*/
-      sche_NextThread->stage = osThreadRunning;
-      sche_NowThread->stage = osThreadReady;
+      sche_ThreadSwitchStatus.nextThread->stage = osThreadRunning;
+      sche_ThreadSwitchStatus.nowThread->stage = osThreadReady;
 
       /*调度Call*/
       hal_CallPendSV();
@@ -350,11 +351,11 @@ void sys_TickHandler(void) {
   ++sys_TickCount;
 
   /*线程时间片-1*/
-  --sche_NowThread->timeSlice;
+  --sche_ThreadSwitchStatus.nowThread->timeSlice;
 
   /*时间片耗尽重新调度*/
-  if (sche_NowThread->timeSlice == 0) {
-    sche_NowThread->timeSlice = sche_NowThread->initTimeSlice;
+  if (sche_ThreadSwitchStatus.nowThread->timeSlice == 0) {
+    sche_ThreadSwitchStatus.nowThread->timeSlice = sche_ThreadSwitchStatus.nowThread->initTimeSlice;
 
     osThread_Yield();
   }

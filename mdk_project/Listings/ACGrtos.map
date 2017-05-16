@@ -18,13 +18,12 @@ Section Cross References
     schedule.o(i.sche_InsertThread) refers to schedule.o(i.osList_DeleteNode) for osList_DeleteNode
     schedule.o(i.sche_InsertThread) refers to schedule.o(.bss) for sche_ReadyList
     schedule.o(i.sche_InsertThread) refers to schedule.o(.data) for bitmap_L1
-    schedule.o(i.sche_NextToNow) refers to schedule.o(.data) for sche_NextThread
+    schedule.o(i.sche_NextToNow) refers to schedule.o(.data) for sche_ThreadSwitchStatus
     schedule.o(i.sche_RemoveThread) refers to hal_cm.o(.emb_text) for hal_DisableINT
     schedule.o(i.sche_RemoveThread) refers to schedule.o(i.osList_DeleteNode) for osList_DeleteNode
     schedule.o(i.sche_RemoveThread) refers to schedule.o(.bss) for sche_ReadyList
     schedule.o(i.sche_RemoveThread) refers to schedule.o(.data) for bitmap_L1
     schedule.o(i.sche_ToNextThread) refers to hal_cm.o(.emb_text) for hal_DisableINT
-    schedule.o(i.sche_ToNextThread) refers to hal_cm.o(i.hal_CallPendSV) for hal_CallPendSV
     schedule.o(i.sche_ToNextThread) refers to schedule.o(.data) for sche_LockNest
     schedule.o(i.sche_ToNextThread) refers to schedule.o(.constdata) for BITMAP
     schedule.o(i.sche_ToNextThread) refers to schedule.o(.bss) for bitmap_L2
@@ -40,26 +39,26 @@ Section Cross References
     thread.o(i.osThread_Create) refers to buddy.o(i.osMem_Malloc) for osMem_Malloc
     thread.o(i.osThread_Create) refers to hal_cm.o(i.cpu_SetupRegisters) for cpu_SetupRegisters
     thread.o(i.osThread_Create) refers to timer.o(i.osTimer_Create) for osTimer_Create
-    thread.o(i.osThread_Create) refers to thread.o(i.thread_TimerCallback) for thread_TimerCallback
+    thread.o(i.osThread_Create) refers to thread.o(i.threadTimerCallback) for threadTimerCallback
     thread.o(i.osThread_Delay) refers to hal_cm.o(.emb_text) for hal_DisableINT
     thread.o(i.osThread_Delay) refers to schedule.o(i.sche_RemoveThread) for sche_RemoveThread
     thread.o(i.osThread_Delay) refers to timer.o(i.osTimer_Start) for osTimer_Start
     thread.o(i.osThread_Delay) refers to schedule.o(i.sche_ToNextThread) for sche_ToNextThread
-    thread.o(i.osThread_Delay) refers to schedule.o(.data) for sche_NowThread
+    thread.o(i.osThread_Delay) refers to schedule.o(.data) for sche_ThreadSwitchStatus
     thread.o(i.osThread_Ready) refers to hal_cm.o(.emb_text) for hal_DisableINT
     thread.o(i.osThread_Ready) refers to timer.o(i.osTimer_Stop) for osTimer_Stop
     thread.o(i.osThread_Ready) refers to schedule.o(i.sche_InsertThread) for sche_InsertThread
     thread.o(i.osThread_Self) refers to hal_cm.o(.emb_text) for hal_DisableINT
-    thread.o(i.osThread_Self) refers to schedule.o(.data) for sche_NowThread
+    thread.o(i.osThread_Self) refers to schedule.o(.data) for sche_ThreadSwitchStatus
     thread.o(i.osThread_Suspend) refers to hal_cm.o(.emb_text) for hal_DisableINT
     thread.o(i.osThread_Suspend) refers to timer.o(i.osTimer_Stop) for osTimer_Stop
     thread.o(i.osThread_Suspend) refers to schedule.o(i.sche_RemoveThread) for sche_RemoveThread
     thread.o(i.osThread_Yield) refers to hal_cm.o(.emb_text) for hal_DisableINT
     thread.o(i.osThread_Yield) refers to schedule.o(i.sche_ToNextThread) for sche_ToNextThread
-    thread.o(i.osThread_Yield) refers to schedule.o(.data) for sche_NowThread
+    thread.o(i.osThread_Yield) refers to schedule.o(.data) for sche_ThreadSwitchStatus
     thread.o(i.osThread_Yield) refers to schedule.o(.bss) for sche_ReadyList
-    thread.o(i.thread_TimerCallback) refers to schedule.o(i.sche_InsertThread) for sche_InsertThread
-    thread.o(i.thread_TimerCallback) refers to schedule.o(i.sche_ToNextThread) for sche_ToNextThread
+    thread.o(i.threadTimerCallback) refers to schedule.o(i.sche_InsertThread) for sche_InsertThread
+    thread.o(i.threadTimerCallback) refers to schedule.o(i.sche_ToNextThread) for sche_ToNextThread
     thread.o(kernelSymbol) refers to thread.o(i.osThread_Create) for osThread_Create
     thread.o(kernelSymbol) refers to thread.o(.rodata.name) for export_osThread_Create_name
     thread.o(kernelSymbol) refers to thread.o(i.osThread_Ready) for osThread_Ready
@@ -67,6 +66,9 @@ Section Cross References
     thread.o(kernelSymbol) refers to thread.o(i.osThread_Self) for osThread_Self
     thread.o(kernelSymbol) refers to thread.o(i.osThread_Yield) for osThread_Yield
     timer.o(i.osTimer_Create) refers to timer.o(i.osList_HeadInit) for osList_HeadInit
+    timer.o(i.osTimer_GetResidueTick) refers to hal_cm.o(.emb_text) for hal_DisableINT
+    timer.o(i.osTimer_GetResidueTick) refers to schedule.o(i.osSys_GetNowTick) for osSys_GetNowTick
+    timer.o(i.osTimer_SetArgument) refers to hal_cm.o(.emb_text) for hal_DisableINT
     timer.o(i.osTimer_Start) refers to hal_cm.o(.emb_text) for hal_DisableINT
     timer.o(i.osTimer_Start) refers to timer.o(i.osList_DeleteNode) for osList_DeleteNode
     timer.o(i.osTimer_Start) refers to schedule.o(i.osSys_GetNowTick) for osSys_GetNowTick
@@ -103,6 +105,8 @@ Section Cross References
     timer.o(kernelSymbol) refers to timer.o(i.osTimer_SetTick) for osTimer_SetTick
     timer.o(kernelSymbol) refers to timer.o(i.osTimer_Start) for osTimer_Start
     timer.o(kernelSymbol) refers to timer.o(i.osTimer_Stop) for osTimer_Stop
+    timer.o(kernelSymbol) refers to timer.o(i.osTimer_SetArgument) for osTimer_SetArgument
+    timer.o(kernelSymbol) refers to timer.o(i.osTimer_GetResidueTick) for osTimer_GetResidueTick
     irq.o(i.osSys_GetNest) refers to irq.o(.data) for interruptNest
     irq.o(i.osSys_ISREnter) refers to hal_cm.o(.emb_text) for hal_DisableINT
     irq.o(i.osSys_ISREnter) refers to irq.o(.data) for interruptNest
@@ -112,21 +116,21 @@ Section Cross References
     irq.o(kernelSymbol) refers to irq.o(.rodata.name) for export_osSys_ISRLeave_name
     irq.o(kernelSymbol) refers to irq.o(i.osSys_ISREnter) for osSys_ISREnter
     irq.o(kernelSymbol) refers to irq.o(i.osSys_GetNest) for osSys_GetNest
-    buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_DeleteNode) for osList_DeleteNode
-    buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_HeadInit) for osList_HeadInit
-    buddy.o(i.__AllocateBlock) refers to buddy.o(i.osList_AddTail) for osList_AddTail
-    buddy.o(i.__AllocateBlock) refers to buddy.o(.bss) for buddy_list
     buddy.o(i.__FreeBlock) refers to buddy.o(i.osList_DeleteNode) for osList_DeleteNode
     buddy.o(i.__FreeBlock) refers to buddy.o(i.osList_HeadInit) for osList_HeadInit
     buddy.o(i.__FreeBlock) refers to buddy.o(i.osList_AddTail) for osList_AddTail
     buddy.o(i.__FreeBlock) refers to buddy.o(.bss) for osMem_Info
+    buddy.o(i.allocateBlock) refers to buddy.o(i.osList_DeleteNode) for osList_DeleteNode
+    buddy.o(i.allocateBlock) refers to buddy.o(i.osList_HeadInit) for osList_HeadInit
+    buddy.o(i.allocateBlock) refers to buddy.o(i.osList_AddTail) for osList_AddTail
+    buddy.o(i.allocateBlock) refers to buddy.o(.bss) for buddy_list
     buddy.o(i.mem_Init) refers to buddy.o(i.osList_HeadInit) for osList_HeadInit
     buddy.o(i.mem_Init) refers to buddy.o(i.osList_AddTail) for osList_AddTail
     buddy.o(i.mem_Init) refers to buddy.o(.bss) for buddy_list
     buddy.o(i.osMem_Free) refers to hal_cm.o(.emb_text) for hal_DisableINT
     buddy.o(i.osMem_Free) refers to buddy.o(i.__FreeBlock) for __FreeBlock
     buddy.o(i.osMem_Malloc) refers to hal_cm.o(.emb_text) for hal_DisableINT
-    buddy.o(i.osMem_Malloc) refers to buddy.o(i.__AllocateBlock) for __AllocateBlock
+    buddy.o(i.osMem_Malloc) refers to buddy.o(i.allocateBlock) for allocateBlock
     buddy.o(kernelSymbol) refers to buddy.o(i.osMem_Malloc) for osMem_Malloc
     buddy.o(kernelSymbol) refers to buddy.o(.rodata.name) for export_osMem_Malloc_name
     buddy.o(kernelSymbol) refers to buddy.o(i.osMem_Free) for osMem_Free
@@ -149,7 +153,7 @@ Section Cross References
     ringbuffer.o(kernelSymbol) refers to ringbuffer.o(i.osRBuffer_PutByte) for osRBuffer_PutByte
     ringbuffer.o(kernelSymbol) refers to ringbuffer.o(i.osRBuffer_GetByte) for osRBuffer_GetByte
     ringbuffer.o(kernelSymbol) refers to ringbuffer.o(i.osRBuffer_Clear) for osRBuffer_Clear
-    hal_cm.o(.emb_text) refers to schedule.o(.data) for sche_NowThread
+    hal_cm.o(.emb_text) refers to schedule.o(.data) for sche_ThreadSwitchStatus
     hal_cm.o(.emb_text) refers to schedule.o(i.sche_NextToNow) for sche_NextToNow
     hal_cm.o(i.SysTick_Handler) refers to schedule.o(i.sys_TickHandler) for sys_TickHandler
     adc14.o(i.ADC14_configureConversionMemory) refers to adc14.o(i.ADCIsConversionRunning) for ADCIsConversionRunning
@@ -586,24 +590,26 @@ Section Cross References
 Removing Unused input sections from the image.
 
     Removing schedule.o(i.osList_HeadInit), (6 bytes).
-    Removing schedule.o(i.sche_Init), (100 bytes).
+    Removing schedule.o(i.sche_Init), (92 bytes).
     Removing schedule.o(.rodata.name), (43 bytes).
     Removing schedule.o(kernelSymbol), (24 bytes).
     Removing thread.o(i.osThread_Create), (152 bytes).
-    Removing thread.o(i.thread_TimerCallback), (24 bytes).
+    Removing thread.o(i.threadTimerCallback), (24 bytes).
     Removing thread.o(.rodata.name), (77 bytes).
     Removing thread.o(kernelSymbol), (40 bytes).
     Removing timer.o(i.osList_HeadInit), (6 bytes).
     Removing timer.o(i.osTimer_Create), (28 bytes).
+    Removing timer.o(i.osTimer_GetResidueTick), (34 bytes).
+    Removing timer.o(i.osTimer_SetArgument), (44 bytes).
     Removing timer.o(i.osTimer_SetTick), (16 bytes).
     Removing timer.o(i.timer_Init), (52 bytes).
-    Removing timer.o(.rodata.name), (58 bytes).
-    Removing timer.o(kernelSymbol), (32 bytes).
+    Removing timer.o(.rodata.name), (101 bytes).
+    Removing timer.o(kernelSymbol), (48 bytes).
     Removing irq.o(i.osSys_GetNest), (12 bytes).
     Removing irq.o(.rodata.name), (44 bytes).
     Removing irq.o(kernelSymbol), (24 bytes).
-    Removing buddy.o(i.__AllocateBlock), (164 bytes).
     Removing buddy.o(i.__FreeBlock), (140 bytes).
+    Removing buddy.o(i.allocateBlock), (164 bytes).
     Removing buddy.o(i.mem_Init), (196 bytes).
     Removing buddy.o(i.osList_AddTail), (14 bytes).
     Removing buddy.o(i.osList_DeleteNode), (18 bytes).
@@ -625,11 +631,7 @@ Removing Unused input sections from the image.
     Removing ringbuffer.o(i.osRBuffer_StaticCreate), (32 bytes).
     Removing ringbuffer.o(.rodata.name), (183 bytes).
     Removing ringbuffer.o(kernelSymbol), (80 bytes).
-    Removing hal_cm.o(.rev16_text), (4 bytes).
-    Removing hal_cm.o(.revsh_text), (4 bytes).
-    Removing hal_cm.o(.rrx_text), (6 bytes).
     Removing hal_cm.o(i.cpu_SetupRegisters), (76 bytes).
-    Removing hal_cm.o(i.hal_CallNMI), (20 bytes).
     Removing adc14.o(.rev16_text), (4 bytes).
     Removing adc14.o(.revsh_text), (4 bytes).
     Removing adc14.o(.rrx_text), (6 bytes).
@@ -1266,7 +1268,7 @@ Removing Unused input sections from the image.
     Removing ffixui.o(.text), (40 bytes).
     Removing fepilogue.o(.text), (110 bytes).
 
-680 unused section(s) (total 30803 bytes) removed from the image.
+678 unused section(s) (total 30898 bytes) removed from the image.
 
 ==============================================================================
 
@@ -1277,19 +1279,19 @@ Image Symbol Table
     Symbol Name                              Value     Ov Type        Size  Object(Section)
 
     RESET                                    0x00000000   Section      324  startup_msp432p401r_uvision.o(RESET)
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
     ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpya.o ABSOLUTE
     ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpyb.o ABSOLUTE
     ../clib/microlib/string/memset.c         0x00000000   Number         0  memseta.o ABSOLUTE
@@ -1379,24 +1381,23 @@ Image Symbol Table
     .ARM.Collect$$$$0000000F                 0x00000154   Section        0  entry11a.o(.ARM.Collect$$$$0000000F)
     .ARM.Collect$$$$00002712                 0x00000154   Section        4  entry2.o(.ARM.Collect$$$$00002712)
     __lit__00000000                          0x00000154   Data           4  entry2.o(.ARM.Collect$$$$00002712)
-    .emb_text                                0x00000158   Section      160  hal_cm.o(.emb_text)
-    .text                                    0x000001f8   Section       36  startup_msp432p401r_uvision.o(.text)
-    .text                                    0x0000021c   Section       36  init.o(.text)
-    i.SysTick_Handler                        0x00000240   Section        0  hal_cm.o(i.SysTick_Handler)
-    i.SystemInit                             0x00000248   Section        0  system_msp432p401r.o(i.SystemInit)
-    i.__scatterload_copy                     0x000002a4   Section       14  handlers.o(i.__scatterload_copy)
-    i.__scatterload_null                     0x000002b2   Section        2  handlers.o(i.__scatterload_null)
-    i.__scatterload_zeroinit                 0x000002b4   Section       14  handlers.o(i.__scatterload_zeroinit)
-    i.hal_CallPendSV                         0x000002c4   Section        0  hal_cm.o(i.hal_CallPendSV)
-    i.main                                   0x000002d8   Section        0  startup.o(i.main)
-    i.osList_AddTail                         0x000002dc   Section        0  timer.o(i.osList_AddTail)
-    osList_AddTail                           0x000002dd   Thumb Code    14  timer.o(i.osList_AddTail)
-    i.osList_CheckIsEmpty                    0x000002ea   Section        0  timer.o(i.osList_CheckIsEmpty)
-    osList_CheckIsEmpty                      0x000002eb   Thumb Code    16  timer.o(i.osList_CheckIsEmpty)
-    i.osList_DeleteNode                      0x000002fa   Section        0  schedule.o(i.osList_DeleteNode)
-    osList_DeleteNode                        0x000002fb   Thumb Code    18  schedule.o(i.osList_DeleteNode)
-    i.osList_DeleteNode                      0x0000030c   Section        0  timer.o(i.osList_DeleteNode)
-    osList_DeleteNode                        0x0000030d   Thumb Code    18  timer.o(i.osList_DeleteNode)
+    .emb_text                                0x00000158   Section      184  hal_cm.o(.emb_text)
+    .text                                    0x00000210   Section       36  startup_msp432p401r_uvision.o(.text)
+    .text                                    0x00000234   Section       36  init.o(.text)
+    i.SysTick_Handler                        0x00000258   Section        0  hal_cm.o(i.SysTick_Handler)
+    i.SystemInit                             0x00000260   Section        0  system_msp432p401r.o(i.SystemInit)
+    i.__scatterload_copy                     0x000002bc   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x000002ca   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x000002cc   Section       14  handlers.o(i.__scatterload_zeroinit)
+    i.main                                   0x000002da   Section        0  startup.o(i.main)
+    i.osList_AddTail                         0x000002de   Section        0  timer.o(i.osList_AddTail)
+    osList_AddTail                           0x000002df   Thumb Code    14  timer.o(i.osList_AddTail)
+    i.osList_CheckIsEmpty                    0x000002ec   Section        0  timer.o(i.osList_CheckIsEmpty)
+    osList_CheckIsEmpty                      0x000002ed   Thumb Code    16  timer.o(i.osList_CheckIsEmpty)
+    i.osList_DeleteNode                      0x000002fc   Section        0  schedule.o(i.osList_DeleteNode)
+    osList_DeleteNode                        0x000002fd   Thumb Code    18  schedule.o(i.osList_DeleteNode)
+    i.osList_DeleteNode                      0x0000030e   Section        0  timer.o(i.osList_DeleteNode)
+    osList_DeleteNode                        0x0000030f   Thumb Code    18  timer.o(i.osList_DeleteNode)
     i.osSche_Lock                            0x00000320   Section        0  schedule.o(i.osSche_Lock)
     i.osSche_Unlock                          0x00000340   Section        0  schedule.o(i.osSche_Unlock)
     i.osSys_GetNowTick                       0x00000374   Section        0  schedule.o(i.osSys_GetNowTick)
@@ -1412,12 +1413,12 @@ Image Symbol Table
     i.os_SoftTimer_Thread                    0x000005d0   Section        0  timer.o(i.os_SoftTimer_Thread)
     i.sche_InsertThread                      0x00000674   Section        0  schedule.o(i.sche_InsertThread)
     i.sche_NextToNow                         0x000006d0   Section        0  schedule.o(i.sche_NextToNow)
-    i.sche_RemoveThread                      0x000006e4   Section        0  schedule.o(i.sche_RemoveThread)
-    i.sche_ToNextThread                      0x00000744   Section        0  schedule.o(i.sche_ToNextThread)
-    i.sys_TickHandler                        0x00000818   Section        0  schedule.o(i.sys_TickHandler)
-    i.timer_TickCheck                        0x0000086c   Section        0  timer.o(i.timer_TickCheck)
-    .constdata                               0x000008c8   Section      256  schedule.o(.constdata)
-    BITMAP                                   0x000008c8   Data         256  schedule.o(.constdata)
+    i.sche_RemoveThread                      0x000006e0   Section        0  schedule.o(i.sche_RemoveThread)
+    i.sche_ToNextThread                      0x00000740   Section        0  schedule.o(i.sche_ToNextThread)
+    i.sys_TickHandler                        0x00000810   Section        0  schedule.o(i.sys_TickHandler)
+    i.timer_TickCheck                        0x00000860   Section        0  timer.o(i.timer_TickCheck)
+    .constdata                               0x000008bc   Section      256  schedule.o(.constdata)
+    BITMAP                                   0x000008bc   Data         256  schedule.o(.constdata)
     .data                                    0x20000000   Section       28  schedule.o(.data)
     sys_TickCount                            0x20000000   Data           4  schedule.o(.data)
     sche_LockNest                            0x20000004   Data           1  schedule.o(.data)
@@ -1453,68 +1454,70 @@ Image Symbol Table
     _main_init                               0x0000014d   Thumb Code     0  entry9a.o(.ARM.Collect$$$$0000000B)
     __rt_final_cpp                           0x00000155   Thumb Code     0  entry10a.o(.ARM.Collect$$$$0000000D)
     __rt_final_exit                          0x00000155   Thumb Code     0  entry11a.o(.ARM.Collect$$$$0000000F)
-    hal_DisableINT                           0x00000159   Thumb Code    22  hal_cm.o(.emb_text)
-    hal_EnableINT                            0x0000016f   Thumb Code     6  hal_cm.o(.emb_text)
-    cpu_GotoFisrtTask                        0x00000175   Thumb Code    32  hal_cm.o(.emb_text)
-    SVC_Handler                              0x00000199   Thumb Code    32  hal_cm.o(.emb_text)
-    PendSV_Handler                           0x000001bd   Thumb Code    56  hal_cm.o(.emb_text)
-    Reset_Handler                            0x000001f9   Thumb Code     8  startup_msp432p401r_uvision.o(.text)
-    NMI_Handler                              0x00000201   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
-    HardFault_Handler                        0x00000203   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
-    MemManage_Handler                        0x00000205   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
-    BusFault_Handler                         0x00000207   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
-    UsageFault_Handler                       0x00000209   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
-    DebugMon_Handler                         0x0000020d   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
-    ADC14_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    AES256_IRQHandler                        0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    COMP_E0_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    COMP_E1_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    CS_IRQHandler                            0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    DMA_ERR_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    DMA_INT0_IRQHandler                      0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    DMA_INT1_IRQHandler                      0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    DMA_INT2_IRQHandler                      0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    DMA_INT3_IRQHandler                      0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    EUSCIA0_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    EUSCIA1_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    EUSCIA2_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    EUSCIA3_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    EUSCIB0_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    EUSCIB1_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    EUSCIB2_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    EUSCIB3_IRQHandler                       0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    FLCTL_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    FPU_IRQHandler                           0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    PCM_IRQHandler                           0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    PORT1_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    PORT2_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    PORT3_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    PORT4_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    PORT5_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    PORT6_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    PSS_IRQHandler                           0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    RTC_C_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    T32_INT1_IRQHandler                      0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    T32_INT2_IRQHandler                      0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    T32_INTC_IRQHandler                      0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    TA0_0_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    TA0_N_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    TA1_0_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    TA1_N_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    TA2_0_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    TA2_N_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    TA3_0_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    TA3_N_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    WDT_A_IRQHandler                         0x00000213   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
-    __scatterload                            0x0000021d   Thumb Code    28  init.o(.text)
-    __scatterload_rt2                        0x0000021d   Thumb Code     0  init.o(.text)
-    SysTick_Handler                          0x00000241   Thumb Code     8  hal_cm.o(i.SysTick_Handler)
-    SystemInit                               0x00000249   Thumb Code    74  system_msp432p401r.o(i.SystemInit)
-    __scatterload_copy                       0x000002a5   Thumb Code    14  handlers.o(i.__scatterload_copy)
-    __scatterload_null                       0x000002b3   Thumb Code     2  handlers.o(i.__scatterload_null)
-    __scatterload_zeroinit                   0x000002b5   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
-    hal_CallPendSV                           0x000002c5   Thumb Code    14  hal_cm.o(i.hal_CallPendSV)
-    main                                     0x000002d9   Thumb Code     4  startup.o(i.main)
+    hal_IRQConfigure                         0x00000159   Thumb Code     8  hal_cm.o(.emb_text)
+    hal_CallPendSV                           0x00000165   Thumb Code     8  hal_cm.o(.emb_text)
+    hal_CallNMI                              0x00000171   Thumb Code     0  hal_cm.o(.emb_text)
+    hal_DisableINT                           0x00000171   Thumb Code    22  hal_cm.o(.emb_text)
+    hal_EnableINT                            0x00000187   Thumb Code     6  hal_cm.o(.emb_text)
+    cpu_GotoFisrtTask                        0x0000018d   Thumb Code    32  hal_cm.o(.emb_text)
+    SVC_Handler                              0x000001b1   Thumb Code    32  hal_cm.o(.emb_text)
+    PendSV_Handler                           0x000001d5   Thumb Code    56  hal_cm.o(.emb_text)
+    Reset_Handler                            0x00000211   Thumb Code     8  startup_msp432p401r_uvision.o(.text)
+    NMI_Handler                              0x00000219   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
+    HardFault_Handler                        0x0000021b   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
+    MemManage_Handler                        0x0000021d   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
+    BusFault_Handler                         0x0000021f   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
+    UsageFault_Handler                       0x00000221   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
+    DebugMon_Handler                         0x00000225   Thumb Code     2  startup_msp432p401r_uvision.o(.text)
+    ADC14_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    AES256_IRQHandler                        0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    COMP_E0_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    COMP_E1_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    CS_IRQHandler                            0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    DMA_ERR_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    DMA_INT0_IRQHandler                      0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    DMA_INT1_IRQHandler                      0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    DMA_INT2_IRQHandler                      0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    DMA_INT3_IRQHandler                      0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    EUSCIA0_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    EUSCIA1_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    EUSCIA2_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    EUSCIA3_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    EUSCIB0_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    EUSCIB1_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    EUSCIB2_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    EUSCIB3_IRQHandler                       0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    FLCTL_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    FPU_IRQHandler                           0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    PCM_IRQHandler                           0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    PORT1_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    PORT2_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    PORT3_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    PORT4_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    PORT5_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    PORT6_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    PSS_IRQHandler                           0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    RTC_C_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    T32_INT1_IRQHandler                      0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    T32_INT2_IRQHandler                      0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    T32_INTC_IRQHandler                      0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    TA0_0_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    TA0_N_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    TA1_0_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    TA1_N_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    TA2_0_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    TA2_N_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    TA3_0_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    TA3_N_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    WDT_A_IRQHandler                         0x0000022b   Thumb Code     0  startup_msp432p401r_uvision.o(.text)
+    __scatterload                            0x00000235   Thumb Code    28  init.o(.text)
+    __scatterload_rt2                        0x00000235   Thumb Code     0  init.o(.text)
+    SysTick_Handler                          0x00000259   Thumb Code     8  hal_cm.o(i.SysTick_Handler)
+    SystemInit                               0x00000261   Thumb Code    74  system_msp432p401r.o(i.SystemInit)
+    __scatterload_copy                       0x000002bd   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x000002cb   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x000002cd   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    main                                     0x000002db   Thumb Code     4  startup.o(i.main)
     osSche_Lock                              0x00000321   Thumb Code    28  schedule.o(i.osSche_Lock)
     osSche_Unlock                            0x00000341   Thumb Code    46  schedule.o(i.osSche_Unlock)
     osSys_GetNowTick                         0x00000375   Thumb Code     6  schedule.o(i.osSys_GetNowTick)
@@ -1530,14 +1533,13 @@ Image Symbol Table
     os_SoftTimer_Thread                      0x000005d1   Thumb Code   160  timer.o(i.os_SoftTimer_Thread)
     sche_InsertThread                        0x00000675   Thumb Code    80  schedule.o(i.sche_InsertThread)
     sche_NextToNow                           0x000006d1   Thumb Code    10  schedule.o(i.sche_NextToNow)
-    sche_RemoveThread                        0x000006e5   Thumb Code    84  schedule.o(i.sche_RemoveThread)
-    sche_ToNextThread                        0x00000745   Thumb Code   178  schedule.o(i.sche_ToNextThread)
-    sys_TickHandler                          0x00000819   Thumb Code    74  schedule.o(i.sys_TickHandler)
-    timer_TickCheck                          0x0000086d   Thumb Code    86  timer.o(i.timer_TickCheck)
-    Region$$Table$$Base                      0x000009c8   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x000009e8   Number         0  anon$$obj.o(Region$$Table)
-    sche_NowThread                           0x20000008   Data           4  schedule.o(.data)
-    sche_NextThread                          0x2000000c   Data           4  schedule.o(.data)
+    sche_RemoveThread                        0x000006e1   Thumb Code    84  schedule.o(i.sche_RemoveThread)
+    sche_ToNextThread                        0x00000741   Thumb Code   178  schedule.o(i.sche_ToNextThread)
+    sys_TickHandler                          0x00000811   Thumb Code    70  schedule.o(i.sys_TickHandler)
+    timer_TickCheck                          0x00000861   Thumb Code    86  timer.o(i.timer_TickCheck)
+    Region$$Table$$Base                      0x000009bc   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x000009dc   Number         0  anon$$obj.o(Region$$Table)
+    sche_ThreadSwitchStatus                  0x20000008   Data           8  schedule.o(.data)
     sche_NoReadyList                         0x20000014   Data           8  schedule.o(.data)
     timer_HardList                           0x2000001c   Data           8  timer.o(.data)
     timer_softList                           0x20000024   Data           8  timer.o(.data)
@@ -1554,60 +1556,57 @@ Memory Map of the image
 
   Image Entry point : 0x00000145
 
-  Load Region LR_IROM1 (Base: 0x00000000, Size: 0x00000a64, Max: 0x00040000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x00000000, Size: 0x00000a58, Max: 0x00040000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Base: 0x00000000, Size: 0x000009e8, Max: 0x00040000, ABSOLUTE)
+    Execution Region ER_IROM1 (Base: 0x00000000, Size: 0x000009dc, Max: 0x00040000, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x00000000   0x00000144   Data   RO         4359    RESET               startup_msp432p401r_uvision.o
-    0x00000144   0x00000000   Code   RO         4400  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x00000144   0x00000004   Code   RO         4423    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x00000148   0x00000004   Code   RO         4426    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x0000014c   0x00000000   Code   RO         4428    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x0000014c   0x00000000   Code   RO         4430    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x0000014c   0x00000008   Code   RO         4431    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x00000154   0x00000000   Code   RO         4433    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x00000154   0x00000000   Code   RO         4435    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x00000154   0x00000004   Code   RO         4424    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
-    0x00000158   0x000000a0   Code   RO          499    .emb_text           hal_cm.o
-    0x000001f8   0x00000024   Code   RO         4360    .text               startup_msp432p401r_uvision.o
-    0x0000021c   0x00000024   Code   RO         4440    .text               mc_w.l(init.o)
-    0x00000240   0x00000008   Code   RO          500    i.SysTick_Handler   hal_cm.o
-    0x00000248   0x0000005c   Code   RO         4368    i.SystemInit        system_msp432p401r.o
-    0x000002a4   0x0000000e   Code   RO         4444    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x000002b2   0x00000002   Code   RO         4445    i.__scatterload_null  mc_w.l(handlers.o)
-    0x000002b4   0x0000000e   Code   RO         4446    i.__scatterload_zeroinit  mc_w.l(handlers.o)
-    0x000002c2   0x00000002   PAD
-    0x000002c4   0x00000014   Code   RO          503    i.hal_CallPendSV    hal_cm.o
-    0x000002d8   0x00000004   Code   RO            1    i.main              startup.o
-    0x000002dc   0x0000000e   Code   RO          205    i.osList_AddTail    timer.o
-    0x000002ea   0x00000010   Code   RO          206    i.osList_CheckIsEmpty  timer.o
-    0x000002fa   0x00000012   Code   RO           12    i.osList_DeleteNode  schedule.o
-    0x0000030c   0x00000012   Code   RO          207    i.osList_DeleteNode  timer.o
-    0x0000031e   0x00000002   PAD
+    0x00000000   0x00000144   Data   RO         4350    RESET               startup_msp432p401r_uvision.o
+    0x00000144   0x00000000   Code   RO         4391  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x00000144   0x00000004   Code   RO         4414    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x00000148   0x00000004   Code   RO         4417    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x0000014c   0x00000000   Code   RO         4419    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x0000014c   0x00000000   Code   RO         4421    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x0000014c   0x00000008   Code   RO         4422    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x00000154   0x00000000   Code   RO         4424    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x00000154   0x00000000   Code   RO         4426    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x00000154   0x00000004   Code   RO         4415    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x00000158   0x000000b8   Code   RO          511    .emb_text           hal_cm.o
+    0x00000210   0x00000024   Code   RO         4351    .text               startup_msp432p401r_uvision.o
+    0x00000234   0x00000024   Code   RO         4431    .text               mc_w.l(init.o)
+    0x00000258   0x00000008   Code   RO          512    i.SysTick_Handler   hal_cm.o
+    0x00000260   0x0000005c   Code   RO         4359    i.SystemInit        system_msp432p401r.o
+    0x000002bc   0x0000000e   Code   RO         4435    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x000002ca   0x00000002   Code   RO         4436    i.__scatterload_null  mc_w.l(handlers.o)
+    0x000002cc   0x0000000e   Code   RO         4437    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x000002da   0x00000004   Code   RO            1    i.main              startup.o
+    0x000002de   0x0000000e   Code   RO          205    i.osList_AddTail    timer.o
+    0x000002ec   0x00000010   Code   RO          206    i.osList_CheckIsEmpty  timer.o
+    0x000002fc   0x00000012   Code   RO           12    i.osList_DeleteNode  schedule.o
+    0x0000030e   0x00000012   Code   RO          207    i.osList_DeleteNode  timer.o
     0x00000320   0x00000020   Code   RO           14    i.osSche_Lock       schedule.o
     0x00000340   0x00000034   Code   RO           15    i.osSche_Unlock     schedule.o
     0x00000374   0x0000000c   Code   RO           16    i.osSys_GetNowTick  schedule.o
-    0x00000380   0x00000020   Code   RO          295    i.osSys_ISREnter    irq.o
-    0x000003a0   0x00000020   Code   RO          296    i.osSys_ISRLeave    irq.o
+    0x00000380   0x00000020   Code   RO          310    i.osSys_ISREnter    irq.o
+    0x000003a0   0x00000020   Code   RO          311    i.osSys_ISRLeave    irq.o
     0x000003c0   0x00000034   Code   RO          130    i.osThread_Delay    thread.o
     0x000003f4   0x00000040   Code   RO          131    i.osThread_Ready    thread.o
     0x00000434   0x0000001c   Code   RO          132    i.osThread_Self     thread.o
     0x00000450   0x00000042   Code   RO          133    i.osThread_Suspend  thread.o
     0x00000492   0x00000002   PAD
     0x00000494   0x00000058   Code   RO          134    i.osThread_Yield    thread.o
-    0x000004ec   0x000000c0   Code   RO          211    i.osTimer_Start     timer.o
-    0x000005ac   0x00000024   Code   RO          212    i.osTimer_Stop      timer.o
-    0x000005d0   0x000000a4   Code   RO          213    i.os_SoftTimer_Thread  timer.o
+    0x000004ec   0x000000c0   Code   RO          213    i.osTimer_Start     timer.o
+    0x000005ac   0x00000024   Code   RO          214    i.osTimer_Stop      timer.o
+    0x000005d0   0x000000a4   Code   RO          215    i.os_SoftTimer_Thread  timer.o
     0x00000674   0x0000005c   Code   RO           18    i.sche_InsertThread  schedule.o
-    0x000006d0   0x00000014   Code   RO           19    i.sche_NextToNow    schedule.o
-    0x000006e4   0x00000060   Code   RO           20    i.sche_RemoveThread  schedule.o
-    0x00000744   0x000000d4   Code   RO           21    i.sche_ToNextThread  schedule.o
-    0x00000818   0x00000054   Code   RO           22    i.sys_TickHandler   schedule.o
-    0x0000086c   0x0000005c   Code   RO          215    i.timer_TickCheck   timer.o
-    0x000008c8   0x00000100   Data   RO           24    .constdata          schedule.o
-    0x000009c8   0x00000020   Data   RO         4442    Region$$Table       anon$$obj.o
+    0x000006d0   0x00000010   Code   RO           19    i.sche_NextToNow    schedule.o
+    0x000006e0   0x00000060   Code   RO           20    i.sche_RemoveThread  schedule.o
+    0x00000740   0x000000d0   Code   RO           21    i.sche_ToNextThread  schedule.o
+    0x00000810   0x00000050   Code   RO           22    i.sys_TickHandler   schedule.o
+    0x00000860   0x0000005c   Code   RO          217    i.timer_TickCheck   timer.o
+    0x000008bc   0x00000100   Data   RO           24    .constdata          schedule.o
+    0x000009bc   0x00000020   Data   RO         4433    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x000006a0, Max: 0x00010000, ABSOLUTE)
@@ -1615,12 +1614,12 @@ Memory Map of the image
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x20000000   0x0000001c   Data   RW           25    .data               schedule.o
-    0x2000001c   0x0000005c   Data   RW          216    .data               timer.o
-    0x20000078   0x00000001   Data   RW          297    .data               irq.o
+    0x2000001c   0x0000005c   Data   RW          218    .data               timer.o
+    0x20000078   0x00000001   Data   RW          312    .data               irq.o
     0x20000079   0x00000003   PAD
     0x2000007c   0x00000420   Zero   RW           23    .bss                schedule.o
     0x2000049c   0x00000004   PAD
-    0x200004a0   0x00000200   Zero   RW         4357    STACK               startup_msp432p401r_uvision.o
+    0x200004a0   0x00000200   Zero   RW         4348    STACK               startup_msp432p401r_uvision.o
 
 
 ==============================================================================
@@ -1630,19 +1629,19 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-       188         22          0          0          0       1363   hal_cm.o
-        64          8          0          1          0       1749   irq.o
-       618         94        256         28       1056      12536   schedule.o
-         4          0          0          0          0       1819   startup.o
-        36          8        324          0        512        796   startup_msp432p401r_uvision.o
-        92         18          0          0          0        457   system_msp432p401r.o
-       298         20          0          0          0       6358   thread.o
-       532         26          0         92          0       7798   timer.o
+       192         24          0          0          0       1114   hal_cm.o
+        64          8          0          1          0       1845   irq.o
+       606         86        256         28       1056      14166   schedule.o
+         4          0          0          0          0       1843   startup.o
+        36          8        324          0        512        820   startup_msp432p401r_uvision.o
+        92         18          0          0          0        481   system_msp432p401r.o
+       298         20          0          0          0       7856   thread.o
+       532         26          0         92          0       9375   timer.o
 
     ----------------------------------------------------------------------
-      1836        196        612        124       1572      32876   Object Totals
+      1826        190        612        124       1572      37500   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-         4          0          0          3          4          0   (incl. Padding)
+         2          0          0          3          4          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -1660,8 +1659,8 @@ Image component sizes
         36          8          0          0          0         68   init.o
 
     ----------------------------------------------------------------------
-        88         16          0          0          0         68   Library Totals
-         2          0          0          0          0          0   (incl. Padding)
+        86         16          0          0          0         68   Library Totals
+         0          0          0          0          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -1670,7 +1669,7 @@ Image component sizes
         86         16          0          0          0         68   mc_w.l
 
     ----------------------------------------------------------------------
-        88         16          0          0          0         68   Library Totals
+        86         16          0          0          0         68   Library Totals
 
     ----------------------------------------------------------------------
 
@@ -1679,15 +1678,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      1924        212        612        124       1572      31796   Grand Totals
-      1924        212        612        124       1572      31796   ELF Image Totals
-      1924        212        612        124          0          0   ROM Totals
+      1912        206        612        124       1572      36472   Grand Totals
+      1912        206        612        124       1572      36472   ELF Image Totals
+      1912        206        612        124          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                 2536 (   2.48kB)
+    Total RO  Size (Code + RO Data)                 2524 (   2.46kB)
     Total RW  Size (RW Data + ZI Data)              1696 (   1.66kB)
-    Total ROM Size (Code + RO Data + RW Data)       2660 (   2.60kB)
+    Total ROM Size (Code + RO Data + RW Data)       2648 (   2.59kB)
 
 ==============================================================================
 

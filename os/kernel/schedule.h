@@ -42,10 +42,15 @@
 /*@}*/
 
 /**
- * @addtogroup schedule extern system var
+ * @addtogroup schedule  var
  */
  
 /*@{*/
+
+struct threadSwitchInfo_t {
+  osThread_Attr_t* nowThread;
+  osThread_Attr_t* nextThread;
+};
 
 /*@}*/
 

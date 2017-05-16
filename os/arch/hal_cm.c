@@ -46,7 +46,7 @@
  
 /*@{*/
 
-extern volatile osThread_Attr_t *sche_NowThread, *sche_NextThread;
+extern volatile struct threadSwitchInfo_t sche_ThreadSwitchStatus;
 
 /*@}*/
 
@@ -98,45 +98,66 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
  */
 #ifdef __CC_ARM 
 
+/**
+ *  Cortext-M NVIC register
+ */
+#define NVIC_INT_CTRL 0xE000ED04    /**< Interrupt control state register */
+#define NVIC_SYSPRI14 0xE000ED22    /**< System priority register (priority 14) */
+#define NVIC_PENDSVSET 0x10000000   /**< Value to trigger PendSV exception */
+#define NVIC_PENDSV_PRI 0xFF    /**< PendSV priority value (lowest) */
+
+
   /**
-    * @addtogroup Cortex-M device define
-    */
-
-  /*@{*/
-
-  /*@}*/
+   * 标记pensv中断
+   *
+   * @param none
+   * 
+   * @return none
+   */
+  __asm void hal_IRQConfigure(void) {
+    PRESERVE8
+    
+    /*设置pendSV为最低优先级*/
+    ldr r0, =NVIC_SYSPRI14
+    ldr r1, =NVIC_PENDSV_PRI
+    strb r1, [r0]
+  }
 
   /**
-    * 标记pensv中断
-    *
-    * @param none
-    * 
-    * @return none
-    */
-  void hal_CallPendSV(void) {
-    SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+   * 标记pensv中断
+   *
+   * @param none
+   * 
+   * @return none
+   */
+  __asm void hal_CallPendSV(void) {
+    PRESERVE8
+    
+    ldr r0, =NVIC_INT_CTRL
+    ldr r1, =NVIC_PENDSVSET
+    strb r1, [r0]
   }
 
 
   /**
-    * 标记NMI中断
-    *
-    * @param none
-    * 
-    * @return none
-    */
-  void hal_CallNMI(void) {
-    SCB->ICSR |= SCB_ICSR_NMIPENDSET_Msk;
+   * 标记NMI中断
+   *
+   * @param none
+   * 
+   * @return none
+   */
+  __asm void hal_CallNMI(void) {
+    
   }
 
 
   /**
-    * 关闭全局中断
-    *
-    * @param none
-    * 
-    * @return none
-    */
+   * 关闭全局中断
+   *
+   * @param none
+   * 
+   * @return none
+   */
   __asm uint32_t hal_DisableINT(void) {
     PRESERVE8
 
@@ -152,12 +173,12 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 
 
   /**
-    * 开启全局中断
-    *
-    * @param none
-    * 
-    * @return none
-    */
+   * 开启全局中断
+   *
+   * @param none
+   * 
+   * @return none
+   */
   __asm void hal_EnableINT(uint32_t level) {
     PRESERVE8
     
@@ -167,12 +188,12 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 
 
   /**
-    * 进入第一个任务
-    *
-    * @param none
-    * 
-    * @return none
-    */
+   * 进入第一个任务
+   *
+   * @param none
+   * 
+   * @return none
+   */
   __asm void cpu_GotoFisrtTask(void) {
     /*SCB->VTOR 0xE000ED08*/
     /*保存指针*/
@@ -201,19 +222,19 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 
 
   /**
-    * SVC
-    *
-    * @param none
-    * 
-    * @return none
-    */
+   * SVC
+   *
+   * @param none
+   * 
+   * @return none
+   */
   __asm void SVC_Handler(void) {
-    extern sche_NowThread;
+    extern sche_ThreadSwitchStatus;
     
     PRESERVE8
     
     /*最近任务TUB地址写进R3*/
-    ldr r3, =__cpp(&sche_NowThread)
+    ldr r3, =__cpp(&sche_ThreadSwitchStatus.nowThread)
     
     /*将TUB的栈中的SP写进R1*/
     ldr r1, [r3]			
@@ -243,15 +264,15 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 
 
   /**
-    * PendSV
-    *
-    * @param none
-    * 
-    * @return none
-    */
+   * PendSV
+   *
+   * @param none
+   * 
+   * @return none
+   */
   __asm void PendSV_Handler(void) {
-    extern sche_NowThread;
-    extern sche_NextThread;
+    extern sche_ThreadSwitchStatus;
+    extern sche_ThreadSwitchStatus;
     
     extern sche_NextToNow;
     
@@ -264,7 +285,7 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
     
     mrs r0, psp
     
-    ldr r3, =__cpp(&sche_NowThread)						
+    ldr r3, =__cpp(&sche_ThreadSwitchStatus.nowThread)						
     ldr r2, [r3]	
         
     stmdb r0!, {r4 - r11, r14}					
@@ -292,12 +313,12 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 
 
   /**
-    * Systick
-    *
-    * @param none
-    * 
-    * @return none
-    */	
+   * Systick
+   *
+   * @param none
+   * 
+   * @return none
+   */	
   void SysTick_Handler(void) {
     sys_TickHandler();
   }

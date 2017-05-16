@@ -56,7 +56,7 @@
 
 /*@{*/
 
-extern volatile osThread_Attr_t *sche_NowThread, *sche_NextThread;
+extern volatile struct threadSwitchInfo_t sche_ThreadSwitchStatus;
 
 extern struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 
@@ -247,7 +247,7 @@ osThread_ID osThread_Self(void) {
   register uint32_t level;
   level = hal_DisableINT();
 
-  osThread_ID self = (osThread_ID)sche_NowThread;
+  osThread_ID self = (osThread_ID)sche_ThreadSwitchStatus.nowThread;
 
   /*开中断*/
   hal_EnableINT(level);
@@ -269,7 +269,7 @@ void osThread_Yield(void) {
   register uint32_t level;
   level = hal_DisableINT();
 
-  osThread_Attr_t *thread = (osThread_Attr_t *)sche_NowThread;
+  osThread_Attr_t *thread = (osThread_Attr_t *)sche_ThreadSwitchStatus.nowThread;
 
   /*标记就绪态*/
   thread->stage = osThreadReady;
@@ -300,7 +300,7 @@ void osThread_Delay(osTick_t tick) {
   level = hal_DisableINT();
 
   /*获取当前线程*/
-  osThread_Attr_t *thread = (osThread_Attr_t *)sche_NowThread;
+  osThread_Attr_t *thread = (osThread_Attr_t *)sche_ThreadSwitchStatus.nowThread;
   /*标记堵塞态*/
   thread->stage = osThreadBlocked;
 
