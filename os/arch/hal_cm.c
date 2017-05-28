@@ -107,222 +107,222 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 #define NVIC_PENDSV_PRI 0xFF    /**< PendSV priority value (lowest) */
 
 
-  /**
-   * 标记pensv中断
-   *
-   * @param none
-   * 
-   * @return none
-   */
-  __asm void hal_IRQConfigure(void) {
-    PRESERVE8
-    
-    /*设置pendSV为最低优先级*/
-    ldr r0, =NVIC_SYSPRI14
-    ldr r1, =NVIC_PENDSV_PRI
-    strb r1, [r0]
-  }
+/**
+  * 标记pensv中断
+  *
+  * @param none
+  * 
+  * @return none
+  */
+__asm void hal_IRQConfigure(void) {
+  PRESERVE8
+  
+  /*设置pendSV为最低优先级*/
+  ldr r0, =NVIC_SYSPRI14
+  ldr r1, =NVIC_PENDSV_PRI
+  strb r1, [r0]
+}
 
-  /**
-   * 标记pensv中断
-   *
-   * @param none
-   * 
-   * @return none
-   */
-  __asm void hal_CallPendSV(void) {
-    PRESERVE8
-    
-    ldr r0, =NVIC_INT_CTRL
-    ldr r1, =NVIC_PENDSVSET
-    strb r1, [r0]
-  }
-
-
-  /**
-   * 标记NMI中断
-   *
-   * @param none
-   * 
-   * @return none
-   */
-  __asm void hal_CallNMI(void) {
-    
-  }
+/**
+  * 标记pensv中断
+  *
+  * @param none
+  * 
+  * @return none
+  */
+__asm void hal_CallPendSV(void) {
+  PRESERVE8
+  
+  ldr r0, =NVIC_INT_CTRL
+  ldr r1, =NVIC_PENDSVSET
+  strb r1, [r0]
+}
 
 
-  /**
-   * 关闭全局中断
-   *
-   * @param none
-   * 
-   * @return none
-   */
-  __asm uint32_t hal_DisableINT(void) {
-    PRESERVE8
-
-    mrs r0, basepri
-    mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
-    msr basepri, r1
-
-    dsb
-    isb
-
-    bx r14
-  }
+/**
+  * 标记NMI中断
+  *
+  * @param none
+  * 
+  * @return none
+  */
+__asm void hal_CallNMI(void) {
+  
+}
 
 
-  /**
-   * 开启全局中断
-   *
-   * @param none
-   * 
-   * @return none
-   */
-  __asm void hal_EnableINT(uint32_t level) {
-    PRESERVE8
-    
-    msr basepri, r0
-    bx r14
-  }
+/**
+  * 关闭全局中断
+  *
+  * @param none
+  * 
+  * @return none
+  */
+__asm uint32_t hal_DisableINT(void) {
+  PRESERVE8
+
+  mrs r0, basepri
+  mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
+  msr basepri, r1
+
+  dsb
+  isb
+
+  bx r14
+}
 
 
-  /**
-   * 进入第一个任务
-   *
-   * @param none
-   * 
-   * @return none
-   */
-  __asm void cpu_GotoFisrtTask(void) {
-    /*SCB->VTOR 0xE000ED08*/
-    /*保存指针*/
-    ldr r0, =0xE000ED08
-
-    /*保存指针所指的值*/
-    ldr r0, [r0]						
-    ldr r0, [r0]						
-
-    isb
-
-    /*将SP指针指回__initial_sp*/
-    msr msp, r0						
-    
-    dsb							   
-    isb								
-    
-    /*开放中断*/
-    mrs r0, PRIMASK					
-    cpsie 	i
-
-    svc 0
-    
-    align 4
-  }
+/**
+  * 开启全局中断
+  *
+  * @param none
+  * 
+  * @return none
+  */
+__asm void hal_EnableINT(uint32_t level) {
+  PRESERVE8
+  
+  msr basepri, r0
+  bx r14
+}
 
 
-  /**
-   * SVC
-   *
-   * @param none
-   * 
-   * @return none
-   */
-  __asm void SVC_Handler(void) {
-    extern sche_ThreadSwitchStatus;
-    
-    PRESERVE8
-    
-    /*最近任务TUB地址写进R3*/
-    ldr r3, =__cpp(&sche_ThreadSwitchStatus.nowThread)
-    
-    /*将TUB的栈中的SP写进R1*/
-    ldr r1, [r3]			
-    
-    /*恢复SP*/
-    ldr r0, [r1]		
-    
-    /*恢复R4-R11, R14*/
-    ldmia r0!, {r4 - r11, r14} 
-    
-    isb
-    
-    /*恢复PSP*/
-    msr psp, r0
-        
-    isb
-        
-    /*恢复中断*/
-    mov r0, #0
-    msr basepri, r0	
-        
-    /*返回任务*/
-    bx 	r14
-        
-    align 4					
-  }
+/**
+  * 进入第一个任务
+  *
+  * @param none
+  * 
+  * @return none
+  */
+__asm void cpu_GotoFisrtTask(void) {
+  /*SCB->VTOR 0xE000ED08*/
+  /*保存指针*/
+  ldr r0, =0xE000ED08
+
+  /*保存指针所指的值*/
+  ldr r0, [r0]						
+  ldr r0, [r0]						
+
+  isb
+
+  /*将SP指针指回__initial_sp*/
+  msr msp, r0						
+  
+  dsb							   
+  isb								
+  
+  /*开放中断*/
+  mrs r0, PRIMASK					
+  cpsie 	i
+
+  svc 0
+  
+  align 4
+}
 
 
-  /**
-   * PendSV
-   *
-   * @param none
-   * 
-   * @return none
-   */
-  __asm void PendSV_Handler(void) {
-    extern sche_ThreadSwitchStatus;
-    extern sche_ThreadSwitchStatus;
-    
-    extern sche_NextToNow;
-    
-    PRESERVE8	
-    
-    /*关中断*/
-    mrs r1, PRIMASK								
-    cpsid i		
-    isb
-    
-    mrs r0, psp
-    
-    ldr r3, =__cpp(&sche_ThreadSwitchStatus.nowThread)						
-    ldr r2, [r3]	
-        
-    stmdb r0!, {r4 - r11, r14}					
-    str    r0, [r2]									
-    stmdb sp!, {r3}										
-
-    /*仅消耗4条ASM指令,不修改*/
-    bl __cpp(sche_NextToNow)										
-
-    ldmia sp!, {r3}								
-    ldr r1, [r3]									
-    ldr r0, [r1]								
-    ldmia r0!, {r4 - r11, r14}				
-
-    msr psp, r0					
-    
-    /*恢复中断*/
-    msr    PRIMASK, r1;								
-    isb											
-
-    bx r14									
-        
-    align 4										
-  }
+/**
+  * SVC
+  *
+  * @param none
+  * 
+  * @return none
+  */
+__asm void SVC_Handler(void) {
+  extern sche_ThreadSwitchStatus;
+  
+  PRESERVE8
+  
+  /*最近任务TUB地址写进R3*/
+  ldr r3, =__cpp(&sche_ThreadSwitchStatus.nowThread)
+  
+  /*将TUB的栈中的SP写进R1*/
+  ldr r1, [r3]			
+  
+  /*恢复SP*/
+  ldr r0, [r1]		
+  
+  /*恢复R4-R11, R14*/
+  ldmia r0!, {r4 - r11, r14} 
+  
+  isb
+  
+  /*恢复PSP*/
+  msr psp, r0
+      
+  isb
+      
+  /*恢复中断*/
+  mov r0, #0
+  msr basepri, r0	
+      
+  /*返回任务*/
+  bx 	r14
+      
+  align 4					
+}
 
 
-  /**
-   * Systick
-   *
-   * @param none
-   * 
-   * @return none
-   */	
-  void SysTick_Handler(void) {
-    sys_TickHandler();
-  }
+/**
+  * PendSV
+  *
+  * @param none
+  * 
+  * @return none
+  */
+__asm void PendSV_Handler(void) {
+  extern sche_ThreadSwitchStatus;
+  extern sche_ThreadSwitchStatus;
+  
+  extern sche_NextToNow;
+  
+  PRESERVE8	
+  
+  /*关中断*/
+  mrs r1, PRIMASK								
+  cpsid i		
+  isb
+  
+  mrs r0, psp
+  
+  ldr r3, =__cpp(&sche_ThreadSwitchStatus.nowThread)						
+  ldr r2, [r3]	
+      
+  stmdb r0!, {r4 - r11, r14}					
+  str    r0, [r2]									
+  stmdb sp!, {r3}										
 
-  /*@}*/
+  /*仅消耗4条ASM指令,不修改*/
+  bl __cpp(sche_NextToNow)										
+
+  ldmia sp!, {r3}								
+  ldr r1, [r3]									
+  ldr r0, [r1]								
+  ldmia r0!, {r4 - r11, r14}				
+
+  msr psp, r0					
+  
+  /*恢复中断*/
+  msr    PRIMASK, r1;								
+  isb											
+
+  bx r14									
+      
+  align 4										
+}
+
+
+/**
+  * Systick
+  *
+  * @param none
+  * 
+  * @return none
+  */	
+void SysTick_Handler(void) {
+  sys_TickHandler();
+}
+
+/*@}*/
 
 #endif
