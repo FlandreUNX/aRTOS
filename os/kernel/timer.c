@@ -52,17 +52,17 @@
 /*@{*/
 
 /*硬定时器计时循环队列*/
-struct osList_Head_t timer_HardList;
+struct osList_t timer_HardList;
 
 #if USING_SOFT_TIMER == 1
   /*软定时器计时循环队列*/
-  struct osList_Head_t timer_softList;
+  struct osList_t timer_softList;
 
   /*软定时器计时线程*/
   osThread_ID timer_SoftThreadID;
   extern OS_NO_RETURN os_SoftTimer_Thread(void *argument);
   osThread_Attr_t os_Thread_SoftTimer = { \
-    .timeSlice = 1, \
+    .initTimeSlice = 1, \
     .functions = os_SoftTimer_Thread, \
     .stackSize = SOFT_TIMER_STACK_SIZE, \
     .priority = SOFT_TIMER_PRIORITY \
@@ -82,7 +82,7 @@ struct osList_Head_t timer_HardList;
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 void timer_Init(void) {
   /*初始化定时器容器*/
@@ -104,7 +104,7 @@ void timer_Init(void) {
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 void timer_TickCheck(void) {
   /*关中断*/
@@ -146,13 +146,18 @@ void timer_TickCheck(void) {
   hal_EnableINT(level);
 }
 
+
 #if USING_SOFT_TIMER == 1
+    #if OS_DEBUG_MODE == 1
+      /*线程运行计数*/
+      uint32_t softTimer_RunningCount = 0;
+    #endif
   /**
     * 软定时器核心线程
     *
     * @param none
     * 
-    * @return none
+    * @retval none
     */
   OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
     osTick_t currentTick;
@@ -160,6 +165,10 @@ void timer_TickCheck(void) {
     osTimer_Attr_t *timer;
 
     for (;;) {
+      #if OS_DEBUG_MODE == 1
+        softTimer_RunningCount++;
+      #endif
+      
       if (osList_CheckIsEmpty(&timer_softList)) {
         nextTimeout = CPU_TICK_MAX;
       }
@@ -243,9 +252,9 @@ void timer_TickCheck(void) {
  * @param flag 模式(once|periodic)
  * @param arguments 回调函数传入参数
  * 
- * @return 定时器句柄
+ * @retval 定时器句柄
  */
-osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag_t flag, void *arguments) {
+osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag flag, void *arguments) {
   //OS_ASSERT
 
   obj->stage = osTimerStop;
@@ -265,7 +274,7 @@ EXPORT_SYMBOL(osTimer_Create);
  * @param id 定时器句柄
  * @param tick 周期长度
  * 
- * @return none
+ * @retval none
  */
 void osTimer_SetTick(osTimer_ID id, osTick_t tick) {
   //OS_ASSERT
@@ -290,12 +299,12 @@ EXPORT_SYMBOL(osTimer_SetTick);
  * @param id 定时器句柄
  * @param tick 定时器定时值
  * 
- * @return none
+ * @retval none
  */
 void osTimer_Start(osTimer_ID id, osTick_t tick) {
   //OS_ASSERT
 
-  struct osList_Head_t *timerList;
+  struct osList_t *timerList;
 
   /*关中断*/
   register uint32_t level;
@@ -332,7 +341,7 @@ void osTimer_Start(osTimer_ID id, osTick_t tick) {
   }
   else {
     /*循环取出最小timer值并插入到其中*/
-    struct osList_Head_t *pos, *list;
+    struct osList_t *pos, *list;
     for (pos = (timerList)->next, list = pos->next; \
       pos != (timerList); \
       pos = list, list = pos->next) {
@@ -373,7 +382,7 @@ EXPORT_SYMBOL(osTimer_Start);
  *
  * @param id 定时器句柄
  * 
- * @return none
+ * @retval none
  */
 void osTimer_Stop(osTimer_ID id) {
   //OS_ASSERT
@@ -403,7 +412,7 @@ EXPORT_SYMBOL(osTimer_Stop);
  * @param id 定时器句柄
  * @param arguments 参数指针
  * 
- * @return none
+ * @retval none
  */
 void osTimer_SetArgument(osTimer_ID id, void *arguments) {
   //OS_ASSERT
@@ -436,7 +445,7 @@ EXPORT_SYMBOL(osTimer_SetArgument);
  *
  * @param id 定时器句柄
  * 
- * @return tick剩余值
+ * @retval tick剩余值
  */
 osTick_t osTimer_GetResidueTick(osTimer_ID id) {
   //OS_ASSERT

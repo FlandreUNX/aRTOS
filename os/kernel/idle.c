@@ -54,7 +54,7 @@
  
 /*@{*/
 
-extern struct osList_Head_t schedule_NoReadyList;
+extern struct osList_t schedule_NoReadyList;
 
 /*@}*/
 
@@ -67,7 +67,7 @@ extern struct osList_Head_t schedule_NoReadyList;
 osThread_ID idle_ThreadID;
 extern OS_NO_RETURN os_Idle_Thread(void *argument);
 osThread_Attr_t os_Thread_Idle = { \
-  .timeSlice = 1, \
+  .initTimeSlice = 1, \
   .functions = os_Idle_Thread, \
   .stackSize = IDLE_STACK_SIZE, \
   .priority = IDLE_PRIORITY \
@@ -81,11 +81,20 @@ osThread_Attr_t os_Thread_Idle = { \
  
 /*@{*/
 
+#if OS_DEBUG_MODE == 1
+  /*线程运行计数*/
+  uint32_t idle_RunningCount = 0;
+#endif
+
 OS_NO_RETURN os_Idle_Thread(void *argument) {
   for (;;) {
-    /*****************************************
-    * 所有IDLE任务完成,CPU待机,等待中断发生
-    ******************************************/
+    #if OS_DEBUG_MODE == 1
+      idle_RunningCount++;
+    #endif
+    
+    /**
+     *  所有IDLE任务完成,CPU待机,等待中断发生
+     */
     __wfi();
   }
 }

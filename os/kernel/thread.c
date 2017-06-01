@@ -56,9 +56,9 @@
 
 /*@{*/
 
-extern volatile struct threadSwitchInfo_t sche_ThreadSwitchStatus;
+extern struct threadSwitchInfo_t sche_ThreadSwitchStatus;
 
-extern struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
+extern struct osList_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 
 /*@}*/
 
@@ -95,7 +95,7 @@ void threadTimerCallback(void *arguments) {
  * @param thread 线程对象
  * @param argument 入口函数的传入参数
  *
- * @return 线程句柄
+ * @retval 线程句柄
  */
 osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
   //OS_ASSERT
@@ -161,7 +161,7 @@ EXPORT_SYMBOL(osThread_Create);
  *
  * @param id 线程句柄
  *
- * @return none
+ * @retval none
  */
 void osThread_Ready(osThread_ID id) {
   //OS_ASSERT
@@ -200,7 +200,7 @@ EXPORT_SYMBOL(osThread_Ready);
  *
  * @param id 线程句柄
  *
- * @return none
+ * @retval none
  */
 void osThread_Suspend(osThread_ID id) {
   //OS_ASSERT
@@ -240,7 +240,7 @@ EXPORT_SYMBOL(osThread_Suspend);
  *
  * @param none
  *
- * @return 线程句柄
+ * @retval 线程句柄
  */
 osThread_ID osThread_Self(void) {
   /*关中断*/
@@ -262,7 +262,7 @@ EXPORT_SYMBOL(osThread_Self);
  *
  * @param none
  *
- * @return none
+ * @retval none
  */
 void osThread_Yield(void) {
   /*关中断*/
@@ -270,13 +270,16 @@ void osThread_Yield(void) {
   level = hal_DisableINT();
 
   osThread_Attr_t *thread = (osThread_Attr_t *)sche_ThreadSwitchStatus.nowThread;
-
-  /*标记就绪态*/
-  thread->stage = osThreadReady;
-
-  /*线程移至调度器容器末尾*/
-  osList_DeleteNode(&(thread->list));
-  osList_AddTail(&(sche_ReadyList[thread->priority]), &(thread->list));
+  
+  if (thread->stage == osThreadReady || 
+    thread->stage == osThreadRunning) {
+      /*就绪任务*/
+      thread->stage = osThreadReady;
+        
+      /*线程移至调度器容器末尾*/
+      osList_DeleteNode(&(thread->list));
+      osList_AddTail(&(sche_ReadyList[thread->priority]), &(thread->list));
+  }
 
   /*开中断*/
   hal_EnableINT(level);
@@ -292,7 +295,7 @@ EXPORT_SYMBOL(osThread_Yield);
  *
  * @param tick 延时数
  *
- * @return none
+ * @retval none
  */
 void osThread_Delay(osTick_t tick) {
   /*关中断*/

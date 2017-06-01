@@ -55,9 +55,9 @@
 
 /*@{*/
 
-struct osList_Head_t {
-  struct osList_Head_t *previous;    /**< 前节点 */
-  struct osList_Head_t *next;        /**< 后节点 */
+struct osList_t {
+  struct osList_t *previous;    /**< 前节点 */
+  struct osList_t *next;        /**< 后节点 */
 };
 
 /*@}*/
@@ -75,9 +75,9 @@ struct osList_Head_t {
  * @param previous_list
  * @param next_list
  * 
- * @return none
+ * @retval none
  */
-OS_INLINE void __DROP__ListAdd(struct osList_Head_t* new_lst, struct osList_Head_t* previous_list, struct osList_Head_t* next_list) {
+OS_INLINE void __DROP__ListAdd(struct osList_t* new_lst, struct osList_t* previous_list, struct osList_t* next_list) {
 	next_list->previous = new_lst;
 	new_lst->next = next_list;
 	new_lst->previous = previous_list;
@@ -91,9 +91,9 @@ OS_INLINE void __DROP__ListAdd(struct osList_Head_t* new_lst, struct osList_Head
  * @param previous_list
  * @param next_list
  * 
- * @return none
+ * @retval none
  */
-OS_INLINE void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* next) {
+OS_INLINE void __DROP__Delete(struct osList_t* prev, struct osList_t* next) {
 	next->previous = prev;
 	prev->next = next;
 }
@@ -105,7 +105,7 @@ OS_INLINE void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* 
  * @param tpye 结构体类型
  * @param name 成员名称
  * 
- * @return none
+ * @retval none
  */
 #define osList_OffsetOf(type, name) \
 	((uint32_t) &((type *)0)->name)
@@ -114,11 +114,11 @@ OS_INLINE void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* 
 /**
  * 获取当前list_head链表节点所在的宿主结构项
  *
- * @param ptr 宿主结构体下的osList_Head_t*
+ * @param ptr 宿主结构体下的osList_t*
  * @param type 宿主类型
- * @param name 宿主结构类型定义中osList_Head_t成员名
+ * @param name 宿主结构类型定义中osList_t成员名
  * 
- * @return 宿主结构体指针
+ * @retval 宿主结构体指针
  */
 #define osList_Entry(ptr, type, name) \
     (type*)((uint8_t*)(ptr)-osList_OffsetOf(type, name))
@@ -130,7 +130,7 @@ OS_INLINE void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* 
  * @param pos 位置
  * @param head 节点头
  * 
- * @return none
+ * @retval none
  */
 #define osList_ForEach(pos, head) \
 	for (pos = (head)->next; pos != (head); pos = pos->next)
@@ -142,7 +142,7 @@ OS_INLINE void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* 
  * @param pos 位置
  * @param head 节点头
  * 
- * @return none
+ * @retval none
  */
 #define osList_ForEachSafe(pos, n, head) \
     for (pos = (head)->next, n = pos->next; pos != (head); \
@@ -155,7 +155,7 @@ OS_INLINE void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* 
  * @param type 宿主类型
  * @param member 成员在宿主结构体中的名称
  * 
- * @return 宿主结构体指针
+ * @retval 宿主结构体指针
  */
 #define container_of(ptr, type, member) ({ \
           const typeof( ((type *)0)->member ) *__mptr = (ptr); \
@@ -167,9 +167,9 @@ OS_INLINE void __DROP__Delete(struct osList_Head_t* prev, struct osList_Head_t* 
  *
  * @param head 节点 
  * 
- * @return none
+ * @retval none
  */	
-OS_INLINE void osList_HeadInit(struct osList_Head_t* head) {
+OS_INLINE void osList_HeadInit(struct osList_t* head) {
 	head->next = head;
 	head->previous = head;
 }
@@ -181,9 +181,9 @@ OS_INLINE void osList_HeadInit(struct osList_Head_t* head) {
  * @param list 原节点 
  * @param newNode 新节点 
  * 
- * @return none
+ * @retval none
  */	
-OS_INLINE void osList_AddTail(struct osList_Head_t* list, struct osList_Head_t* newNode) {
+OS_INLINE void osList_AddTail(struct osList_t* list, struct osList_t* newNode) {
 	//__ListAdd(node, list->previous, list);
   list->previous->next = newNode;
   newNode->previous = list->previous;
@@ -199,9 +199,9 @@ OS_INLINE void osList_AddTail(struct osList_Head_t* list, struct osList_Head_t* 
  * @param list 原节点 
  * @param newNode 新节点 
  * 
- * @return none
+ * @retval none
  */	
-OS_INLINE void osList_Add(struct osList_Head_t* list, struct osList_Head_t* newNode) {
+OS_INLINE void osList_Add(struct osList_t* list, struct osList_t* newNode) {
 	//__ListAdd(node, list, node->next);
   list->next->previous = newNode;
   newNode->next = list->next;
@@ -216,9 +216,9 @@ OS_INLINE void osList_Add(struct osList_Head_t* list, struct osList_Head_t* newN
  *
  * @param node 节点 
  * 
- * @return none
+ * @retval none
  */	
-OS_INLINE void osList_DeleteNode(struct osList_Head_t* node) {
+OS_INLINE void osList_DeleteNode(struct osList_t* node) {
 	node->next->previous = node->previous;
 	node->previous->next = node->next;
 
@@ -232,9 +232,9 @@ OS_INLINE void osList_DeleteNode(struct osList_Head_t* node) {
  * @param head 对象所在所在列表 
  * @param node 被检查对象 
  * 
- * @return bool
+ * @retval bool
  */	
-OS_INLINE int osList_CheckIsLast(struct osList_Head_t* head, struct osList_Head_t* node) {
+OS_INLINE int osList_CheckIsLast(struct osList_t* head, struct osList_t* node) {
 	return (node->next == head);
 }
 
@@ -244,9 +244,9 @@ OS_INLINE int osList_CheckIsLast(struct osList_Head_t* head, struct osList_Head_
  *
  * @param head 节点 
  * 
- * @return bool
+ * @retval bool
  */	
-OS_INLINE int osList_CheckIsEmpty(struct osList_Head_t* head) {
+OS_INLINE int osList_CheckIsEmpty(struct osList_t* head) {
 	return (head->next == head);
 }
 
@@ -257,9 +257,9 @@ OS_INLINE int osList_CheckIsEmpty(struct osList_Head_t* head) {
  * @param head 节点 
  * @param node 被移动节点
  * 
- * @return none
+ * @retval none
  */	
-OS_INLINE void osList_Move(struct osList_Head_t* head, struct osList_Head_t* node) {
+OS_INLINE void osList_Move(struct osList_t* head, struct osList_t* node) {
 	osList_DeleteNode(node);
 	osList_Add(node, head);
 }
@@ -271,9 +271,9 @@ OS_INLINE void osList_Move(struct osList_Head_t* head, struct osList_Head_t* nod
  * @param head 节点 
  * @param node 被移动节点
  * 
- * @return none
+ * @retval none
  */	
-OS_INLINE void osList_MoveTail(struct osList_Head_t* head, struct osList_Head_t* node) {
+OS_INLINE void osList_MoveTail(struct osList_t* head, struct osList_t* node) {
 	osList_DeleteNode(node);
 	osList_AddTail(node, head);
 }
@@ -285,13 +285,13 @@ OS_INLINE void osList_MoveTail(struct osList_Head_t* head, struct osList_Head_t*
  * @param head 原节点 
  * @param list 外源节点
  * 
- * @return none
+ * @retval none
  */	
-OS_INLINE void osList_Splice(struct osList_Head_t* head, struct osList_Head_t* list) {
+OS_INLINE void osList_Splice(struct osList_t* head, struct osList_t* list) {
 	if (!osList_CheckIsEmpty(list)) {
-		struct osList_Head_t *first = list->next;
-		struct osList_Head_t *last = list->previous;
-		struct osList_Head_t *at  = head->next;
+		struct osList_t *first = list->next;
+		struct osList_t *last = list->previous;
+		struct osList_t *at  = head->next;
 
 		first->previous = head;
 		head->next = first;

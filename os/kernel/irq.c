@@ -63,7 +63,7 @@ static volatile int8_t interruptNest = 0;
  *
  * @param none
  *
- * @return none
+ * @retval none
  */
 void osSys_ISRLeave(void) {
   register uint32_t level;
@@ -81,7 +81,7 @@ EXPORT_SYMBOL(osSys_ISRLeave);
  *
  * @param none
  *
- * @return none
+ * @retval none
  */
 void osSys_ISREnter(void) {
   register uint32_t level;
@@ -99,7 +99,7 @@ EXPORT_SYMBOL(osSys_ISREnter);
  *
  * @param none
  *
- * @return 中断嵌套数
+ * @retval 中断嵌套数
  */
 int8_t osSys_GetNest(void) {
   return interruptNest;

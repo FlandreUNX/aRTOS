@@ -83,7 +83,7 @@ static volatile int8_t sche_LockNest;
 static volatile uint8_t sche_CurrPriority;
 
 /*调度器线程运行指示*/
-volatile struct threadSwitchInfo_t sche_ThreadSwitchStatus;
+struct threadSwitchInfo_t sche_ThreadSwitchStatus;
 
 
 /*@}*/
@@ -146,10 +146,10 @@ static const uint8_t BITMAP[] = { \
 /*@{*/
 
 /*每一优先级组的线程链表*/
-struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
+struct osList_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 
 #if USING_DEID_THREAD_RM == 1
-  struct osList_Head_t sche_NoReadyList;
+  struct osList_t sche_NoReadyList;
 #endif
 
 /*@}*/
@@ -165,7 +165,7 @@ struct osList_Head_t sche_ReadyList[MAX_PRIORITY_LEVEL];
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 void sche_Init(void) {
   sche_LockNest = 0;
@@ -201,7 +201,7 @@ void sche_Init(void) {
  *
  * @param thread 线程单元
  * 
- * @return none
+ * @retval none
  */
 void sche_InsertThread(osThread_Attr_t *thread) {
   register uint32_t level = hal_DisableINT();
@@ -226,7 +226,7 @@ void sche_InsertThread(osThread_Attr_t *thread) {
  *
  * @param thread 线程单元
  * 
- * @return 无
+ * @retval 无
  */
 void sche_RemoveThread(osThread_Attr_t* thread) {
   register uint32_t level = hal_DisableINT();
@@ -262,10 +262,22 @@ void sche_RemoveThread(osThread_Attr_t* thread) {
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 void sche_NextToNow(void) {
   sche_ThreadSwitchStatus.nowThread = sche_ThreadSwitchStatus.nextThread;
+}
+
+
+/**
+ * 设置初始线程线程
+ *
+ * @param thread: 线程对象
+ * 
+ * @retval none
+ */
+void sche_SetFirstThread(osThread_Attr_t* thread) {
+  sche_ThreadSwitchStatus.nowThread = sche_ThreadSwitchStatus.nextThread = thread;
 }
 
 
@@ -274,7 +286,7 @@ void sche_NextToNow(void) {
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 void sche_ToNextThread(void) {
   register uint8_t highestPriority;
@@ -324,10 +336,10 @@ void sche_ToNextThread(void) {
 
       /*标记线程状态*/
       sche_ThreadSwitchStatus.nextThread->stage = osThreadRunning;
-      sche_ThreadSwitchStatus.nowThread->stage = osThreadReady;
+//      sche_ThreadSwitchStatus.nowThread->stage = osThreadReady;
 
       /*调度Call*/
-      hal_CallPendSV();
+      hal_PendSVSet();
     }
   }
 
@@ -341,7 +353,7 @@ void sche_ToNextThread(void) {
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 void sys_TickHandler(void) {
   /*中断嵌套+1*/
@@ -380,7 +392,7 @@ void sys_TickHandler(void) {
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 void osSche_Lock(void) {
   register uint32_t level = hal_DisableINT();
@@ -397,7 +409,7 @@ EXPORT_SYMBOL(osSche_Lock);
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 void osSche_Unlock(void) {
   register uint32_t level = hal_DisableINT();
@@ -423,7 +435,7 @@ EXPORT_SYMBOL(osSche_Unlock);
  *
  * @param none
  * 
- * @return none
+ * @retval none
  */
 osTick_t osSys_GetNowTick(void) {
   return sys_TickCount;

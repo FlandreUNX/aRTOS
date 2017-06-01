@@ -46,7 +46,7 @@
  
 /*@{*/
 
-extern volatile struct threadSwitchInfo_t sche_ThreadSwitchStatus;
+extern struct threadSwitchInfo_t sche_ThreadSwitchStatus;
 
 /*@}*/
 
@@ -63,32 +63,45 @@ extern volatile struct threadSwitchInfo_t sche_ThreadSwitchStatus;
  * @param arguments thread传递参数
  * @param stackTop thread堆栈起点
  * 
- * @return 修改后的堆栈指针
+ * @retval 修改后的堆栈指针
  */
 uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
-  cpuRegisters_t *regs = (cpuRegisters_t *)((uint32_t)stackTop - sizeof(cpuRegisters_t));
+  /*xPSR*/
+	*(--stackTop) = (uint32_t)0x01000000;
+	/*PC*/
+	*(--stackTop) = (uint32_t)func;
+	/*LR(R14)*/
+	*(--stackTop) = (uint32_t)0;
+	/*R12*/
+	*(--stackTop) = (uint32_t)0x00000012;
+	/*R3*/
+	*(--stackTop) = (uint32_t)0x00000003;
+	/*R2*/
+	*(--stackTop) = (uint32_t)0x00000002;
+	/*R1*/
+	*(--stackTop) = (uint32_t)0x00000001;
+	/*R0*/
+	*(--stackTop) = (uint32_t)arguments;
+	/*exec 返回 线程,PSP模式*/
+	*(--stackTop) = (uint32_t)0xFFFFFFFD;
+	/*R11*/
+	*(--stackTop) = (uint32_t)0x00000011;
+	/*R10*/
+	*(--stackTop) = (uint32_t)0x00000010;
+	/*R9*/
+	*(--stackTop) = (uint32_t)0x00000009;
+	/*R8*/
+	*(--stackTop) = (uint32_t)0x00000008;
+	/*R7*/
+	*(--stackTop) = (uint32_t)0x00000007;
+	/*R6*/
+	*(--stackTop) = (uint32_t)0x00000006;
+	/*R5*/
+	*(--stackTop) = (uint32_t)0x00000005;
+	/*R4*/
+	*(--stackTop) = (uint32_t)0x00000004;
 
-  regs->r13_SP = (uint32_t)0x01000000;
-  regs->r15_PC = (uint32_t)func;
-  regs->r14_LR = (uint32_t)0;
-
-  regs->r12 = (uint32_t)0x00000012;
-  regs->r3 = (uint32_t)0x00000003;
-  regs->r2 = (uint32_t)0x00000002;
-  regs->r1 = (uint32_t)0x00000001;
-  regs->r0 = (uint32_t)arguments;
-
-  regs->exec = (uint32_t)0xFFFFFFFD;
-
-  regs->r11 = (uint32_t)0x00000011;
-  regs->r10 = (uint32_t)0x00000010;
-  regs->r9 = (uint32_t)0x00000009;
-  regs->r8 = (uint32_t)0x00000008;
-  regs->r7 = (uint32_t)0x00000007;
-  regs->r6 = (uint32_t)0x00000006;
-  regs->r5 = (uint32_t)0x00000005;
-  regs->r4 = (uint32_t)0x00000004;
-  return (uint32_t *)regs;
+	return stackTop;
 }
 
 
@@ -99,64 +112,11 @@ uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop) {
 #ifdef __CC_ARM 
 
 /**
- *  Cortext-M NVIC register
- */
-#define NVIC_INT_CTRL 0xE000ED04    /**< Interrupt control state register */
-#define NVIC_SYSPRI14 0xE000ED22    /**< System priority register (priority 14) */
-#define NVIC_PENDSVSET 0x10000000   /**< Value to trigger PendSV exception */
-#define NVIC_PENDSV_PRI 0xFF    /**< PendSV priority value (lowest) */
-
-
-/**
-  * 标记pensv中断
-  *
-  * @param none
-  * 
-  * @return none
-  */
-__asm void hal_IRQConfigure(void) {
-  PRESERVE8
-  
-  /*设置pendSV为最低优先级*/
-  ldr r0, =NVIC_SYSPRI14
-  ldr r1, =NVIC_PENDSV_PRI
-  strb r1, [r0]
-}
-
-/**
-  * 标记pensv中断
-  *
-  * @param none
-  * 
-  * @return none
-  */
-__asm void hal_CallPendSV(void) {
-  PRESERVE8
-  
-  ldr r0, =NVIC_INT_CTRL
-  ldr r1, =NVIC_PENDSVSET
-  strb r1, [r0]
-}
-
-
-/**
-  * 标记NMI中断
-  *
-  * @param none
-  * 
-  * @return none
-  */
-__asm void hal_CallNMI(void) {
-  
-}
-
-
-/**
   * 关闭全局中断
   *
   * @param none
   * 
-  * @return none
+  * @retval none
   */
 __asm uint32_t hal_DisableINT(void) {
   PRESERVE8
@@ -169,6 +129,8 @@ __asm uint32_t hal_DisableINT(void) {
   isb
 
   bx r14
+  
+  align 4
 }
 
 
@@ -177,13 +139,15 @@ __asm uint32_t hal_DisableINT(void) {
   *
   * @param none
   * 
-  * @return none
+  * @retval none
   */
 __asm void hal_EnableINT(uint32_t level) {
   PRESERVE8
   
   msr basepri, r0
   bx r14
+  
+  align 4
 }
 
 
@@ -192,7 +156,7 @@ __asm void hal_EnableINT(uint32_t level) {
   *
   * @param none
   * 
-  * @return none
+  * @retval none
   */
 __asm void cpu_GotoFisrtTask(void) {
   /*SCB->VTOR 0xE000ED08*/
@@ -214,7 +178,7 @@ __asm void cpu_GotoFisrtTask(void) {
   /*开放中断*/
   mrs r0, PRIMASK					
   cpsie 	i
-
+  
   svc 0
   
   align 4
@@ -226,17 +190,17 @@ __asm void cpu_GotoFisrtTask(void) {
   *
   * @param none
   * 
-  * @return none
+  * @retval none
   */
 __asm void SVC_Handler(void) {
   extern sche_ThreadSwitchStatus;
   
   PRESERVE8
   
-  /*最近任务TUB地址写进R3*/
-  ldr r3, =__cpp(&sche_ThreadSwitchStatus.nowThread)
+  /*最近线程地址写进R3*/
+  ldr r3, =__cpp(&sche_ThreadSwitchStatus.nextThread)
   
-  /*将TUB的栈中的SP写进R1*/
+  /*将线程的栈中的SP写进R1*/
   ldr r1, [r3]			
   
   /*恢复SP*/
@@ -268,7 +232,7 @@ __asm void SVC_Handler(void) {
   *
   * @param none
   * 
-  * @return none
+  * @retval none
   */
 __asm void PendSV_Handler(void) {
   extern sche_ThreadSwitchStatus;
@@ -317,7 +281,7 @@ __asm void PendSV_Handler(void) {
   *
   * @param none
   * 
-  * @return none
+  * @retval none
   */	
 void SysTick_Handler(void) {
   sys_TickHandler();

@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
- * File      : buddy.h
+ * File      : hal_Support.h
  * This file is part of aRTOS
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,64 +28,49 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef BUDDY_H_
-#define BUDDY_H_
+#ifndef HAL_SUPPORT_H_
+#define HAL_SUPPORT_H_
 
 /**
- * @addtogroup OS Include
+ * @addtogroup stm32F7 configure
  */
 
 /*@{*/
 
-#include "../arch/platform.h"
-
-#include "../osConfig.h"
+/**
+ *  STM32F767ZI配置说明
+ *  使用FLASH-ITCM总线模式(0x00200000 -0x200000 /2MB) (0x08000000 -0x200000 /2MB) 
+ *  启动ART + ART-PF
+ *  主内存使用DTCM-RAM(0x20000000 -0x20000 /128KB)
+ *  SRAM1(0x20020000 -0x60000 /368KB)
+ *  SRAM2(0x2007C000 -0x4000 /16KB)
+ */
+extern int Image$$RW_IRAM2$$ZI$$Limit;
+#define IRAM_BEGIN  ((void *) &Image$$RW_IRAM2$$ZI$$Limit)   /**< 内存开始地址 */
+#define IRAM_END  (0x20000000 + 0x20000)                      /**< 内存结束地址 */
 
 /*@}*/
 
-#if USING_BUDDY_MANAGER == 1
-  /**
-  * @addtogroup buddy Memory info 
-  */
+/**
+ * @addtogroup hal user functions
+ */
 
-  /*@{*/
+/*@{*/
 
-  typedef struct osMem_Info {
-    uint32_t heapStart;     /**< 内存起址*/
-    uint32_t heapEnd;       /**< 内存结束*/
+extern void osHal_CoreInit(void);
 
-    uint32_t total;     /**< buddy块大小 单位(byte)总内存*/
-    uint32_t remaining; /**< 用户可用内存剩余量*/
-  } osMem_t;
+/*@}*/
 
-  extern osMem_t osMem_Info;
+/**
+ * @addtogroup platform support system functions 
+ */
+ 
+/*@{*/
 
-  /*@}*/
+extern void hal_CallPendSV(void);
 
-  /**
-  * @addtogroup buddy system functions
-  */
-      
-  /*@{*/
+extern void hal_CallNMI(void);
 
-  extern void mem_Init(uint32_t memStart, uint32_t memEnd);
+/*@}*/
 
-  /*@}*/
-
-  /**
-  * @addtogroup buddy user functions
-  */
-      
-  /*@{*/
-
-  extern void* osMem_Malloc(uint32_t size);
-  extern void osMem_Free(void* address);
-
-  /*@}*/
-#else
-  #include <stdlib.h>
-
-  #define osMem_Malloc malloc
-  #define osMem_Free free
-#endif
 #endif

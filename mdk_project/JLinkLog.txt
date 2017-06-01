@@ -1,0 +1,31 @@
+
+T3A1C 000:105 SEGGER J-Link V6.10i Log File (0001ms, 0032ms total)
+T3A1C 000:105 DLL Compiled: Oct 25 2016 19:31:51 (0001ms, 0032ms total)
+T3A1C 000:105 Logging started @ 2017-05-31 10:33 (0001ms, 0032ms total)
+T3A1C 000:106 JLINK_SetWarnOutHandler(...) (0000ms, 0032ms total)
+T3A1C 000:106 JLINK_OpenEx(...)
+Firmware: J-Link ARM V8 compiled Jan 31 2018 18:34:52
+Hardware: V8.00
+S/N: 20080643
+Feature(s): RDI,FlashDL,FlashBP,JFlash,GDBFullWEBSRV Webserver running on local port 19080 (0016ms, 0048ms total)
+T3A1C 000:106   returns O.K. (0016ms, 0048ms total)
+T3A1C 000:122 JLINK_SetErrorOutHandler(...) (0000ms, 0048ms total)
+T3A1C 000:122 JLINK_ExecCommand("ProjectFile = "C:\Users\FLandreUNX\Desktop\aRTOS\mdk_project\JLinkSettings.ini"", ...).   returns 0x00 (0171ms, 0219ms total)
+T3A1C 000:357 JLINK_ExecCommand("Device = STM32F767ZITx", ...). Device "STM32F767ZI" selected.  returns 0x00 (0007ms, 0226ms total)
+T3A1C 000:364 JLINK_ExecCommand("DisableConnectionTimeout", ...).   returns 0x01 (0000ms, 0226ms total)
+T3A1C 000:364 JLINK_GetHardwareVersion()  returns 0x13880 (0000ms, 0226ms total)
+T3A1C 000:364 JLINK_GetDLLVersion()  returns 61009 (0000ms, 0226ms total)
+T3A1C 000:364 JLINK_GetFirmwareString(...) (0000ms, 0226ms total)
+T3A1C 000:383 JLINK_GetDLLVersion()  returns 61009 (0000ms, 0226ms total)
+T3A1C 000:383 JLINK_GetCompileDateTime() (0000ms, 0226ms total)
+T3A1C 000:392 JLINK_GetFirmwareString(...) (0000ms, 0226ms total)
+T3A1C 000:398 JLINK_GetHardwareVersion()  returns 0x13880 (0000ms, 0226ms total)
+T3A1C 000:442 JLINK_TIF_Select(JLINKARM_TIF_SWD)  returns 0x00 (0002ms, 0228ms total)
+T3A1C 000:444 JLINK_SetSpeed(50000) (0000ms, 0228ms total)
+T3A1C 000:444 JLINK_GetId() >0x108 TIF>Found SWD-DP with ID 0x5BA02477 >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF>
+ >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF> >0x108 TIF>Found SWD-DP with ID 0x5BA02477 >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF>AP-IDR: 0x74770001, Type: AHB-AP >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF>
+ >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x21 TIF>Found Cortex-M7 r1p0, Little endian. >0x0D TIF> >0x28 TIF>
+  ***** Error: Specific core setup failed.  returns 0x00000000 (2433ms, 2661ms total)
+T3A1C 004:454 JLINK_Close() >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x28 TIF> >0x0D TIF> >0x21 TIF> >0x0D TIF> >0x28 TIF> (0019ms, 2680ms total)
+T3A1C 004:454  (0019ms, 2680ms total)
+T3A1C 004:454 Closed (0019ms, 2680ms total)

@@ -40,7 +40,7 @@
 /**
  * CPU运行频率,单位Hz
  */
-#define OS_CLOCK       (48000000)
+#define OS_CLOCK       (216000000)
 
 /**
  * CPU_Tick中断溢出计量
@@ -55,6 +55,8 @@
   
 /*@{*/
 
+#define OS_DEBUG_MODE   (1)
+
 /**
  * 系统线程优先级分级数量,此值-1为最小优先级,0为最大优先级
  */
@@ -63,7 +65,7 @@
 /**
  * 空闲线程堆栈大小
  */
-#define IDLE_STACK_SIZE     (256)
+#define IDLE_STACK_SIZE     (488)
 
 /**
  * 空闲线程优先级
@@ -83,12 +85,12 @@
   /**
    *  软件定时器线程优先级
    */
-  #define SOFT_TIMER_PRIORITY     (MAX_PRIORITY_LEVEL - 1)
+  #define SOFT_TIMER_PRIORITY     (MAX_PRIORITY_LEVEL - 2)
 
   /**
    *  软件定时器线程堆栈大小
    */
-  #define SOFT_TIMER_STACK_SIZE   (256)
+  #define SOFT_TIMER_STACK_SIZE   (488)
 #endif
 
 /*@}*/
@@ -131,7 +133,7 @@
   /**
    *  buddy内存块阶级数量,参考上表格对应关系
    */
-  #define BUDDY_ORDER         (6)
+  #define BUDDY_ORDER         (8)
 
   /*@}*/
 #endif

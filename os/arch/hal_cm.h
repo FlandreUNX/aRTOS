@@ -87,6 +87,18 @@ typedef struct cm_RegisterFrame {
 /*@}*/
 
 /**
+ * @addtogroup platform support system functions 
+ */
+ 
+/*@{*/
+
+extern void hal_PendSVSet(void);
+
+extern void hal_CallNMI(void);
+
+/*@}*/
+
+/**
  * @addtogroup cm_hal system functions 
  */
  
@@ -94,10 +106,12 @@ typedef struct cm_RegisterFrame {
 
 extern uint32_t* cpu_SetupRegisters(void *func, void *arguments, uint32_t *stackTop);
 
+extern void cpu_GotoFisrtTask(void);
+
 extern uint32_t hal_DisableINT(void);
 extern void hal_EnableINT(uint32_t level);
 
-extern void hal_CallPendSV(void);
+extern void hal_PendSVSet(void);
 extern void hal_CallNMI(void);
 
 /*@}*/

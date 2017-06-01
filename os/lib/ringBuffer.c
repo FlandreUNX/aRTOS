@@ -61,8 +61,8 @@
  *
  * @param size RingBuffer大小(不包含buffer必要信息)
  * 
- * @return RingBuffer有效句柄
- * @return 0: 创建失败
+ * @retval RingBuffer有效句柄
+ * @retval 0: 创建失败
  */
 osRBuffer_t* osRBuffer_Create(uint16_t size) {
   osRBuffer_t* buffer;
@@ -91,7 +91,7 @@ EXPORT_SYMBOL(osRBuffer_Create);
  * @param *pool RingBuffer容器
  * @param size RingBuffer容器大小(包含buffer结构体信息)
  * 
- * @return RingBuffer有效句柄
+ * @retval RingBuffer有效句柄
  */
 osRBuffer_t* osRBuffer_StaticCreate(void *pool, uint16_t size) {
   osRBuffer_t* buffer;
@@ -115,7 +115,7 @@ EXPORT_SYMBOL(osRBuffer_StaticCreate);
  *
  * @param *obj RingBuffer对象
  * 
- * @return 存放有效数据量
+ * @retval 存放有效数据量
  */
 enum BUFFER_STAGE osRBuffer_GetStatus(osRBuffer_t *obj) {
   if (obj->in == obj->out) {
@@ -137,7 +137,7 @@ EXPORT_SYMBOL(osRBuffer_GetStatus);
  *
  * @param *obj RingBuffer对象
  * 
- * @return 存放有效数据量
+ * @retval 存放有效数据量
  */
 uint16_t osRBuffer_GetDataLen(osRBuffer_t *obj) {
   uint16_t len;
@@ -172,7 +172,7 @@ EXPORT_SYMBOL(osRBuffer_GetDataLen);
  *
  * @param *obj RingBuffer对象
  * 
- * @return 有效剩余
+ * @retval 有效剩余
  */
 uint16_t osRBuffer_GetSpaceLen(osRBuffer_t *obj) {
   return (obj)->size - osRBuffer_GetDataLen(obj);
@@ -187,7 +187,7 @@ EXPORT_SYMBOL(osRBuffer_GetSpaceLen);
  * @param *src 数据源
  * @param len 数据长度
  * 
- * @return 存放有效数据量
+ * @retval 存放有效数据量
  */
 uint16_t osRBuffer_Put(osRBuffer_t *obj, const uint8_t *src, uint16_t len) {
   uint16_t size;
@@ -237,7 +237,7 @@ EXPORT_SYMBOL(osRBuffer_Put);
  * @param *dest 数据目标
  * @param len 数据长度
  * 
- * @return 有效数据量
+ * @retval 有效数据量
  */
 uint16_t osRBuffer_Get(osRBuffer_t *obj, uint8_t *dest, uint16_t len) {
   uint16_t size;
@@ -286,7 +286,7 @@ EXPORT_SYMBOL(osRBuffer_Get);
  * @param *obj RingBuffer对象
  * @param src 数据源
  * 
- * @return 有效数据量
+ * @retval 有效数据量
  */
 uint8_t osRBuffer_PutByte(osRBuffer_t *obj, uint8_t src) {
   /*检查剩余空间*/
@@ -316,7 +316,7 @@ EXPORT_SYMBOL(osRBuffer_PutByte);
  * @param *obj RingBuffer对象
  * @param *dest 目标源
  * 
- * @return 有效数据量
+ * @retval 有效数据量
  */
 uint8_t osRBuffer_GetByte(osRBuffer_t *obj, uint8_t *dest) {
   /*检查是不是空RB*/
@@ -345,7 +345,7 @@ EXPORT_SYMBOL(osRBuffer_GetByte);
  *
  * @param *obj RingBuffer对象
  * 
- * @return none
+ * @retval none
  */
 void osRBuffer_Clear(osRBuffer_t *obj) {
   obj->in = obj->out = 0;

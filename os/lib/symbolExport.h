@@ -67,7 +67,7 @@ typedef struct symbolTab {
 *
 * @param symbol 需要导出的函数
 * 
-* @return none
+* @retval none
 */
 #define EXPORT_SYMBOL(symbol) \
   const char export_##symbol##_name[] OS_SECTION(".rodata.name") = #symbol; \

@@ -72,7 +72,7 @@ typedef struct BuddyBlock {
    */
   uint8_t stage;
 	
-  struct osList_Head_t list;  /**< 该结构体是一个双向链表节点 */
+  struct osList_t list;  /**< 该结构体是一个双向链表节点 */
 } BuddyBlock_t;
 
 /*@}*/
@@ -97,7 +97,7 @@ typedef struct BuddyBlock {
 #define BUDDY_MAX_ORDER     (BUDDY_ORDER - 1)
 
 /*buddy order 2^n阶 链表*/
-struct osList_Head_t buddy_list[BUDDY_ORDER];
+struct osList_t buddy_list[BUDDY_ORDER];
 
 /*内存信息*/
 osMem_t osMem_Info;
@@ -123,7 +123,7 @@ osMem_t osMem_Info;
  * @param memStart 内存起址
  * @param memEnd 内存结束
  * 
- * @return none
+ * @retval none
  */
 void mem_Init(uint32_t memStart, uint32_t memEnd) {
   /*内存对齐标志*/
@@ -179,7 +179,7 @@ void mem_Init(uint32_t memStart, uint32_t memEnd) {
  *
  * @param order 序列
  * 
- * @return none
+ * @retval none
  */
 static BuddyBlock_t* allocateBlock(uint32_t order) {
   BuddyBlock_t* block;
@@ -239,7 +239,7 @@ static BuddyBlock_t* allocateBlock(uint32_t order) {
  * @param block 内存块
  * @param order 等级
  * 
- * @return 返回伙伴地址
+ * @retval 返回伙伴地址
  */
 OS_INLINE void* findBuddyBlock(BuddyBlock_t* block, uint32_t order) {
   /*计算长度*/
@@ -258,7 +258,7 @@ OS_INLINE void* findBuddyBlock(BuddyBlock_t* block, uint32_t order) {
  *
  * @param block 内存块
  * 
- * @return none
+ * @retval none
  */
 static void __FreeBlock(BuddyBlock_t * block) {
   uint8_t blockOrder;
@@ -317,7 +317,7 @@ static void __FreeBlock(BuddyBlock_t * block) {
  *
  * @param size 申请大小
  * 
- * @return 内存地址
+ * @retval 内存地址
  */
 void* osMem_Malloc(uint32_t size) {
   /*传入0,错误*/
@@ -360,7 +360,7 @@ EXPORT_SYMBOL(osMem_Malloc);
  *
  * @param address 地址
  * 
- * @return none
+ * @retval none
  */
 void osMem_Free(void* address) {
   register uint32_t level;

@@ -39,6 +39,8 @@
 
 #include "./timer.h"
 
+#include "../pm/event.h"
+
 #include "../arch/platform.h"
 
 #include "../lib/list.h"
@@ -63,7 +65,7 @@ typedef enum {
   osThreadRunning,    /**< 运行中 */
   osThreadBlocked,    /**< 堵塞 */
   osThreadTerminated  /**< 结束 */
-}osThread_Stage_t;
+}osThread_Stage;
 
 /*@}*/
 
@@ -100,24 +102,29 @@ typedef struct Thread_Attr {
   #else
     uint32_t bitmap_Mask;   /**< 大于8级的bitmap标志 */
   #endif
+  
+  /**
+    *  事件相关
+    */
+  osEvent_t *event;
 
   /**
     *  其他属性
     */
-  struct osList_Head_t list;    /**< 链表节点 */
+  struct osList_t list;    /**< 链表节点 */
 
   osTimer_Attr_t timer;    /**< 运行时核心计数器 */
 
   uint16_t initTimeSlice;     /**< 初始时间片大小 */
   uint16_t timeSlice;         /**< 时间片大小 */
 
-  osThread_Stage_t stage;    /**< 状态 */
+  osThread_Stage stage;    /**< 状态 */
 }osThread_Attr_t;
 
 /**
  *  Thread全局句柄
  */
-typedef void* osThread_ID;
+typedef osThread_Attr_t* osThread_ID;
 
 /*@}*/
 

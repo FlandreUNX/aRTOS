@@ -55,22 +55,27 @@
 
 /*@{*/
 
+extern struct threadSwitchInfo_t sche_ThreadSwitchStatus;
+
+extern osThread_ID idle_ThreadID;
+extern osThread_Attr_t os_Thread_Idle;
+
 /**
  * 初始化os内核
  *
  * @param none
  *
- * @return none
+ * @retval none
  */
 void osSys_KernelInitialize(void) {
+  /*动态内存库初始化*/
+  mem_Init((uint32_t)HEAP_BEGIN, (uint32_t)HEAP_END);
+  
   /*调度器初始化*/
   sche_Init();
 
   /*定时器初始化*/
   timer_Init();
-  
-  /*动态内存库初始化*/
-  mem_Init((uint32_t)HEAP_BEGIN, HEAP_END);
 }
 
 
@@ -79,18 +84,19 @@ void osSys_KernelInitialize(void) {
  *
  * @param none
  *
- * @return none
+ * @retval none
  */
 void osSys_KernelStartup(void) {
   /*初始化并启动idle*/
-  extern osThread_ID idle_ThreadID;
-  extern osThread_Attr_t os_Thread_Idle;
-  idle_ThreadID = osThread_Create(osThread_Obj(Idle), (void*)0);
+  idle_ThreadID = osThread_Create(&os_Thread_Idle, (void *)0);
   if (idle_ThreadID == 0) {
     //OS_ASSERT
   }
-  osThread_Ready(idle_ThreadID);
 
+  osThread_Ready(idle_ThreadID);
+  
+  sche_SetFirstThread(idle_ThreadID);
+  
   cpu_GotoFisrtTask();
 }
 

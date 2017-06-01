@@ -72,21 +72,22 @@ typedef uint32_t  osTick_t;  /**< osTick最大计量 */
  */
 #ifdef __CC_ARM 
   #include <stdarg.h>
+  
+  #include "./hal_Support.h"
 
   /**
-    * 
-    */
+   * 
+   */
   #define OS_SECTION(x)      __attribute__((section(x)))
   #define OS_WEEK            __weak
   #define OS_INLINE          static __inline
   #define OS_NO_RETURN       int __declspec(noreturn)
 
   /**
-    * 内存堆起止
-    */
-  extern int Image$$RW_IRAM1$$ZI$$Limit;
-  #define HEAP_BEGIN  ((void *) &Image$$RW_IRAM1$$ZI$$Limit)
-  #define HEAP_END    (0x20000000 + 64 * 1024)
+   * 内存堆起止
+   */
+  #define HEAP_BEGIN  IRAM_BEGIN
+  #define HEAP_END    IRAM_END
 #endif
 
 /*@}*/
@@ -102,7 +103,7 @@ typedef uint32_t  osTick_t;  /**< osTick最大计量 */
  *
  * @def ALIGN(number, align)
  *
- * 向上计算以number为底数,align的2倍数的对齐值 
+ * 向上计算以number为底数,align的x2迭代的对齐值 
  * 例如:ALIGN(13, 4) = 16
  */
 #define ALIGN(number, align) \
@@ -114,7 +115,7 @@ typedef uint32_t  osTick_t;  /**< osTick最大计量 */
  *
  * @def ALIGN_DOWN(number, align)
  *
- * 向下计算以number为底数,align的2倍数的对齐值
+ * 向下计算以number为底数,align的x2迭代的对齐值
  * 例如:ALIGN_DOWN(13, 4) = 12
  */
 #define ALIGN_DOWN(number, align) \
