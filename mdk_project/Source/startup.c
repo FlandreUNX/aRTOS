@@ -47,12 +47,24 @@
 
 /*@{*/
 
-#include "osAPI.h"
+#include "os/osAPI.h"
 
 /*@}*/
 
 /**
- * @addtogroup threadDemo1 thread
+ * @addtogroup add ons
+ */
+ 
+/*@{*/
+
+#include "addons/console/console.h"
+
+/*@}*/
+
+/*@}*/
+
+/**
+ * @addtogroup threadDemo1
  */
 
 /*@{*/
@@ -60,7 +72,10 @@
 uint32_t threadDemo1_RunningCount = 0;
 
 osThread_FuncDef(threadDemo1) {
+  mLog_ThreadPrintf(Log_I, "Thread-1", 100, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
   for (;;) {
+    osThread_Delay(100);
+    
     threadDemo1_RunningCount++;
   }
 }
@@ -70,7 +85,7 @@ osThread_ID threadDemo1_ID;
 /*@}*/
 
 /**
- * @addtogroup threadDemo2 thread
+ * @addtogroup threadDemo2
  */
 
 /*@{*/
@@ -78,7 +93,10 @@ osThread_ID threadDemo1_ID;
 uint32_t threadDemo2_RunningCount = 0;
 
 osThread_FuncDef(threadDemo2) {
+  mLog_ThreadPrintf(Log_I, "Thread-2", 100, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
   for (;;) {
+    osThread_Delay(500);
+    
     threadDemo2_RunningCount++;
   }
 }
@@ -88,7 +106,7 @@ osThread_ID threadDemo2_ID;
 /*@}*/
 
 /**
- * @addtogroup threadDemo3 thread
+ * @addtogroup threadDemo3
  */
 
 /*@{*/
@@ -96,10 +114,11 @@ osThread_ID threadDemo2_ID;
 uint32_t threadDemo3_RunningCount = 0;
 
 osThread_FuncDef(threadDemo3) {
+  mLog_ThreadPrintf(Log_I, "Thread-3", 100, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
   for (;;) {
-    threadDemo3_RunningCount++;
     osThread_Delay(1000);
-    BSP_LED_Toggle(LED1);
+    
+    threadDemo3_RunningCount++;
   }
 }
 osThread_Def(threadDemo3, 2, ALIGN(488, 8), threadDemo3);
@@ -118,10 +137,46 @@ uint32_t timerDemo1_RunningCount = 0;
 osTimer_Callback(timerDemo1) {
   timerDemo1_RunningCount++;
   
-  BSP_LED_Toggle(LED2);
+  BSP_LED_Toggle(LED1);
 }
 osTimer_Def(timerDemo1, osTimerSoft, timerDemo1);
 osTimer_ID timerDemo1_ID;
+
+/*@}*/
+
+/**
+ * @addtogroup timerDemo2
+ */
+
+/*@{*/
+
+uint32_t timerDemo2_RunningCount = 0;
+
+osTimer_Callback(timerDemo2) {
+  timerDemo2_RunningCount++;
+  
+  BSP_LED_Toggle(LED2);
+}
+osTimer_Def(timerDemo2, osTimerSoft, timerDemo2);
+osTimer_ID timerDemo2_ID;
+
+/*@}*/
+
+/**
+ * @addtogroup timerDemo3
+ */
+
+/*@{*/
+
+uint32_t timerDemo3_RunningCount = 0;
+
+osTimer_Callback(timerDemo3) {
+  timerDemo3_RunningCount++;
+  
+  BSP_LED_Toggle(LED3);
+}
+osTimer_Def(timerDemo3, osTimerSoft, timerDemo3);
+osTimer_ID timerDemo3_ID;
 
 /*@}*/
 
@@ -143,13 +198,16 @@ int main(void) {
   /*os内核初始化*/
   osSys_KernelInitialize();
   
+  /*相关模块初始化*/
+  osSys_ModulesInit();
+  
   /*threadDemo1线程*/
-//  threadDemo1_ID = osThread_Create(osThread_Obj(threadDemo1), (void *)0);
-//  osThread_Ready(threadDemo1_ID);
+  threadDemo1_ID = osThread_Create(osThread_Obj(threadDemo1), (void *)0);
+  osThread_Ready(threadDemo1_ID);
   
   /*threadDemo2线程*/
-//  threadDemo2_ID = osThread_Create(osThread_Obj(threadDemo2), (void *)0);
-//  osThread_Ready(threadDemo2_ID);
+  threadDemo2_ID = osThread_Create(osThread_Obj(threadDemo2), (void *)0);
+  osThread_Ready(threadDemo2_ID);
   
   /*threadDemo3线程*/
   threadDemo3_ID = osThread_Create(osThread_Obj(threadDemo3), (void *)0);
@@ -157,8 +215,16 @@ int main(void) {
 
   /*定时器1*/
   timerDemo1_ID = osTimer_Create(osTimer_Obj(timerDemo1), osTimerPeriodic, (void *)0);
-  osTimer_Start(timerDemo1_ID, 2000);
+  osTimer_Start(timerDemo1_ID, 25);
   
+  /*定时器2*/
+  timerDemo2_ID = osTimer_Create(osTimer_Obj(timerDemo2), osTimerPeriodic, (void *)0);
+  osTimer_Start(timerDemo2_ID, 100);
+  
+  /*定时器3*/
+  timerDemo3_ID = osTimer_Create(osTimer_Obj(timerDemo3), osTimerPeriodic, (void *)0);
+  osTimer_Start(timerDemo3_ID, 1000);
+
   /*启动OS*/
   osSys_KernelStartup();
   

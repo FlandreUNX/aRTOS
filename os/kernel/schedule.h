@@ -47,6 +47,10 @@
  
 /*@{*/
 
+/**
+ *  线程切换指示器
+ *  @note none
+ */
 struct threadSwitchInfo_t {
   osThread_Attr_t* nowThread;
   osThread_Attr_t* nextThread;

@@ -32,35 +32,25 @@
 #define OSCONFIG_H_
 
 /**
- * @addtogroup 平台配置
- */
-  
-/*@{*/
-
-/**
- * CPU运行频率,单位Hz
- */
-#define OS_CLOCK       (216000000)
-
-/**
- * CPU_Tick中断溢出计量
- */
-#define OS_TICK        (1000)
-
-/*@}*/
-
-/**
  * @addtogroup 系统配置
  */
   
 /*@{*/
 
+/**
+ * 调试模式
+ */
 #define OS_DEBUG_MODE   (1)
+
+/**
+ * 允许堆栈溢出检查
+ */
+#define USING_STACK_OVERFLOW_CHECK    (1)
 
 /**
  * 系统线程优先级分级数量,此值-1为最小优先级,0为最大优先级
  */
-#define MAX_PRIORITY_LEVEL      (128)
+#define MAX_PRIORITY_LEVEL      (32)
 
 /**
  * 空闲线程堆栈大小
@@ -150,6 +140,11 @@
  * 是否启动函数内核导出符功能
  */
 #define USING_SYMBOL_EXPORT     (1)
+
+/**
+ * 是否启动Console模块
+ */
+#define USING_CONSOLE     (1)
 
 /*@}*/
 

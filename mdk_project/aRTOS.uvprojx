@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\os;..\os\arch\STM32F7xx</IncludePath>
+              <IncludePath>..\..\aRTOS;.\Source;..\os</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -384,6 +384,16 @@
               <FileType>1</FileType>
               <FilePath>.\Source\startup.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f7xx_nucleo_144.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\stm32f7xx_nucleo_144.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f7xx_nucleo_144.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\stm32f7xx_nucleo_144.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -395,14 +405,14 @@
               <FilePath>..\os\kernel\idle.c</FilePath>
             </File>
             <File>
-              <FileName>irq.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\os\kernel\irq.c</FilePath>
-            </File>
-            <File>
               <FileName>irq.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\os\kernel\irq.h</FilePath>
+            </File>
+            <File>
+              <FileName>irq.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\os\kernel\irq.c</FilePath>
             </File>
             <File>
               <FileName>schedule.c</FileName>
@@ -539,20 +549,30 @@
               <FileType>5</FileType>
               <FilePath>..\os\osConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>osInfo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\os\osInfo.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>nucleo-F767ZI</GroupName>
+          <GroupName>addons/console</GroupName>
           <Files>
             <File>
-              <FileName>stm32f7xx_nucleo_144.c</FileName>
+              <FileName>console.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\os\arch\STM32F7xx\stm32f7xx_nucleo_144.c</FilePath>
+              <FilePath>..\os\addons\console\console.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f7xx_nucleo_144.h</FileName>
+              <FileName>console.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\os\arch\STM32F7xx\stm32f7xx_nucleo_144.h</FilePath>
+              <FilePath>..\os\addons\console\console.h</FilePath>
+            </File>
+            <File>
+              <FileName>con_Port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\os\addons\console\con_Port.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -606,6 +626,12 @@
           <targetInfo name="Target 1"/>
         </targetInfos>
       </component>
+      <component Cclass="Device" Cgroup="STM32Cube HAL" Csub="DMA" Cvendor="Keil" Cversion="1.1.0" condition="STM32F7 HAL">
+        <package name="STM32F7xx_DFP" schemaVersion="1.3" url="http://www.keil.com/pack" vendor="Keil" version="2.7.0"/>
+        <targetInfos>
+          <targetInfo name="Target 1"/>
+        </targetInfos>
+      </component>
       <component Cclass="Device" Cgroup="STM32Cube HAL" Csub="GPIO" Cvendor="Keil" Cversion="1.1.0" condition="STM32F7 HAL">
         <package name="STM32F7xx_DFP" schemaVersion="1.3" url="http://www.keil.com/pack" vendor="Keil" version="2.7.0"/>
         <targetInfos>
@@ -619,6 +645,12 @@
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="STM32Cube HAL" Csub="RCC" Cvendor="Keil" Cversion="1.1.0" condition="STM32F7 HAL GPIO">
+        <package name="STM32F7xx_DFP" schemaVersion="1.3" url="http://www.keil.com/pack" vendor="Keil" version="2.7.0"/>
+        <targetInfos>
+          <targetInfo name="Target 1"/>
+        </targetInfos>
+      </component>
+      <component Cclass="Device" Cgroup="STM32Cube HAL" Csub="UART" Cvendor="Keil" Cversion="1.1.0" condition="STM32F7 HAL DMA">
         <package name="STM32F7xx_DFP" schemaVersion="1.3" url="http://www.keil.com/pack" vendor="Keil" version="2.7.0"/>
         <targetInfos>
           <targetInfo name="Target 1"/>

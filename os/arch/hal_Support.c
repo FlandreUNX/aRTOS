@@ -27,6 +27,18 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+ 
+/**
+ * @addtogroup OS include
+ */
+
+/*@{*/
+
+#include "../osConfig.h"
+
+#include "./hal_cm.h"
+
+/*@}*/
 
 /**
  * @addtogroup File include
@@ -115,11 +127,11 @@ static void systemClock_ReConfig(void) {
 
 
 /**
- *  @brief 硬件初始化
+ * @brief 硬件初始化
  *
- *  @param none
+ * @param none
  * 
- *  @retval none
+ * @retval none
  */
 void osHal_CoreInit(void) { 
   /*启动ART + ART-PF*/
@@ -129,9 +141,6 @@ void osHal_CoreInit(void) {
   
   /*重置系统时钟*/
   systemClock_ReConfig();
-  
-  /*设置SYSTICK, 1ms溢出*/
-  HAL_SYSTICK_Config(216000000 / 1000);
 
   /*设置systick中断*/
   HAL_NVIC_SetPriority(SysTick_IRQn, 0x0F, 15);
@@ -148,26 +157,70 @@ void osHal_CoreInit(void) {
 
 
 /**
-  * 标记pensv中断
-  *
-  * @param none
-  * 
-  * @retval none
-  */
+ * @brief 配置systick,1ms溢出
+ *
+ * @param none
+ * 
+ * @retval none
+ */
+void hal_SystickConfig(void) {
+  HAL_SYSTICK_Config(216000000 / 1000);
+}
+
+
+/**
+ * @brief 标记pensv中断
+ *
+ * @param none
+ * 
+ * @retval none
+ */
 void hal_PendSVSet(void) {
   CM7_NVIC_INT_CTRL_REG = NVIC_PENDSVSET_BIT;
 }
 
 
 /**
-  * 标记NMI中断
-  *
-  * @param none
-  * 
-  * @retval none
-  */
+ * @brief 标记NMI中断
+ *
+ * @param none
+ * 
+ * @retval none
+ */
 void hal_CallNMI(void) {
   
 }
+
+/*@}*/
+
+/**
+ * @addtogroup hal support functions
+ */
+
+/*@{*/
+
+#include "../osAPI.h"
+
+
+//void HAL_Delay(__IO uint32_t Delay) {
+//  osThread_Delay(Delay);
+//}
+
+
+//uint32_t HAL_GetTick(void) {
+//  return osSys_GetNowTick();
+//}
+
+
+//void HAL_IncTick(void) {
+//}
+
+
+//void HAL_SuspendTick(void) {
+//}
+
+
+//void HAL_ResumeTick(void) {
+//}
 
 /*@}*/

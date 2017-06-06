@@ -9,8 +9,8 @@
  *　 　 　l　　　　　　　　　　　　 　　  l
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
- *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
- * File      : idle.c
+ *　　　　　　　　　/`'''.‐‐──‐‐‐┬--- 
+ * File      : osInfo.h
  * This file is part of aRTOS
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,88 +28,64 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @addtogroup OS Include
- */
+#ifndef OSINFO_H_
+#define OSINFO_H_
 
+#include "./osConfig.h"
+
+
+/**
+ * @addtogroup os信息记录
+ */
+  
 /*@{*/
 
-#include "../arch/platform.h"
-#include "../arch/hal_cm.h"
+/**
+ * CPU运行频率,单位Hz
+ */
+#define SYS_CLOCK       (216000000)
 
-#include "../mm/buddy.h"
+/**
+ * MCU名称
+ */
+#define MCU_NAME        "STM32F767ZI"
 
-#include "../lib/list.h"
-#include "../lib/symbolExport.h"
-
-#include "../osConfig.h"
-
-#include "./schedule.h"
+/**
+ * 使用LOGO
+ */
+#define USING_LOGO    (1)
 
 /*@}*/
 
 /**
- * @addtogroup add ons
+ * @addtogroup logo
  */
- 
+  
 /*@{*/
 
-#include "addons/console/console.h"
-#include "../osInfo.h"
+#if USING_LOGO == 1
 
-/*@}*/
-
-/**
- * @addtogroup schedule extern 
- */
- 
-/*@{*/
-
-extern struct osList_t schedule_NoReadyList;
-
-/*@}*/
-
-/**
- * @addtogroup idle thread define 
- */
- 
-/*@{*/
-
-osThread_ID idle_ThreadID;
-extern OS_NO_RETURN os_Idle_Thread(void *argument);
-osThread_Attr_t os_Thread_Idle = { \
-  .initTimeSlice = 1, \
-  .functions = os_Idle_Thread, \
-  .stackSize = IDLE_STACK_SIZE, \
-  .priority = IDLE_PRIORITY \
+static const char *osLogo[] = {
+  "     ..-..                  ..-...\\ \r\n", \
+  "    ./::::\\                 /::::::\\ \r\n", \
+  "   /::::::::::::/\\__--_-==./::::::::\\ \r\n", \
+  "  /..--:::^                 \\:::::::| \r\n", \
+  "  /                          \\.::::\\ \r\n", \
+  " /       .                       \\| \r\n", \
+  " l      ...               .       l \r\n", \
+  " |            (_/\\__)   ...      | \r\n", \
+  " l                               l \r\n", \
+  " \\                             / \r\n", \
+  "   \\. ..__                   ./ \r\n", \
+  "         /'''.--------T----\\ \r\n" \
 };
 
+#define OS_INFO  "'\033[1;35maRTOS\033[0m' A Real-time Operating System"
+
+#define OS_AUTHOR  "2015 - 2017 Copyright by \033[0;33mFlandreUNX\033[0m"
+
+#endif
+
 /*@}*/
 
-/**
- * @addtogroup idle thread 
- */
- 
-/*@{*/
-
-#if OS_DEBUG_MODE == 1
-/**
- *  线程运行计数
- *  @note none
- */
-uint32_t idle_RunningCount = 0;
 #endif
-
-OS_NO_RETURN os_Idle_Thread(void *argument) {
-#if OS_DEBUG_MODE == 1
-  mLog_ThreadPrintf(Log_I, "Idle", 0, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
-#endif
-  
-  for (;;) {
-#if OS_DEBUG_MODE == 1
-      idle_RunningCount++;
-#endif
-  }
-}
-
-/*@}*/

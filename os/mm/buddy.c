@@ -63,14 +63,17 @@
  
 /*@{*/
 
-/*单个内存块*/
+/**
+ *  单个内存块
+ *  @note none
+ */
 typedef struct BuddyBlock {
   /**
    * 状态标识
    * bit0-3表示该内存块是2^n
    * bit7-> 1=正在使用 0=可用
    */
-  uint8_t stage;
+  uint8_t state;
 	
   struct osList_t list;  /**< 该结构体是一个双向链表节点 */
 } BuddyBlock_t;
@@ -83,23 +86,41 @@ typedef struct BuddyBlock {
  
 /*@{*/
 
-/*页面状态1*/
+/**
+ *  页面状态1
+ *  @note none
+ */
 #define PAGE_BUSY         0x80
 #define PAGE_AVAILABLE    0x00
 
-/*页面状态2*/
+/**
+ *  页面状态2
+ *  @note none
+ */
 #define PAGE_DIRTY        0x40
 
-/*内存块结构大小*/
+/**
+ *  内存块结构大小
+ *  @note none
+ */
 #define BLOCK_STRUCT_SIZE   ((uint32_t) sizeof(BuddyBlock_t))
 
-/*最大order阶*/
+/**
+ *  最大order阶
+ *  @note none
+ */
 #define BUDDY_MAX_ORDER     (BUDDY_ORDER - 1)
 
-/*buddy order 2^n阶 链表*/
+/**
+ *  buddy order 2^n阶 链表
+ *  @note none
+ */
 struct osList_t buddy_list[BUDDY_ORDER];
 
-/*内存信息*/
+/**
+ *  内存信息
+ *  @note none
+ */
 osMem_t osMem_Info;
 
 /*@}*/
@@ -111,7 +132,7 @@ osMem_t osMem_Info;
 /*@{*/
 
 //static __inline void* __GetBlockAddress(BuddyBlock_t* block) {
-//	/*将链表占用的空间也分配出去,剩余一个(stage)*/
+//	/*将链表占用的空间也分配出去,剩余一个(state)*/
 //	return (void *)(block + sizeof(unsigned char));
 //	//return (void *)((unsigned int) block + (unsigned int) (sizeof(unsigned char)));
 //}
@@ -148,8 +169,8 @@ void mem_Init(uint32_t memStart, uint32_t memEnd) {
   for (uint32_t i = 0; i < maxOrderNumber; i++) {
     BuddyBlock_t* block = (BuddyBlock_t *) (osMem_Info.heapStart + (i * (((1 << (BUDDY_MAX_ORDER)) * BUDDY_BLOCK_SIZE))));
     
-    block->stage = BUDDY_MAX_ORDER;
-    block->stage &= ~PAGE_BUSY;
+    block->state = BUDDY_MAX_ORDER;
+    block->state &= ~PAGE_BUSY;
 
     osList_HeadInit(&(block->list));
     osList_AddTail(&(buddy_list[BUDDY_MAX_ORDER]), &(block->list));
@@ -165,8 +186,8 @@ void mem_Init(uint32_t memStart, uint32_t memEnd) {
   for (uint32_t i = 0; i < minOrderNumber; i++) {
     BuddyBlock_t* block = (BuddyBlock_t *)((minOrderBlockAddressBase) + (i * BUDDY_BLOCK_SIZE));
     
-    block->stage = 0;
-    block->stage &= ~PAGE_BUSY;
+    block->state = 0;
+    block->state &= ~PAGE_BUSY;
     
     osList_HeadInit(&(block->list));
     osList_AddTail(&(buddy_list[0]), &(block->list));
@@ -195,7 +216,7 @@ static BuddyBlock_t* allocateBlock(uint32_t order) {
     block = osList_Entry(buddy_list[i].next, BuddyBlock_t, list);
 
     /*路过这一块正在使用,推出申请*/
-    if (block->stage & PAGE_BUSY) {
+    if (block->state & PAGE_BUSY) {
       break;
     }
 
@@ -208,8 +229,8 @@ static BuddyBlock_t* allocateBlock(uint32_t order) {
 
       BuddyBlock_t *newBlock = (BuddyBlock_t *)((uint32_t)block + ((1 << i) * BUDDY_BLOCK_SIZE));
 
-      newBlock->stage = i;
-      newBlock->stage &= ~PAGE_BUSY;
+      newBlock->state = i;
+      newBlock->state &= ~PAGE_BUSY;
 
       osList_HeadInit(&(newBlock->list));
       osList_AddTail(&(buddy_list[i]), &(newBlock->list));
@@ -217,9 +238,9 @@ static BuddyBlock_t* allocateBlock(uint32_t order) {
 
     /*剩余空间消减*/
     //该内存块正在使用,曾经使用
-    block->stage = 0;
-    block->stage = order;
-    block->stage |= PAGE_BUSY;
+    block->state = 0;
+    block->state = order;
+    block->state |= PAGE_BUSY;
 
     /*剩余内存--*/
     osMem_Info.remaining -= ((1 << order) * BUDDY_BLOCK_SIZE);
@@ -264,7 +285,7 @@ static void __FreeBlock(BuddyBlock_t * block) {
   uint8_t blockOrder;
 
   /*消除内存块状态位*/
-  blockOrder = block->stage;
+  blockOrder = block->state;
   blockOrder &= ~PAGE_BUSY;
 
   /*迭代合并*/
@@ -273,12 +294,12 @@ static void __FreeBlock(BuddyBlock_t * block) {
     BuddyBlock_t* buddyBlock = (BuddyBlock_t *) findBuddyBlock(block, blockOrder);
 
     /*找错伙伴,不干活*/
-    if ((buddyBlock->stage != blockOrder)) {
+    if ((buddyBlock->state != blockOrder)) {
       break;
     }
 
     /*伙伴很忙,不干活*/
-    if (buddyBlock->stage & PAGE_BUSY) {
+    if (buddyBlock->state & PAGE_BUSY) {
       break;
     }
 
@@ -293,15 +314,15 @@ static void __FreeBlock(BuddyBlock_t * block) {
     ++blockOrder;
 
     /*清除块信息*/
-    block->stage = 0;
+    block->state = 0;
 
     /*载入合并后信息*/
-    block->stage = blockOrder;
+    block->state = blockOrder;
   }
 
   /*载入信息*/
-  block->stage = blockOrder;
-  block->stage &= ~PAGE_BUSY;
+  block->state = blockOrder;
+  block->state &= ~PAGE_BUSY;
 
   /*最后加入到链表*/
   osList_HeadInit(&(block->list));
@@ -349,7 +370,7 @@ void* osMem_Malloc(uint32_t size) {
   hal_EnableINT(level);
 
   /*返回地址*/
-  /*将链表占用的空间也分配出去,剩余一个(stage)*/
+  /*将链表占用的空间也分配出去,剩余一个(state)*/
   return (block + sizeof(uint8_t));
 }
 EXPORT_SYMBOL(osMem_Malloc);

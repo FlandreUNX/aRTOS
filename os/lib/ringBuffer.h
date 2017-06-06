@@ -54,7 +54,8 @@
 /*@{*/
 
 /**
- *  @note buffer储存状态
+ *  buffer储存状态
+ *  @note none
  */
 enum BUFFER_STAGE {
   RBUFFER_EMPTY,
@@ -62,8 +63,10 @@ enum BUFFER_STAGE {
   RBUFFER_HALFFULL
 };
 
+
 /**
- *  @note buffer对象结构体
+ *  buffer对象结构体
+ *  @note none
  */
 typedef struct ring_buffer {
   uint16_t size;        /**< 缓冲器大小 */
@@ -94,7 +97,7 @@ extern osRBuffer_t* osRBuffer_StaticCreate(void *pool, uint16_t size);
  
 /*@{*/
 
-extern enum BUFFER_STAGE osRBuffer_GetStatus(osRBuffer_t *obj);
+extern enum BUFFER_STAGE osRBuffer_GetState(osRBuffer_t *obj);
         
 extern uint16_t osRBuffer_GetDataLen(osRBuffer_t *obj);
 extern uint16_t osRBuffer_GetSpaceLen(osRBuffer_t *obj);

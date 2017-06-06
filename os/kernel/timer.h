@@ -51,6 +51,10 @@
  
 /*@{*/
 
+/**
+ *  定时器运行模式
+ *  @note none
+ */
 #if USING_SOFT_TIMER == 1
   typedef enum {
     osTimerHard = 0x01,     /**< 硬模式 */
@@ -62,6 +66,11 @@
   }osTimer_Def;
 #endif
 
+  
+/**
+ *  定时器循环模式
+ *  @note none
+ */
 typedef enum {
   osTimerOnce = 0x01,     /**< 单次模式 */
   osTimerPeriodic = 0x02  /**< 循环模式 */
@@ -70,18 +79,20 @@ typedef enum {
 /*@}*/
 
 /**
- * @addtogroup timer stage flag
+ * @addtogroup timer state flag
  */
  
 /*@{*/
 
+
 /**
  *  Timer运行状态
+ *  @note none
  */
 typedef enum {
   osTimerRunning = 0x01,     /**< 正在运行 */
   osTimerStop = 0x02         /**< 停止 */
-}osTimer_Stage;
+}osTimer_Status;
 
 /*@}*/
 
@@ -93,6 +104,7 @@ typedef enum {
 
 /**
  *  Timer描述符
+ *  @note none
  */
 typedef struct osTimer {
   osTick_t perTick;       /**< 每周期tick */
@@ -105,11 +117,13 @@ typedef struct osTimer {
 
   osTimer_Def mode;         /**< 定时器依赖模式寄存器 */
   osTimer_Flag flag;         /**< 定时器运行模式寄存器 */
-  osTimer_Stage stage;      /**< 定时器状态寄存器 */
+  osTimer_Status state;      /**< 定时器状态寄存器 */
 }osTimer_Attr_t;
+
 
 /**
  *  Timer全局句柄
+ *  @note none
  */
 typedef osTimer_Attr_t* osTimer_ID;
 

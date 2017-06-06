@@ -117,7 +117,7 @@ EXPORT_SYMBOL(osRBuffer_StaticCreate);
  * 
  * @retval 存放有效数据量
  */
-enum BUFFER_STAGE osRBuffer_GetStatus(osRBuffer_t *obj) {
+enum BUFFER_STAGE osRBuffer_GetState(osRBuffer_t *obj) {
   if (obj->in == obj->out) {
     if (obj->out_Mirror == obj->in_Mirror) {
       return RBUFFER_EMPTY;
@@ -129,7 +129,7 @@ enum BUFFER_STAGE osRBuffer_GetStatus(osRBuffer_t *obj) {
 
   return RBUFFER_HALFFULL;
 }
-EXPORT_SYMBOL(osRBuffer_GetStatus);
+EXPORT_SYMBOL(osRBuffer_GetState);
 
 
 /**
@@ -142,7 +142,7 @@ EXPORT_SYMBOL(osRBuffer_GetStatus);
 uint16_t osRBuffer_GetDataLen(osRBuffer_t *obj) {
   uint16_t len;
 
-  switch (osRBuffer_GetStatus(obj)) {
+  switch (osRBuffer_GetState(obj)) {
     case RBUFFER_EMPTY : {
       len = 0;
     }break;

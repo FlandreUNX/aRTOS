@@ -67,6 +67,8 @@ extern void osHal_CoreInit(void);
  
 /*@{*/
 
+extern void hal_SystickConfig(void);
+
 extern void hal_PendSVSet(void);
 
 extern void hal_CallNMI(void);

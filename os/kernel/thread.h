@@ -65,7 +65,7 @@ typedef enum {
   osThreadRunning,    /**< 运行中 */
   osThreadBlocked,    /**< 堵塞 */
   osThreadTerminated  /**< 结束 */
-}osThread_Stage;
+}osThread_Status;
 
 /*@}*/
 
@@ -75,11 +75,14 @@ typedef enum {
  
 /*@{*/
 
+/**
+ *  Thread描述符
+ *  @note none
+ */
 typedef struct Thread_Attr {
   /**
-    *  Thread堆栈储存指针
-    *  @note 禁止变更位置
-    */
+   *  Thread堆栈储存指针
+   */
   void *stackTop;      /**< Thread栈顶指针 */
   void *stackEnd;      /**< Thread栈底指针 */
   uint16_t stackSize;  /**< Thread栈大小 */
@@ -92,16 +95,16 @@ typedef struct Thread_Attr {
     */
   uint8_t priority;   /**< 优先级 */
 
-  #if MAX_PRIORITY_LEVEL > 32
-    uint8_t bitmap_Low_Mask;    /**< low bitmap 标志 */
-    uint8_t bitmap_High_Mask;   /**< high bitmap 标志 */
-  #endif
+#if MAX_PRIORITY_LEVEL > 32
+  uint8_t bitmap_Low_Mask;    /**< low bitmap 标志 */
+  uint8_t bitmap_High_Mask;   /**< high bitmap 标志 */
+#endif
 
-  #if MAX_PRIORITY_LEVEL <= 8
-    uint8_t bitmap_Mask;    /**< 8优先级以内bitmap标志 */
-  #else
-    uint32_t bitmap_Mask;   /**< 大于8级的bitmap标志 */
-  #endif
+#if MAX_PRIORITY_LEVEL <= 8
+  uint8_t bitmap_Mask;    /**< 8优先级以内bitmap标志 */
+#else
+  uint32_t bitmap_Mask;   /**< 大于8级的bitmap标志 */
+#endif
   
   /**
     *  事件相关
@@ -118,11 +121,13 @@ typedef struct Thread_Attr {
   uint16_t initTimeSlice;     /**< 初始时间片大小 */
   uint16_t timeSlice;         /**< 时间片大小 */
 
-  osThread_Stage stage;    /**< 状态 */
+  osThread_Status state;    /**< 状态 */
 }osThread_Attr_t;
+
 
 /**
  *  Thread全局句柄
+ *  @note none
  */
 typedef osThread_Attr_t* osThread_ID;
 
@@ -138,6 +143,7 @@ extern osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument);
 
 extern void osThread_Ready(osThread_ID id);
 extern void osThread_Suspend(osThread_ID id);
+extern void osThread_Terminate(osThread_ID id);
 
 extern void osThread_Delay(osTick_t tick);
 

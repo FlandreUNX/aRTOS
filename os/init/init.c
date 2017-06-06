@@ -36,6 +36,7 @@
 
 #include "../arch/platform.h"
 #include "../arch/hal_cm.h"
+#include "../arch/hal_Support.h"
 
 #include "../mm/buddy.h"
 
@@ -46,6 +47,17 @@
 
 #include "../kernel/schedule.h"
 #include "../kernel/timer.h"
+
+/*@}*/
+
+/**
+ * @addtogroup add ons
+ */
+ 
+/*@{*/
+
+#include "addons/console/console.h"
+#include "../osInfo.h"
 
 /*@}*/
 
@@ -97,7 +109,35 @@ void osSys_KernelStartup(void) {
   
   sche_SetFirstThread(idle_ThreadID);
   
+  hal_SystickConfig();
+  
   cpu_GotoFisrtTask();
+}
+
+
+/**
+ * 相关模块初始化
+ *
+ * @param none
+ *
+ * @retval none
+ */
+void osSys_ModulesInit(void) {
+  mConsole_Init();
+  
+  /**
+   *  欢迎界面
+   */
+  for (uint8_t i = 0; i < 12; i++) {
+    mLog_RawPrntf(0, "%s", osLogo[i]);
+  }
+  
+  mLog_RawPrntf(0, "%s\r\n", OS_INFO);
+  mLog_RawPrntf(0, "%s\r\n", OS_AUTHOR);
+  mLog_RawPrntf(0, "[CPU]\033[1;34m%s\033[0m", MCU_NAME);
+  mLog_RawPrntf(0, "[Sysclk]\033[1;34m%dHz\033[0m", SYS_CLOCK);
+  mLog_RawPrntf(0, "[Mem]\033[1;34m%dKbyte\033[0m", osMem_Info.total / 1024);
+  mLog_RawPrntf(0, "\r\n\r\n");
 }
 
 /*@}*/

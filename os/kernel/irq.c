@@ -48,6 +48,10 @@
  
 /*@{*/
 
+/**
+ *  中断嵌套计数
+ *  @note none
+ */
 static volatile int8_t interruptNest = 0;
 
 /*@}*/

@@ -87,6 +87,16 @@ extern void osSys_KernelInitialize(void);
  */
 extern void osSys_KernelStartup(void);
 
+
+/**
+ * 相关模块初始化
+ *
+ * @param none
+ *
+ * @retval none
+ */
+extern void osSys_ModulesInit(void);
+
 /*@}*/
 
 /**
@@ -152,6 +162,16 @@ extern void osSche_Lock(void);
  * @retval none
  */
 extern void osSche_Unlock(void);
+
+
+/**
+ * 获取最近的tick数
+ *
+ * @param none
+ * 
+ * @retval none
+ */
+extern osTick_t osSys_GetNowTick(void);
 
 /*@}*/
 

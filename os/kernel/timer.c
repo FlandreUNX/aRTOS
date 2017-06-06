@@ -46,27 +46,46 @@
 /*@}*/
 
 /**
+ * @addtogroup add ons
+ */
+ 
+/*@{*/
+
+#include "addons/console/console.h"
+
+/*@}*/
+
+/**
  * @addtogroup timer system variable
  */
 
 /*@{*/
 
-/*硬定时器计时循环队列*/
+/**
+ *  硬定时器计时循环队列
+ *  @note none
+ */
 struct osList_t timer_HardList;
 
 #if USING_SOFT_TIMER == 1
-  /*软定时器计时循环队列*/
-  struct osList_t timer_softList;
+/**
+ *  软定时器计时循环队列
+ *  @note none
+ */
+struct osList_t timer_softList;
 
-  /*软定时器计时线程*/
-  osThread_ID timer_SoftThreadID;
-  extern OS_NO_RETURN os_SoftTimer_Thread(void *argument);
-  osThread_Attr_t os_Thread_SoftTimer = { \
-    .initTimeSlice = 1, \
-    .functions = os_SoftTimer_Thread, \
-    .stackSize = SOFT_TIMER_STACK_SIZE, \
-    .priority = SOFT_TIMER_PRIORITY \
-  };
+/**
+ *  软定时器计时线程
+ *  @note none
+ */
+osThread_ID timer_SoftThreadID;
+extern OS_NO_RETURN os_SoftTimer_Thread(void *argument);
+osThread_Attr_t os_Thread_SoftTimer = { \
+  .initTimeSlice = 1, \
+  .functions = os_SoftTimer_Thread, \
+  .stackSize = SOFT_TIMER_STACK_SIZE, \
+  .priority = SOFT_TIMER_PRIORITY \
+};
 #endif
 
 /*@}*/
@@ -88,14 +107,14 @@ void timer_Init(void) {
   /*初始化定时器容器*/
   osList_HeadInit(&timer_HardList);
 
-  #if USING_SOFT_TIMER == 1
-    /*初始化定时器容器*/
-    osList_HeadInit(&timer_softList);
+#if USING_SOFT_TIMER == 1
+  /*初始化定时器容器*/
+  osList_HeadInit(&timer_softList);
 
-    /*初始化线程*/
-    timer_SoftThreadID = osThread_Create(&os_Thread_SoftTimer, NULL);
-    osThread_Ready(timer_SoftThreadID);
-  #endif
+  /*初始化线程*/
+  timer_SoftThreadID = osThread_Create(&os_Thread_SoftTimer, NULL);
+  osThread_Ready(timer_SoftThreadID);
+#endif
 }
 
 
@@ -107,12 +126,13 @@ void timer_Init(void) {
  * @retval none
  */
 void timer_TickCheck(void) {
-  /*关中断*/
   register uint32_t level;
-  level = hal_DisableINT();
-
+  
   /*获取最近的TICK*/
   osTick_t currentTick = osSys_GetNowTick();
+  
+  /*关中断*/
+  level = hal_DisableINT();
 
   /*遍历list*/
   osTimer_Attr_t *timer;
@@ -121,12 +141,13 @@ void timer_TickCheck(void) {
     timer = osList_Entry(timer_HardList.next, osTimer_Attr_t, list);
 
     /*判断是否超时*/
-    if (timer->timeoutTick == currentTick) {
+    if ((currentTick - timer->timeoutTick) < CPU_TICK_MAX / 2) {
+//    if (timer->timeoutTick == currentTick) {
       /*删除节点*/
       osList_DeleteNode(&timer->list);
 
       /*改变状态*/
-      timer->stage = osTimerStop;
+      timer->state = osTimerStop;
 
       /*回调该定时器的函数*/
       timer->callback(timer->arguments);
@@ -148,93 +169,106 @@ void timer_TickCheck(void) {
 
 
 #if USING_SOFT_TIMER == 1
-    #if OS_DEBUG_MODE == 1
-      /*线程运行计数*/
-      uint32_t softTimer_RunningCount = 0;
-    #endif
-  /**
-    * 软定时器核心线程
-    *
-    * @param none
-    * 
-    * @retval none
-    */
-  OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
-    osTick_t currentTick;
-    osTick_t nextTimeout;
-    osTimer_Attr_t *timer;
 
-    for (;;) {
-      #if OS_DEBUG_MODE == 1
-        softTimer_RunningCount++;
-      #endif
-      
-      if (osList_CheckIsEmpty(&timer_softList)) {
-        nextTimeout = CPU_TICK_MAX;
-      }
-      else {
-        timer = osList_Entry(timer_softList.next, osTimer_Attr_t, list);
-        nextTimeout = timer->timeoutTick;
-      }
+#if OS_DEBUG_MODE == 1
+/*线程运行计数*/
+uint32_t softTimer_RunningCount = 0;
+#endif
 
-      /*无定时器挂载,先挂起*/
-      if (nextTimeout == CPU_TICK_MAX) {
-        osThread_Suspend(osThread_Self());
-        osThread_Yield();
-      }
-      else {
-        /*获取最近的TICK*/
-        currentTick = osSys_GetNowTick();
-        if ((nextTimeout - currentTick) < (CPU_TICK_MAX / 2)) {
-          /*延时相对时间*/
-          nextTimeout = nextTimeout - currentTick;
-          if (nextTimeout != 0) {
-            osThread_Delay(nextTimeout);
-          }
-        }
-      }
+/**
+  * 软定时器核心线程
+  *
+  * @param none
+  * 
+  * @retval none
+  */
+OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
+  volatile osTick_t currentTick;
+  volatile osTick_t nextTimeout;
+  osTimer_Attr_t *timer;
+  
+#if OS_DEBUG_MODE == 1
+  mLog_ThreadPrintf(Log_I, "SoftTimer", 100, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
+#endif
 
-      /*锁定调度器*/
-      osSche_Lock();
-
-      /*操作定时器*/
-      while(!osList_CheckIsEmpty(&timer_softList)) {
-        /*取出定时器*/
-        timer = osList_Entry(timer_softList.next, osTimer_Attr_t, list);
-
-        /*获取最近的TICK*/
-        currentTick = osSys_GetNowTick();
-
-        if (timer->timeoutTick == currentTick) {
-          /*从timer_list中删除节点*/
-          osList_DeleteNode(&(timer->list));
-
-          /*解锁调度器*/
-          osSche_Unlock();
-
-          /*回调该定时器的函数*/
-          timer->callback(timer->arguments);
-
-          /*Relock*/
-          osSche_Lock();
-          
-          /*标记定时器该周期结束*/
-          timer->stage = osTimerStop;
-
-          if (timer->flag == osTimerPeriodic) {
-            /*重启定时器*/
-            osTimer_Start(timer, timer->perTick);
-          }
-        }
-        else {
-          break;
-        }
-      }
-
-      /*解锁调度器*/
-      osSche_Unlock();
+  for (;;) {
+#if OS_DEBUG_MODE == 1
+    softTimer_RunningCount++;
+#endif
+    
+    if (osList_CheckIsEmpty(&timer_softList)) {
+      nextTimeout = CPU_TICK_MAX;
     }
+    else {
+      timer = osList_Entry(timer_softList.next, osTimer_Attr_t, list);
+      nextTimeout = timer->timeoutTick;
+    }
+
+    /*无定时器挂载,先挂起*/
+    if (nextTimeout == CPU_TICK_MAX) {
+      osThread_Suspend(osThread_Self());
+      
+      osThread_Yield();
+    }
+    else {
+      /*获取最近的TICK*/
+      currentTick = osSys_GetNowTick();
+      if ((nextTimeout - currentTick) < (CPU_TICK_MAX / 2)) {
+        /*延时相对时间*/
+        nextTimeout = nextTimeout - currentTick;
+        
+        osThread_Delay(nextTimeout);
+      }
+    }
+
+    /*获取最近的TICK*/
+    currentTick = osSys_GetNowTick();
+    
+    /*锁定调度器*/
+    osSche_Lock();
+
+    /*操作定时器*/
+    while(!osList_CheckIsEmpty(&timer_softList)) {
+      /*取出定时器*/
+      timer = osList_Entry(timer_softList.next, osTimer_Attr_t, list);
+
+      /*获取最近的TICK*/
+      currentTick = osSys_GetNowTick();
+
+       if ((currentTick - timer->timeoutTick) < CPU_TICK_MAX / 2) {
+//        if (timer->timeoutTick == currentTick) {
+        /*从timer_list中删除节点*/
+        osList_DeleteNode(&(timer->list));
+
+        /*解锁调度器*/
+        osSche_Unlock();
+
+        /*回调该定时器的函数*/
+        timer->callback(timer->arguments);
+         
+        /*重新获取最近的TICK*/
+        currentTick = osSys_GetNowTick();
+
+        /*Relock*/
+        osSche_Lock();
+        
+        /*标记定时器该周期结束*/
+        timer->state = osTimerStop;
+
+        if (timer->flag == osTimerPeriodic) {
+          /*重启定时器*/
+          osTimer_Start(timer, timer->perTick);
+        }
+      }
+      else {
+        break;
+      }
+    }
+
+    /*解锁调度器*/
+    osSche_Unlock();
   }
+}
 #endif
 
 /*@}*/
@@ -257,7 +291,7 @@ void timer_TickCheck(void) {
 osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag flag, void *arguments) {
   //OS_ASSERT
 
-  obj->stage = osTimerStop;
+  obj->state = osTimerStop;
   obj->flag = flag;
   obj->arguments = arguments;
 
@@ -317,23 +351,23 @@ void osTimer_Start(osTimer_ID id, osTick_t tick) {
   osList_DeleteNode(&(timer->list));
 
   /*标记运行状态*/
-  timer->stage = osTimerRunning;
+  timer->state = osTimerRunning;
 
   /*设置超时的Tick*/
   timer->perTick = tick;
   timer->timeoutTick = osSys_GetNowTick() + timer->perTick;
 
   /*选择定时器运行列表*/
-  #if USING_SOFT_TIMER == 1
-    if (timer->mode == osTimerSoft) {
-      timerList = &timer_softList;
-    }
-    else {
-      timerList = &timer_HardList;
-    }
-  #else
+#if USING_SOFT_TIMER == 1
+  if (timer->mode == osTimerSoft) {
+    timerList = &timer_softList;
+  }
+  else {
     timerList = &timer_HardList;
-  #endif
+  }
+#else
+  timerList = &timer_HardList;
+#endif
 
   if (osList_CheckIsEmpty(timerList)) {
     /*第一个list,直接加入*/
@@ -362,14 +396,14 @@ void osTimer_Start(osTimer_ID id, osTick_t tick) {
     }
   }
 
-  #if USING_SOFT_TIMER == 1
-    /*唤醒os_SoftTimer_Thread*/
-    if (timer->mode == osTimerSoft) {
-      if (os_Thread_SoftTimer.stage == osThreadSuspend) {
-        osThread_Ready(timer_SoftThreadID);
-      }
+#if USING_SOFT_TIMER == 1
+  /*唤醒os_SoftTimer_Thread*/
+  if (timer->mode == osTimerSoft) {
+    if (os_Thread_SoftTimer.state == osThreadSuspend) {
+      osThread_Ready(timer_SoftThreadID);
     }
-  #endif
+  }
+#endif
 
   /*开中断*/
   hal_EnableINT(level);
@@ -397,7 +431,7 @@ void osTimer_Stop(osTimer_ID id) {
   osList_DeleteNode(&(timer->list));
 
   /*清除定时器运行状态*/
-  timer->stage = osTimerStop;
+  timer->state = osTimerStop;
   timer->timeoutTick = 0;
 
   /*开中断*/
@@ -423,7 +457,7 @@ void osTimer_SetArgument(osTimer_ID id, void *arguments) {
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
 
-  if (timer->stage != osTimerStop) {
+  if (timer->state != osTimerStop) {
     //OS_ASSERT
     
     /*开中断*/

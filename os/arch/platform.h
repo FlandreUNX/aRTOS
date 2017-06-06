@@ -71,23 +71,25 @@ typedef uint32_t  osTick_t;  /**< osTick最大计量 */
  *  @note 对于keil平台,结构对齐建议使用"#pragma pack()"
  */
 #ifdef __CC_ARM 
-  #include <stdarg.h>
-  
-  #include "./hal_Support.h"
+#include <stdarg.h>
 
-  /**
-   * 
-   */
-  #define OS_SECTION(x)      __attribute__((section(x)))
-  #define OS_WEEK            __weak
-  #define OS_INLINE          static __inline
-  #define OS_NO_RETURN       int __declspec(noreturn)
+#include "./hal_Support.h"
 
-  /**
-   * 内存堆起止
-   */
-  #define HEAP_BEGIN  IRAM_BEGIN
-  #define HEAP_END    IRAM_END
+/**
+ *  none
+ *  @note none
+ */
+#define OS_SECTION(x)      __attribute__((section(x)))
+#define OS_WEEK            __weak
+#define OS_INLINE          static __inline
+#define OS_NO_RETURN       int __declspec(noreturn)
+
+/**
+ *  内存堆起止
+ *  @note none
+ */
+#define HEAP_BEGIN  IRAM_BEGIN
+#define HEAP_END    IRAM_END
 #endif
 
 /*@}*/

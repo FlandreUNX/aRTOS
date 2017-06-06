@@ -34,7 +34,7 @@
 #include "../lib/list.h"
 
 /**
- * @addtogroup event type
+ * @addtogroup event ennum define
  */
 
 /*@{*/
@@ -44,9 +44,17 @@
  *  @note 描述存在的event类型
  */
 typedef enum {
-  osEventInvalid,
-  osEventSignal
+  osEventSignal   /**< 信号类 */
 } osEvent_Type;
+
+
+/**
+ *  event 状态描述符
+ *  @note 描述event的状态
+ */
+typedef enum {
+  osEventInvalid   /**< 信号已过期 */
+} osEvent_Status;
 
 /*@}*/
 
@@ -61,9 +69,16 @@ typedef enum {
  *  @note 作为所有线程通讯类型的根
  */
 typedef struct {
-  osEvent_Type type;    
+  union {
+    int32_t v;   /**< 事件值 */
+    void *p;      /**< 事件指向子类指针 */
+  } vaule;
+  
+  osEvent_Type type;  /**< 事件类型 */
 
-  struct osList_t waitList;   
+  struct osList_t waitList;   /**< 事件根链表 */
+  
+  uint8_t status;   /**< 事件状态 */
 } osEvent_t;
 
 /*@}*/

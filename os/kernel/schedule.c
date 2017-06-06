@@ -66,6 +66,10 @@
  
 /*@{*/
 
+/**
+ *  osSystick计数
+ *  @note none
+ */
 static volatile osTick_t sys_TickCount;
 
 /*@}*/
@@ -76,13 +80,22 @@ static volatile osTick_t sys_TickCount;
  
 /*@{*/
 
-/*调度器加锁指示*/
+/**
+ *  调度器加锁指示
+ *  @note none
+ */
 static volatile int8_t sche_LockNest;
 
-/*当前运行中线程的优先级 PS:等于最高优先级的线程组*/
+/**
+ *  当前运行中线程的优先级
+ *  @note 等于最高优先级的线程组
+ */
 static volatile uint8_t sche_CurrPriority;
 
-/*调度器线程运行指示*/
+/**
+ *  调度器线程运行指示
+ *  @note none
+ */
 struct threadSwitchInfo_t sche_ThreadSwitchStatus;
 
 
@@ -124,9 +137,9 @@ static const uint8_t BITMAP[] = { \
  * 大于32的情况->一共32bit 对应32组 共256bit 对应256个优先级
 */
 #if MAX_PRIORITY_LEVEL <= 8
-  static uint8_t bitmap_L1;
+static uint8_t bitmap_L1;
 #else
-  static uint32_t bitmap_L1;
+static uint32_t bitmap_L1;
 #endif
 
 /**
@@ -134,7 +147,7 @@ static const uint8_t BITMAP[] = { \
  * 共32个字节 对应256bit 等于256个优先级
 */
 #if MAX_PRIORITY_LEVEL > 32
-  static uint8_t bitmap_L2[32];
+static uint8_t bitmap_L2[32];
 #endif
 
 /*@}*/
@@ -149,7 +162,23 @@ static const uint8_t BITMAP[] = { \
 struct osList_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 
 #if USING_DEID_THREAD_RM == 1
-  struct osList_t sche_NoReadyList;
+struct osList_t sche_NoReadyList;
+#endif
+
+/*@}*/
+
+/**
+ * @addtogroup stack check functions
+ */
+ 
+/*@{*/
+
+#if USING_STACK_OVERFLOW_CHECK
+void stackOverFlowCheck(osThread_Attr_t* thread) {
+  if ((*((uint32_t *) thread->stackEnd)) != MAGIC_WORD) {
+    for (;;);
+  }
+}
 #endif
 
 /*@}*/
@@ -175,24 +204,24 @@ void sche_Init(void) {
   /*初始状态,只有IDLE*/
   sche_CurrPriority = MAX_PRIORITY_LEVEL - 1;
 
-  #if MAX_PRIORITY_LEVEL <= 8
-    bitmap_L1 = 0x80;
-  #else
-    bitmap_L1 = 0x80000000;
-  #endif
+#if MAX_PRIORITY_LEVEL <= 8
+  bitmap_L1 = 0x80;
+#else
+  bitmap_L1 = 0x80000000;
+#endif
 
-  #if MAX_PRIORITY_LEVEL > 32
-    memset(bitmap_L2, 0x00, sizeof(bitmap_L2));
-  #endif
+#if MAX_PRIORITY_LEVEL > 32
+  memset(bitmap_L2, 0x00, sizeof(bitmap_L2));
+#endif
 
   /*对所有线程链表组初始化*/
   for (uint16_t offset = 0; offset < MAX_PRIORITY_LEVEL; offset++) {
     osList_HeadInit(&(sche_ReadyList[offset]));
   }
 
-  #if USING_DEID_THREAD_RM == 1
-    osList_HeadInit(&(sche_NoReadyList));
-  #endif
+#if USING_DEID_THREAD_RM == 1
+  osList_HeadInit(&(sche_NoReadyList));
+#endif
 }
 
 
@@ -213,9 +242,9 @@ void sche_InsertThread(osThread_Attr_t *thread) {
   /*线程bitmap插入到内核bitmap里面*/
   bitmap_L1 |= thread->bitmap_Mask;	
 
-  #if MAX_PRIORITY_LEVEL > 32
-    bitmap_L2[thread->bitmap_Low_Mask] |= thread->bitmap_High_Mask;
-  #endif
+#if MAX_PRIORITY_LEVEL > 32
+  bitmap_L2[thread->bitmap_Low_Mask] |= thread->bitmap_High_Mask;
+#endif
 
   hal_EnableINT(level);
 }
@@ -234,23 +263,23 @@ void sche_RemoveThread(osThread_Attr_t* thread) {
   /*删除节点*/
   osList_DeleteNode(&(thread->list));
 
-  #if USE_DEID_THREAD_RM == 1   
-    /*放进未就绪list中*/
-    osList_Add(&sche_NoReadyList, &thread->list);
-  #endif
+#if USE_DEID_THREAD_RM == 1   
+  /*放进未就绪list中*/
+  osList_Add(&sche_NoReadyList, &thread->list);
+#endif
 
   /*检查剩余线程*/
   if (osList_CheckIsEmpty(&sche_ReadyList[thread->priority])) {
     /*移去内核线程队列*/
-    #if MAX_PRIORITY_LEVEL <= 32
-      bitmap_L1 &= ~thread->bitmap_Mask;
-    #else
-      bitmap_L2[thread->bitmap_Low_Mask] &= ~thread->bitmap_High_Mask;
+#if MAX_PRIORITY_LEVEL <= 32
+    bitmap_L1 &= ~thread->bitmap_Mask;
+#else
+    bitmap_L2[thread->bitmap_Low_Mask] &= ~thread->bitmap_High_Mask;
 
-      if (bitmap_L2[thread->bitmap_Low_Mask] == 0) {
-        bitmap_L1 &= ~thread->bitmap_Mask;
-      }
-    #endif
+    if (bitmap_L2[thread->bitmap_Low_Mask] == 0) {
+      bitmap_L1 &= ~thread->bitmap_Mask;
+    }
+#endif
   }
 
   hal_EnableINT(level);
@@ -297,9 +326,9 @@ void sche_ToNextThread(void) {
 
   /*检查调度器是否被锁定*/
   if (sche_LockNest == 0) {
-    #if MAX_PRIORITY_LEVEL <= 8
-      highestPriority = BITMAP[bitmap_L1];
-    #else
+#if MAX_PRIORITY_LEVEL <= 8
+    highestPriority = BITMAP[bitmap_L1];
+#else
       register uint8_t pos;
 
       /**  
@@ -318,25 +347,30 @@ void sche_ToNextThread(void) {
       else {
         pos = BITMAP[(bitmap_L1 >> 24) & 0xFF] + 24;
       }
-      #if MAX_PRIORITY_LEVEL > 32
-        /*根据pos找出的数字在二次查询找出L2中真正的就绪小组*/
-        highestPriority = (pos << 3) + BITMAP[bitmap_L2[pos]];
-      #else
-        highestPriority = pos;
-      #endif
-    #endif
+#if MAX_PRIORITY_LEVEL > 32
+      /*根据pos找出的数字在二次查询找出L2中真正的就绪小组*/
+      highestPriority = (pos << 3) + BITMAP[bitmap_L2[pos]];
+#else
+      highestPriority = pos;
+#endif
+#endif
 
     /*选定最新的线程Block*/
     sche_ThreadSwitchStatus.nextThread = osList_Entry(sche_ReadyList[highestPriority].next, osThread_Attr_t, list);
 
     /*判断线程是否相同*/
     if(sche_ThreadSwitchStatus.nowThread != sche_ThreadSwitchStatus.nextThread) {
+#if USING_STACK_OVERFLOW_CHECK
+      /*堆栈检查*/
+      stackOverFlowCheck(sche_ThreadSwitchStatus.nowThread); 
+      stackOverFlowCheck(sche_ThreadSwitchStatus.nextThread); 
+#endif
       /*当前最高线程优先级*/
       sche_CurrPriority = highestPriority;
 
       /*标记线程状态*/
-      sche_ThreadSwitchStatus.nextThread->stage = osThreadRunning;
-//      sche_ThreadSwitchStatus.nowThread->stage = osThreadReady;
+      sche_ThreadSwitchStatus.nextThread->state = osThreadRunning;
+//      sche_ThreadSwitchStatus.nowThread->state = osThreadReady;
 
       /*调度Call*/
       hal_PendSVSet();
@@ -420,12 +454,16 @@ void osSche_Unlock(void) {
     /*恢复调度*/
     sche_LockNest = 0;
 
+    /*打开中断*/
+    hal_EnableINT(level);
+    
     /*调度*/
     sche_ToNextThread();
   }
-
-  /*打开中断*/
-  hal_EnableINT(level);
+  else {
+    /*打开中断*/
+    hal_EnableINT(level);
+  }
 }
 EXPORT_SYMBOL(osSche_Unlock);
 
