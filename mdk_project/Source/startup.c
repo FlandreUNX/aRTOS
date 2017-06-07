@@ -69,18 +69,15 @@
 
 /*@{*/
 
-uint32_t threadDemo1_RunningCount = 0;
-
 osThread_FuncDef(threadDemo1) {
-  mLog_ThreadPrintf(Log_I, "Thread-1", 100, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
+  mLog_ThreadPrintf(Log_I, "Thread-1", 1000, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
+  
   for (;;) {
     osThread_Delay(100);
-    
-    threadDemo1_RunningCount++;
   }
 }
-osThread_Def(threadDemo1, 0, ALIGN(488, 8), threadDemo1);
-osThread_ID threadDemo1_ID;
+osThread_Def(threadDemo1, 0, 488, threadDemo1);
+osThread_Id threadDemo1_ID;
 
 /*@}*/
 
@@ -90,18 +87,19 @@ osThread_ID threadDemo1_ID;
 
 /*@{*/
 
-uint32_t threadDemo2_RunningCount = 0;
-
 osThread_FuncDef(threadDemo2) {
-  mLog_ThreadPrintf(Log_I, "Thread-2", 100, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
+  mLog_ThreadPrintf(Log_I, "Thread-2", 1000, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
+  
+  /*threadDemo1线程*/
+  threadDemo1_ID = osThread_Create(osThread_Obj(threadDemo1), (void *)0);
+  osThread_Ready(threadDemo1_ID);
+  
   for (;;) {
-    osThread_Delay(500);
-    
-    threadDemo2_RunningCount++;
+    osThread_Delay(100);
   }
 }
-osThread_Def(threadDemo2, 1, ALIGN(488, 8), threadDemo2);
-osThread_ID threadDemo2_ID;
+osThread_Def(threadDemo2, 1, 488, threadDemo2);
+osThread_Id threadDemo2_ID;
 
 /*@}*/
 
@@ -114,15 +112,18 @@ osThread_ID threadDemo2_ID;
 uint32_t threadDemo3_RunningCount = 0;
 
 osThread_FuncDef(threadDemo3) {
-  mLog_ThreadPrintf(Log_I, "Thread-3", 100, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
+  mLog_ThreadPrintf(Log_I, "Thread-3", 1000, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
+  
+  /*threadDemo2线程*/
+  threadDemo2_ID = osThread_Create(osThread_Obj(threadDemo2), (void *)0);
+  osThread_Ready(threadDemo2_ID);
+  
   for (;;) {
-    osThread_Delay(1000);
-    
-    threadDemo3_RunningCount++;
+    osThread_Delay(10);
   }
 }
-osThread_Def(threadDemo3, 2, ALIGN(488, 8), threadDemo3);
-osThread_ID threadDemo3_ID;
+osThread_Def(threadDemo3, 2, 488, threadDemo3);
+osThread_Id threadDemo3_ID;
 
 /*@}*/
 
@@ -132,11 +133,7 @@ osThread_ID threadDemo3_ID;
 
 /*@{*/
 
-uint32_t timerDemo1_RunningCount = 0;
-
 osTimer_Callback(timerDemo1) {
-  timerDemo1_RunningCount++;
-  
   BSP_LED_Toggle(LED1);
 }
 osTimer_Def(timerDemo1, osTimerSoft, timerDemo1);
@@ -153,8 +150,6 @@ osTimer_ID timerDemo1_ID;
 uint32_t timerDemo2_RunningCount = 0;
 
 osTimer_Callback(timerDemo2) {
-  timerDemo2_RunningCount++;
-  
   BSP_LED_Toggle(LED2);
 }
 osTimer_Def(timerDemo2, osTimerSoft, timerDemo2);
@@ -171,8 +166,6 @@ osTimer_ID timerDemo2_ID;
 uint32_t timerDemo3_RunningCount = 0;
 
 osTimer_Callback(timerDemo3) {
-  timerDemo3_RunningCount++;
-  
   BSP_LED_Toggle(LED3);
 }
 osTimer_Def(timerDemo3, osTimerSoft, timerDemo3);
@@ -200,14 +193,6 @@ int main(void) {
   
   /*相关模块初始化*/
   osSys_ModulesInit();
-  
-  /*threadDemo1线程*/
-  threadDemo1_ID = osThread_Create(osThread_Obj(threadDemo1), (void *)0);
-  osThread_Ready(threadDemo1_ID);
-  
-  /*threadDemo2线程*/
-  threadDemo2_ID = osThread_Create(osThread_Obj(threadDemo2), (void *)0);
-  osThread_Ready(threadDemo2_ID);
   
   /*threadDemo3线程*/
   threadDemo3_ID = osThread_Create(osThread_Obj(threadDemo3), (void *)0);

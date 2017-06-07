@@ -118,7 +118,7 @@
   /**
    *  buddy单个内存块大小,单位为byte
    */
-  #define BUDDY_BLOCK_SIZE    (32)
+  #define BUDDY_BLOCK_SIZE    (ALIGN(32, 4))
 
   /**
    *  buddy内存块阶级数量,参考上表格对应关系

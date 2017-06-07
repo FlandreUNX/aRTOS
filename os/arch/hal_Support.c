@@ -157,6 +157,18 @@ void osHal_CoreInit(void) {
 
 
 /**
+ *  @brief 获取当前CPU时钟
+ *
+ *  @param none
+ * 
+ *  @retval none
+ */
+uint32_t osHal_GetSysclk(void) {
+  return HAL_RCC_GetSysClockFreq();
+}
+
+
+/**
  * @brief 配置systick,1ms溢出
  *
  * @param none
@@ -198,9 +210,6 @@ void hal_CallNMI(void) {
  */
 
 /*@{*/
-
-#include "../osAPI.h"
-
 
 //void HAL_Delay(__IO uint32_t Delay) {
 //  osThread_Delay(Delay);

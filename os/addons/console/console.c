@@ -139,7 +139,6 @@ void mConsole_Init(void) {
   console_PortInit();
   
   RESET_SCREEN();
-  printf("\033[1;40;32m\r\nConsole/Log port initialized.\r\n\r\n\033[0m");
 }
 
 /*@}*/
@@ -333,8 +332,6 @@ void mLog_ThreadPrintf(Log_Level level, const char *context, osTick_t timeout, c
   va_list args;
   int32_t fmt_result;
   
-  va_start(args, format);
-  
   uint16_t stringLength = 0;
   
   /*复制osTick*/
@@ -356,20 +353,24 @@ void mLog_ThreadPrintf(Log_Level level, const char *context, osTick_t timeout, c
   stringLength += logStrcpy(stringLength, outputBuffer + stringLength, " ");
   
   /*复制自定义数据*/
+  va_start(args, format);
   fmt_result = vsnprintf(outputBuffer + stringLength, OUTPUT_BUFFER_SIZE - stringLength - 1, format, args);
-  
   va_end(args);
   
+
   /*复制新行*/
+#if LOG_AUTO_NEWLINE == 1
+  if ((fmt_result > -1) && (fmt_result + stringLength + 2 <= OUTPUT_BUFFER_SIZE)) {
+    stringLength += fmt_result;
+    stringLength += logStrcpy(stringLength, outputBuffer + stringLength, CONSOLE_PRINT_NEWLINE);
+  } 
+  else {
+    stringLength = OUTPUT_BUFFER_SIZE;
+    strcpy(outputBuffer + OUTPUT_BUFFER_SIZE - 2, CONSOLE_PRINT_NEWLINE);
+  }
+#else
   stringLength += fmt_result;
-//  if ((fmt_result > -1) && (fmt_result + stringLength + 2 <= OUTPUT_BUFFER_SIZE)) {
-//    stringLength += fmt_result;
-//    stringLength += logStrcpy(stringLength, outputBuffer + stringLength, CONSOLE_PRINT_NEWLINE);
-//  } 
-//  else {
-//    stringLength = OUTPUT_BUFFER_SIZE;
-//    strcpy(outputBuffer + OUTPUT_BUFFER_SIZE - 2, CONSOLE_PRINT_NEWLINE);
-//  }
+#endif
     
   /*输出数据*/
   console_PortOutput(outputBuffer, stringLength);

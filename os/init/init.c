@@ -69,7 +69,7 @@
 
 extern struct threadSwitchInfo_t sche_ThreadSwitchStatus;
 
-extern osThread_ID idle_ThreadID;
+extern osThread_Id idle_ThreadID;
 extern osThread_Attr_t os_Thread_Idle;
 
 /**
@@ -80,6 +80,8 @@ extern osThread_Attr_t os_Thread_Idle;
  * @retval none
  */
 void osSys_KernelInitialize(void) {
+  hal_DisableINT();
+  
   /*动态内存库初始化*/
   mem_Init((uint32_t)HEAP_BEGIN, (uint32_t)HEAP_END);
   
@@ -88,6 +90,8 @@ void osSys_KernelInitialize(void) {
 
   /*定时器初始化*/
   timer_Init();
+  
+  hal_EnableINT();
 }
 
 
@@ -98,7 +102,7 @@ void osSys_KernelInitialize(void) {
  *
  * @retval none
  */
-void osSys_KernelStartup(void) {
+void osSys_KernelStartup(void) { 
   /*初始化并启动idle*/
   idle_ThreadID = osThread_Create(&os_Thread_Idle, (void *)0);
   if (idle_ThreadID == 0) {
@@ -107,9 +111,19 @@ void osSys_KernelStartup(void) {
 
   osThread_Ready(idle_ThreadID);
   
-  sche_SetFirstThread(idle_ThreadID);
+  hal_DisableINT();
+  
+  sche_SetFirstThread();
   
   hal_SystickConfig();
+  
+#if CM_VFP_ENABLE == 1
+  hal_EnableVFP();
+#endif
+  
+  mLog_RawPrntf(0, "\033[1;32maRTOS Start...\033[0m\r\n\r\n");
+
+  hal_EnableINT();
   
   cpu_GotoFisrtTask();
 }
@@ -129,15 +143,15 @@ void osSys_ModulesInit(void) {
    *  欢迎界面
    */
   for (uint8_t i = 0; i < 12; i++) {
-    mLog_RawPrntf(0, "%s", osLogo[i]);
+    mLog_RawPrntf(0, "%s\r\n", osLogo[i]);
   }
   
   mLog_RawPrntf(0, "%s\r\n", OS_INFO);
   mLog_RawPrntf(0, "%s\r\n", OS_AUTHOR);
-  mLog_RawPrntf(0, "[CPU]\033[1;34m%s\033[0m", MCU_NAME);
-  mLog_RawPrntf(0, "[Sysclk]\033[1;34m%dHz\033[0m", SYS_CLOCK);
-  mLog_RawPrntf(0, "[Mem]\033[1;34m%dKbyte\033[0m", osMem_Info.total / 1024);
-  mLog_RawPrntf(0, "\r\n\r\n");
+  mLog_RawPrntf(0, "[CPU]\033[1;36m%s\033[0m ", MCU_NAME);
+  mLog_RawPrntf(0, "[Sysclk]\033[1;36m%dHz\033[0m ", osHal_GetSysclk());
+  mLog_RawPrntf(0, "[Mem(%s)]\033[1;36m%.1fKbyte\033[0m ", MCU_RAM_TYPE, osMem_Info.total / 1024.0f);
+  mLog_RawPrntf(0, "\r\nModules initialize successed.\r\n");
 }
 
 /*@}*/

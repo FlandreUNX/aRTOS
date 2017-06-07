@@ -39,7 +39,6 @@
 
 #include "../arch/platform.h"
 
-
 /*@}*/
 
 /**
@@ -90,7 +89,7 @@ typedef struct {
   
   osEvent_Type type;  /**< 事件类型 */
 
-  osEvent_Status state;   /**< 事件状态 */
+  uint8_t state;   /**< 事件状态 */
 } osEvent_t;
 
 /*@}*/

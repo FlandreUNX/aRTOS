@@ -64,6 +64,11 @@
 #define OUTPUT_BUFFER_SIZE    (128)
 
 
+/**
+ *  输出结尾自动换行
+ *  @note none
+ */
+#define LOG_AUTO_NEWLINE      (1)
 
 /*@}*/
 
@@ -183,7 +188,7 @@ extern void mLog_Control(uint8_t state, uint8_t en);
 
 #define CURSOR_MOVETO(x, y) printf("\033[%d;%dH", (x), (y))
 
-#define RESET_SCREEN() printf("\033[2J\r\033[u")
+#define RESET_SCREEN() printf("\033[u\033[2J")
 
 extern void mLog_RawPrntf(osTick_t timeout, const char *format, ...);
 extern void mLog_ThreadPrintf(Log_Level level, const char *context, osTick_t timeout, const char *format, ...);

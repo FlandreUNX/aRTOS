@@ -59,6 +59,8 @@ extern int Image$$RW_IRAM2$$ZI$$Limit;
 
 extern void osHal_CoreInit(void);
 
+extern uint32_t osHal_GetSysclk(void);
+
 /*@}*/
 
 /**

@@ -39,6 +39,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 /*@}*/
 
@@ -48,14 +49,30 @@
  
 /*@{*/
 
+typedef uint32_t  osTick_t;  /**< osTick最大计量 */
+
 #define CPU_UINT32_MAX      (0xFFFFFFFF)                /**< Maxium number of UINT32 */
 #define CPU_TICK_MAX        (uint32_t)(CPU_UINT32_MAX)  /**< Maxium number of tick */
-
-typedef uint32_t  osTick_t;  /**< osTick最大计量 */
 
 #define OS_WAIT_FOREVER     (CPU_TICK_MAX)    /**< 系统无限等待数 */
 
 #define MAGIC_WORD          (uint32_t)(0xE25A2EA5)      /**< 魔幻数,用于检验thread的堆栈溢出 */
+
+#define BYTE_ALIGNMENT_MASK     (8)      /**< 对齐字节 */
+
+/*@}*/
+
+/**
+ * @addtogroup Platform configure
+ */
+ 
+/*@{*/
+
+/**
+ *  是否启动VFP浮点模块
+ *  @note 启动锁即其余线程无法输出LOG
+ */
+#define CM_VFP_ENABLE     (1)
 
 /*@}*/
 
@@ -71,7 +88,8 @@ typedef uint32_t  osTick_t;  /**< osTick最大计量 */
  *  @note 对于keil平台,结构对齐建议使用"#pragma pack()"
  */
 #ifdef __CC_ARM 
-#include <stdarg.h>
+
+#include "cmsis_armcc.h"
 
 #include "./hal_Support.h"
 

@@ -97,11 +97,12 @@ void threadTimerCallback(void *arguments) {
  *
  * @retval 线程句柄
  */
-osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
+osThread_Id osThread_Create(osThread_Attr_t *thread, void *argument) {
   //OS_ASSERT
+  uint32_t *stackTop;
 
-  /*调整堆栈大小,4字节对齐*/
-  thread->stackSize = ALIGN(thread->stackSize, 4);
+  /*调整堆栈大小,字节对齐*/
+  thread->stackSize = ALIGN(thread->stackSize, BYTE_ALIGNMENT_MASK);
   //OS_ASSERT
 
   /*申请栈空间*/
@@ -111,15 +112,20 @@ osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
 
     return 0;
   }
+  /*栈底,字节向上对齐*/
+  thread->stackEnd = (void *)ALIGN((uint32_t)thread->stackEnd, BYTE_ALIGNMENT_MASK);
 
   /*最后栈底最后一个字节写入一个固定数值,用于检测栈溢出*/
   *((uint32_t*) thread->stackEnd) = (uint32_t) MAGIC_WORD;
 
-  /*设置栈顶*/
-  thread->stackTop = (void *)((uint32_t)thread->stackEnd + thread->stackSize);
+  /*栈顶,字节向下对齐*/
+  stackTop = (uint32_t *)((uint32_t)thread->stackEnd + thread->stackSize);
+  stackTop = (uint32_t *)ALIGN_DOWN((uint32_t)stackTop, BYTE_ALIGNMENT_MASK);
 
   /*初始化线程CPU栈寄存器*/
-  thread->stackTop = cpu_SetupRegisters(thread->functions, argument, thread->stackTop);
+  stackTop = cpu_SetupRegisters(thread->functions, argument, stackTop);
+  
+  thread->stackTop = (void *)stackTop;
   thread->arguments = argument;
 
   /*超出最大设定组别*/
@@ -150,7 +156,7 @@ osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument) {
   thread->state = osThreadSuspend;
   thread->timeSlice = thread->initTimeSlice;
 
-  return (osThread_ID)thread;
+  return (osThread_Id)thread;
 }
 EXPORT_SYMBOL(osThread_Create);
 
@@ -163,12 +169,11 @@ EXPORT_SYMBOL(osThread_Create);
  *
  * @retval none
  */
-void osThread_Ready(osThread_ID id) {
+void osThread_Ready(osThread_Id id) {
   //OS_ASSERT
 
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   osThread_Attr_t *thread = (osThread_Attr_t *)id;
 
@@ -177,7 +182,7 @@ void osThread_Ready(osThread_ID id) {
     thread->state == osThreadReady) {
     //OS_ASSERT
 
-    hal_EnableINT(level);
+    hal_EnableINT();
 
     return;
   }
@@ -189,7 +194,7 @@ void osThread_Ready(osThread_ID id) {
   /*插入调度器*/
   sche_InsertThread(thread);
 
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 EXPORT_SYMBOL(osThread_Ready);
 
@@ -202,12 +207,11 @@ EXPORT_SYMBOL(osThread_Ready);
  *
  * @retval none
  */
-void osThread_Suspend(osThread_ID id) {
+void osThread_Suspend(osThread_Id id) {
   //OS_ASSERT
 
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   osThread_Attr_t *thread = (osThread_Attr_t *)id;
 
@@ -217,7 +221,7 @@ void osThread_Suspend(osThread_ID id) {
     //OS_ASSERT
 
     /*开中断*/
-    hal_EnableINT(level);
+    hal_EnableINT();
 
     return;
   }
@@ -230,7 +234,7 @@ void osThread_Suspend(osThread_ID id) {
   sche_RemoveThread(thread);
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 EXPORT_SYMBOL(osThread_Suspend);
 
@@ -242,7 +246,7 @@ EXPORT_SYMBOL(osThread_Suspend);
  *
  * @retval none
  */
-void osThread_Terminate(osThread_ID id) {
+void osThread_Terminate(osThread_Id id) {
   
 }
 EXPORT_SYMBOL(osThread_Terminate);
@@ -255,15 +259,14 @@ EXPORT_SYMBOL(osThread_Terminate);
  *
  * @retval 线程句柄
  */
-osThread_ID osThread_Self(void) {
+osThread_Id osThread_Self(void) {
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
-  osThread_ID self = (osThread_ID)sche_ThreadSwitchStatus.nowThread;
+  osThread_Id self = (osThread_Id)sche_ThreadSwitchStatus.nowThread;
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 
   return self;
 }
@@ -279,8 +282,7 @@ EXPORT_SYMBOL(osThread_Self);
  */
 void osThread_Yield(void) {
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   osThread_Attr_t *thread = (osThread_Attr_t *)sche_ThreadSwitchStatus.nowThread;
   
@@ -295,7 +297,7 @@ void osThread_Yield(void) {
   }
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 
   /*切换下一线程*/
   sche_ToNextThread();
@@ -316,8 +318,7 @@ void osThread_Delay(osTick_t tick) {
   }
   
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   /*获取当前线程*/
   osThread_Attr_t *thread = (osThread_Attr_t *)sche_ThreadSwitchStatus.nowThread;
@@ -334,7 +335,7 @@ void osThread_Delay(osTick_t tick) {
   sche_ToNextThread();
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 
 /*@}*/

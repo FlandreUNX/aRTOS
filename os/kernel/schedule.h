@@ -70,7 +70,7 @@ extern void sche_InsertThread(osThread_Attr_t* thread);
 extern void sche_RemoveThread(osThread_Attr_t* thread);
 
 extern void sche_NextToNow(void);
-extern void sche_SetFirstThread(osThread_Attr_t* thread);
+extern void sche_SetFirstThread(void);
 
 extern void sche_ToNextThread(void);
 

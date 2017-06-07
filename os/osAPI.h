@@ -60,6 +60,16 @@
  */
 extern void osHal_CoreInit(void);
 
+
+/**
+ *  @brief 获取当前CPU时钟
+ *
+ *  @param none
+ * 
+ *  @retval none
+ */
+extern uint32_t osHal_GetSysclk(void);
+
 /*@}*/
 
 /**
@@ -79,16 +89,6 @@ extern void osSys_KernelInitialize(void);
 
 
 /**
- * 启动os
- *
- * @param none
- *
- * @retval none
- */
-extern void osSys_KernelStartup(void);
-
-
-/**
  * 相关模块初始化
  *
  * @param none
@@ -96,6 +96,16 @@ extern void osSys_KernelStartup(void);
  * @retval none
  */
 extern void osSys_ModulesInit(void);
+
+
+/**
+ * 启动os
+ *
+ * @param none
+ *
+ * @retval none
+ */
+extern void osSys_KernelStartup(void);
 
 /*@}*/
 
@@ -236,7 +246,7 @@ extern osTick_t osSys_GetNowTick(void);
  *
  * @retval 线程句柄
  */
-extern osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument);
+extern osThread_Id osThread_Create(osThread_Attr_t *thread, void *argument);
 
 
 /**
@@ -247,7 +257,7 @@ extern osThread_ID osThread_Create(osThread_Attr_t *thread, void *argument);
  *
  * @retval none
  */
-extern void osThread_Ready(osThread_ID id);
+extern void osThread_Ready(osThread_Id id);
 
 
 /**
@@ -258,7 +268,7 @@ extern void osThread_Ready(osThread_ID id);
  *
  * @retval none
  */
-extern void osThread_Suspend(osThread_ID id);
+extern void osThread_Suspend(osThread_Id id);
 
 
 /**
@@ -278,7 +288,7 @@ extern void osThread_Delay(osTick_t tick);
  *
  * @retval 线程句柄
  */
-extern osThread_ID osThread_Self(void);
+extern osThread_Id osThread_Self(void);
 
 
 /**
@@ -407,5 +417,27 @@ extern void osTimer_Start(osTimer_ID id, osTick_t tick);
 extern void osTimer_Stop(osTimer_ID id);
 
 /*@}*/
+
+/**
+ * @addtogroup ------------------Event manager------------------
+ */
+
+/*@{*/
+
+/**
+ *  core include file 
+ */
+#include "./pm/event.h"
+
+/**
+ *  设置线程信号
+ *
+ *  @param target_Id 目标线程Id
+ *  @param signal 信号值
+ *  @param wait 堵塞等待时间 
+ * 
+ *  @retval none
+ */
+extern osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick_t wait);
 
 #endif

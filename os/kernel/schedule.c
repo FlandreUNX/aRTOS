@@ -176,6 +176,8 @@ struct osList_t sche_NoReadyList;
 #if USING_STACK_OVERFLOW_CHECK
 void stackOverFlowCheck(osThread_Attr_t* thread) {
   if ((*((uint32_t *) thread->stackEnd)) != MAGIC_WORD) {
+    hal_DisableINT();
+    
     for (;;);
   }
 }
@@ -233,7 +235,7 @@ void sche_Init(void) {
  * @retval none
  */
 void sche_InsertThread(osThread_Attr_t *thread) {
-  register uint32_t level = hal_DisableINT();
+  hal_DisableINT();
 
   /*插入ready_list*/
   osList_DeleteNode(&(thread->list));
@@ -246,7 +248,7 @@ void sche_InsertThread(osThread_Attr_t *thread) {
   bitmap_L2[thread->bitmap_Low_Mask] |= thread->bitmap_High_Mask;
 #endif
 
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 
 
@@ -258,7 +260,7 @@ void sche_InsertThread(osThread_Attr_t *thread) {
  * @retval 无
  */
 void sche_RemoveThread(osThread_Attr_t* thread) {
-  register uint32_t level = hal_DisableINT();
+  hal_DisableINT();
 
   /*删除节点*/
   osList_DeleteNode(&(thread->list));
@@ -282,7 +284,7 @@ void sche_RemoveThread(osThread_Attr_t* thread) {
 #endif
   }
 
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 
 
@@ -301,12 +303,55 @@ void sche_NextToNow(void) {
 /**
  * 设置初始线程线程
  *
- * @param thread: 线程对象
+ * @param none
  * 
  * @retval none
  */
-void sche_SetFirstThread(osThread_Attr_t* thread) {
-  sche_ThreadSwitchStatus.nowThread = sche_ThreadSwitchStatus.nextThread = thread;
+void sche_SetFirstThread(void) { 
+  register uint8_t highestPriority;
+  
+#if MAX_PRIORITY_LEVEL <= 8
+  highestPriority = BITMAP[bitmap_L1];
+#else
+  register uint8_t pos;
+
+  /**  
+   *  对L1 bitmap查询 分别查询4次 对应4字节 直接找出最小bit位(最高就绪) 
+   *  对应256bit的哪一大组(8个就绪组为一个大组)
+   */
+  if (bitmap_L1 & 0xFF) {
+    pos = BITMAP[bitmap_L1 & 0xFF];
+  }
+  else if (bitmap_L1 & 0xFF00) {
+    pos = BITMAP[(bitmap_L1 >> 8) & 0xFF] + 8;
+  }
+  else if (bitmap_L1 & 0xFF0000) {
+    pos = BITMAP[(bitmap_L1 >> 16) & 0xFF] + 16;
+  }
+  else {
+    pos = BITMAP[(bitmap_L1 >> 24) & 0xFF] + 24;
+  }
+#if MAX_PRIORITY_LEVEL > 32
+  /*根据pos找出的数字在二次查询找出L2中真正的就绪小组*/
+  highestPriority = (pos << 3) + BITMAP[bitmap_L2[pos]];
+#else
+  highestPriority = pos;
+#endif
+#endif
+    
+  /*选定最新的线程Block*/
+  sche_ThreadSwitchStatus.nextThread = osList_Entry(sche_ReadyList[highestPriority].next, osThread_Attr_t, list);
+  sche_ThreadSwitchStatus.nowThread = sche_ThreadSwitchStatus.nextThread;
+  
+#if USING_STACK_OVERFLOW_CHECK
+  /*堆栈检查*/
+  stackOverFlowCheck(sche_ThreadSwitchStatus.nowThread); 
+#endif
+  /*当前最高线程优先级*/
+  sche_CurrPriority = highestPriority;
+
+  /*标记线程状态*/
+  sche_ThreadSwitchStatus.nextThread->state = osThreadRunning;
 }
 
 
@@ -321,8 +366,7 @@ void sche_ToNextThread(void) {
   register uint8_t highestPriority;
 
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   /*检查调度器是否被锁定*/
   if (sche_LockNest == 0) {
@@ -332,9 +376,9 @@ void sche_ToNextThread(void) {
       register uint8_t pos;
 
       /**  
-      *  对L1 bitmap查询 分别查询4次 对应4字节 直接找出最小bit位(最高就绪) 
-      *  对应256bit的哪一大组(8个就绪组为一个大组)
-      */
+       *  对L1 bitmap查询 分别查询4次 对应4字节 直接找出最小bit位(最高就绪) 
+       *  对应256bit的哪一大组(8个就绪组为一个大组)
+       */
       if (bitmap_L1 & 0xFF) {
         pos = BITMAP[bitmap_L1 & 0xFF];
       }
@@ -370,7 +414,7 @@ void sche_ToNextThread(void) {
 
       /*标记线程状态*/
       sche_ThreadSwitchStatus.nextThread->state = osThreadRunning;
-//      sche_ThreadSwitchStatus.nowThread->state = osThreadReady;
+      sche_ThreadSwitchStatus.nowThread->state = osThreadReady;
 
       /*调度Call*/
       hal_PendSVSet();
@@ -378,7 +422,7 @@ void sche_ToNextThread(void) {
   }
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 
 
@@ -429,11 +473,11 @@ void sys_TickHandler(void) {
  * @retval none
  */
 void osSche_Lock(void) {
-  register uint32_t level = hal_DisableINT();
+  hal_DisableINT();
 
   sche_LockNest++;
 
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 EXPORT_SYMBOL(osSche_Lock);
 
@@ -446,7 +490,7 @@ EXPORT_SYMBOL(osSche_Lock);
  * @retval none
  */
 void osSche_Unlock(void) {
-  register uint32_t level = hal_DisableINT();
+  hal_DisableINT();
 
   sche_LockNest --;
 
@@ -455,14 +499,14 @@ void osSche_Unlock(void) {
     sche_LockNest = 0;
 
     /*打开中断*/
-    hal_EnableINT(level);
+    hal_EnableINT();
     
     /*调度*/
     sche_ToNextThread();
   }
   else {
     /*打开中断*/
-    hal_EnableINT(level);
+    hal_EnableINT();
   }
 }
 EXPORT_SYMBOL(osSche_Unlock);

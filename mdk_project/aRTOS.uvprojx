@@ -182,7 +182,7 @@
             <hadIRAM>1</hadIRAM>
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
-            <RvdsVP>1</RvdsVP>
+            <RvdsVP>3</RvdsVP>
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>1</hadIROM2>
             <StupSel>8</StupSel>
@@ -449,6 +449,11 @@
         <Group>
           <GroupName>aRTOS/pm</GroupName>
           <Files>
+            <File>
+              <FileName>event.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\os\pm\event.c</FilePath>
+            </File>
             <File>
               <FileName>event.h</FileName>
               <FileType>5</FileType>

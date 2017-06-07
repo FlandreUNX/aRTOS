@@ -75,7 +75,7 @@ extern struct osList_t schedule_NoReadyList;
  
 /*@{*/
 
-osThread_ID idle_ThreadID;
+osThread_Id idle_ThreadID;
 extern OS_NO_RETURN os_Idle_Thread(void *argument);
 osThread_Attr_t os_Thread_Idle = { \
   .initTimeSlice = 1, \
@@ -102,12 +102,12 @@ uint32_t idle_RunningCount = 0;
 
 OS_NO_RETURN os_Idle_Thread(void *argument) {
 #if OS_DEBUG_MODE == 1
-  mLog_ThreadPrintf(Log_I, "Idle", 0, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
+  mLog_ThreadPrintf(Log_I, "Idle", 0, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
 #endif
   
   for (;;) {
 #if OS_DEBUG_MODE == 1
-      idle_RunningCount++;
+    idle_RunningCount++;
 #endif
   }
 }

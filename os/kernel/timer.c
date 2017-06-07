@@ -78,7 +78,7 @@ struct osList_t timer_softList;
  *  软定时器计时线程
  *  @note none
  */
-osThread_ID timer_SoftThreadID;
+osThread_Id timer_SoftThreadID;
 extern OS_NO_RETURN os_SoftTimer_Thread(void *argument);
 osThread_Attr_t os_Thread_SoftTimer = { \
   .initTimeSlice = 1, \
@@ -126,13 +126,11 @@ void timer_Init(void) {
  * @retval none
  */
 void timer_TickCheck(void) {
-  register uint32_t level;
-  
   /*获取最近的TICK*/
   osTick_t currentTick = osSys_GetNowTick();
   
   /*关中断*/
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   /*遍历list*/
   osTimer_Attr_t *timer;
@@ -164,7 +162,7 @@ void timer_TickCheck(void) {
   }
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 
 
@@ -188,7 +186,7 @@ OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
   osTimer_Attr_t *timer;
   
 #if OS_DEBUG_MODE == 1
-  mLog_ThreadPrintf(Log_I, "SoftTimer", 100, CONSOLE_YELLOW "Startup.\r\n" CONSOLE_NONE);
+  mLog_ThreadPrintf(Log_I, "uTimer", 0, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
 #endif
 
   for (;;) {
@@ -341,8 +339,7 @@ void osTimer_Start(osTimer_ID id, osTick_t tick) {
   struct osList_t *timerList;
 
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
   osTimer_Attr_t *timerNext;
@@ -406,7 +403,7 @@ void osTimer_Start(osTimer_ID id, osTick_t tick) {
 #endif
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 EXPORT_SYMBOL(osTimer_Start);
 
@@ -422,8 +419,7 @@ void osTimer_Stop(osTimer_ID id) {
   //OS_ASSERT
 
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
 
@@ -435,7 +431,7 @@ void osTimer_Stop(osTimer_ID id) {
   timer->timeoutTick = 0;
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 EXPORT_SYMBOL(osTimer_Stop);
 
@@ -452,8 +448,7 @@ void osTimer_SetArgument(osTimer_ID id, void *arguments) {
   //OS_ASSERT
 
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
 
@@ -461,7 +456,7 @@ void osTimer_SetArgument(osTimer_ID id, void *arguments) {
     //OS_ASSERT
     
     /*开中断*/
-    hal_EnableINT(level);
+    hal_EnableINT();
 
     return;
   }
@@ -469,7 +464,7 @@ void osTimer_SetArgument(osTimer_ID id, void *arguments) {
   timer->arguments = arguments;
 
   /*开中断*/
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 EXPORT_SYMBOL(osTimer_SetArgument);
 
@@ -485,15 +480,14 @@ osTick_t osTimer_GetResidueTick(osTimer_ID id) {
   //OS_ASSERT
 
   /*关中断*/
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
   
   osTick_t tick = timer->timeoutTick - osSys_GetNowTick();
 
   /*开中断*/
-  hal_EnableINT(level);  
+  hal_EnableINT();  
 
   return tick; 
 }

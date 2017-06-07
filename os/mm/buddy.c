@@ -356,8 +356,7 @@ void* osMem_Malloc(uint32_t size) {
 
   BuddyBlock_t* block;
   
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
 
   /*获取需要的页面*/
   block = allocateBlock(wantOrder);
@@ -367,7 +366,7 @@ void* osMem_Malloc(uint32_t size) {
     return NULL;
   }
 
-  hal_EnableINT(level);
+  hal_EnableINT();
 
   /*返回地址*/
   /*将链表占用的空间也分配出去,剩余一个(state)*/
@@ -384,8 +383,7 @@ EXPORT_SYMBOL(osMem_Malloc);
  * @retval none
  */
 void osMem_Free(void* address) {
-  register uint32_t level;
-  level = hal_DisableINT();
+  hal_DisableINT();
   
   /*内存块结构体基地址 = 分配出去的内存地址偏移-结构体大小*/
   BuddyBlock_t* block = (BuddyBlock_t *) ((uint32_t)address - (uint32_t) sizeof(uint8_t));
@@ -395,7 +393,7 @@ void osMem_Free(void* address) {
     __FreeBlock(block);
   }
 
-  hal_EnableINT(level);
+  hal_EnableINT();
 }
 EXPORT_SYMBOL(osMem_Free);
 
