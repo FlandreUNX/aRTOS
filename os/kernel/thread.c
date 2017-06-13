@@ -41,6 +41,8 @@
 
 #include "../mm/buddy.h"
 
+#include "../pm/event.h"
+
 #include "../lib/list.h"
 #include "../lib/symbolExport.h"
 
@@ -155,6 +157,11 @@ osThread_Id osThread_Create(osThread_Attr_t *thread, void *argument) {
   /*设置其他参数*/
   thread->state = osThreadSuspend;
   thread->timeSlice = thread->initTimeSlice;
+  
+  /*初始化event*/
+  thread->event.state = osEvent_sIDLE;
+  thread->event.type = osEventNull;
+  thread->event.value.v = 0;
 
   return (osThread_Id)thread;
 }
@@ -313,10 +320,6 @@ EXPORT_SYMBOL(osThread_Yield);
  * @retval none
  */
 void osThread_Delay(osTick_t tick) {
-  if (tick == 0) {
-    return;
-  }
-  
   /*关中断*/
   hal_DisableINT();
 

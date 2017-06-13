@@ -215,7 +215,9 @@ OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
         /*延时相对时间*/
         nextTimeout = nextTimeout - currentTick;
         
-        osThread_Delay(nextTimeout);
+        if (nextTimeout != 0) {
+          osThread_Delay(nextTimeout);
+        }
       }
     }
 

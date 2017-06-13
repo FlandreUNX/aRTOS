@@ -440,4 +440,14 @@ extern void osTimer_Stop(osTimer_ID id);
  */
 extern osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick_t wait);
 
+
+/**
+ *  获取信号
+ *
+ *  @param wait 堵塞等待时间 
+ * 
+ *  @retval 返回具体事件信息
+ */
+extern osEvent_t osSignal_Wait(osTick_t wait);
+
 #endif

@@ -450,14 +450,14 @@
           <GroupName>aRTOS/pm</GroupName>
           <Files>
             <File>
-              <FileName>event.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\os\pm\event.c</FilePath>
-            </File>
-            <File>
               <FileName>event.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\os\pm\event.h</FilePath>
+            </File>
+            <File>
+              <FileName>signal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\os\pm\signal.c</FilePath>
             </File>
           </Files>
         </Group>

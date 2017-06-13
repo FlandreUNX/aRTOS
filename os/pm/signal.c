@@ -56,88 +56,103 @@
  *  @param signal 信号值
  *  @param wait 堵塞等待时间 
  * 
- *  @retval none
+ *  @retval 操作结果
  */
 osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick_t wait) {
-  /*屏蔽调度器,线程安全*/
   osSche_Lock();
   
-  osThread_Attr_t *thread = (osThread_Attr_t *)target_Id;
-  
-  /*保存该线程的事件状态*/
-  osEvent_Status preEventStage = thread->event.state;
+  osThread_Attr_t *thread = target_Id;
 
-  /*该线程等待某事件*/
-  if (preEventStage == osEventWaitting) {
-    /*该线程等待的是同一个东西*/
-    if (thread->event.type == osEventSignal && 
-      thread->event.vaule.v == signal) {
-      /*标记事件*/
-      thread->event.state = osEventGet;
-        
-      /*线程堵塞&等待改信号则唤醒*/
-      if (thread->state == osThreadBlocked) {
-        osThread_Ready(thread);
-        
-        return osEventNoError;
-      }
+  return osEvent_sOK;
+}
+
+
+/**
+ *  获取信号
+ *
+ *  @param wait 堵塞等待时间 
+ * 
+ *  @retval 返回具体事件信息
+ */
+osEvent_t osSignal_Wait(osTick_t wait) {
+  osEvent_t retEvent;
+  
+  retEvent.value.v = 0;
+  retEvent.state = osEvent_sOK;
+  retEvent.type = osEventSignal;
+  
+  osSche_Lock();
+  
+  osThread_Attr_t *self = osThread_Self();
+
+  /**
+   *  线程存在两个事件情况->wait/set
+   */
+  
+  /*线程被标记等待某事件*/
+  /*set一级情况包括other/signal*/
+  if (self->event.state == osEvent_sSet) {
+    if (self->event.type == osEventSignal) {
+      /*拉取信号*/
+      retEvent.value.v = self->event.value.v;
+    
+      /*清空本次事件*/
+      self->event.value.v = 0;
+      self->event.type = osEventNull;
+      self->event.state = osEvent_sIDLE;
     }
-    /*不是同一个东西,延时*/
+    /*线程被设置了其他事件*/
     else {
-      if (wait == 0) {
-        /*解锁*/
-        osSche_Unlock();
-        
-        return osEventTargetBusy;
-      }
-      
-      /*解锁*/
       osSche_Unlock();
-      
-      /*等待*/
+      if (wait == 0) {
+        retEvent.state = osEvent_sTimeout;
+      }
       osThread_Delay(wait);
-      
-      /*重新上锁*/
       osSche_Lock();
       
-      if (thread->event.type == osEventSignal && 
-        thread->event.vaule.v == signal) {
-        /*标记事件*/
-        thread->event.state = osEventGet;
-        
-        /*线程堵塞&等待改信号则唤醒*/
-        if (thread->state == osThreadBlocked) {
-          /*解锁*/
-          osSche_Unlock();
-          
-          osThread_Ready(thread);
-          
-          return osEventNoError;
-        }
-        else {
-          /*解锁*/
-          osSche_Unlock();
-          
-          return osEventTargetBusy;
-        }
+      /**
+       *  延时后存在情况->IDLE/Other/Signal
+       *  IDLE\Other作为timeout处理
+       */
+      if (self->event.type == osEventSignal) {
+        retEvent.value.v = self->event.value.v;
+    
+        self->event.value.v = 0;
+        self->event.type = osEventNull;
+        self->event.state = osEvent_sIDLE;
+      }
+      else {
+        retEvent.state = osEvent_sTimeout;
       }
     }
   }
-  /*线程原事件过期或者无事件等待*/
-  else if (preEventStage == osEventNoError ||
-    preEventStage == osEventInvalid) {
-    /*标记事件*/
-    thread->event.state = osEventGet;
-    thread->event.vaule.v = signal;
-      
-    /*解锁*/
+  /*线程主动等待事件*/
+  /*wait一级情况包括other/signal*/
+  else {
+    self->event.state = osEvent_sWait;
+    
     osSche_Unlock();
-      
-    return osEventNoError;
+    if (wait == 0) {
+      retEvent.state = osEvent_sTimeout;
+    }
+    osThread_Delay(wait);
+    osSche_Lock();
+    
+    if (self->event.type == osEventSignal) {
+      retEvent.value.v = self->event.value.v;
+  
+      self->event.value.v = 0;
+      self->event.type = osEventNull;
+      self->event.state = osEvent_sIDLE;
+    }
+    else {
+      retEvent.state = osEvent_sTimeout;
+    }
   }
   
-  /*未知状态*/
-  return osEventUnknown;
+  osSche_Unlock();
+  
+  return retEvent;
 }
 
 /*@}*/

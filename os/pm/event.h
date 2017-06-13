@@ -53,7 +53,8 @@
  *  @note 描述存在的event类型
  */
 typedef enum {
-  osEventSignal   /**< 信号类 */
+  osEventSignal,   /**< 信号类 */
+  osEventNull      /**< 无事件 */
 } osEvent_Type;
 
 
@@ -62,12 +63,19 @@ typedef enum {
  *  @note 描述event的状态
  */
 typedef enum {
-  osEventUnknown,     /**< 位置状态 */
-  osEventTargetBusy,  /**< 目标繁忙 */
-  osEventGet,         /**< 得到某事件 */
-  osEventWaitting,    /**< 等待中 */
-  osEventInvalid,     /**< 信号已过期 */
-  osEventNoError      /**< 没错 */
+  /**
+   *  Thread->event状态
+   */
+  osEvent_sSet,         /**< 线程事件被置位 */
+  osEvent_sWait,        /**< 线程正在等待事件 */
+  osEvent_sIDLE,        /**< 线程事件空闲中 */
+  
+  /**
+   *  输出Event_t通用状态
+   */
+  osEvent_sOK,          /**< 无错误 */
+  osEvent_sTimeout,     /**< 等待超时 */
+  osEvent_sUnkwn        /**< 未知错误 */
 } osEvent_Status;
 
 /*@}*/
@@ -86,7 +94,7 @@ typedef struct {
   union {
     int32_t v;   /**< 事件值 */
     void *p;      /**< 事件指向子类指针 */
-  } vaule;
+  } value;
   
   osEvent_Type type;  /**< 事件类型 */
 
