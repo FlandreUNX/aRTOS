@@ -99,7 +99,7 @@ typedef uint32_t  osTick_t;  /**< osTick最大计量 */
  */
 #define OS_SECTION(x)      __attribute__((section(x)))
 #define OS_WEEK            __weak
-#define OS_INLINE          static __inline
+#define OS_INLINE          __inline
 #define OS_NO_RETURN       int __declspec(noreturn)
 
 /**

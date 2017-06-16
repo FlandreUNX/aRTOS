@@ -300,7 +300,7 @@ void mKey_Scan(void) {
  *
  *  @return mKey_Bitmap_t 按键bitmap
  */
-__inline mKey_Bitmap_t mKey_Get(void) {                         
+static OS_INLINE mKey_Bitmap_t mKey_Get(void) {                         
   return KeyBufferOut();
 }
 
@@ -312,7 +312,7 @@ __inline mKey_Bitmap_t mKey_Get(void) {
  *
  *  @return uint8_t 返回结果
  */
-__inline uint8_t mKey_IsHit(void) {
+OS_INLINE uint8_t mKey_IsHit(void) {
   return keyNRead > 0 ? 1 : 0;
 }
 
