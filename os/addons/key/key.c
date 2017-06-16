@@ -31,14 +31,6 @@
 #include "./key.h"
 
 /**
- * @addtogroup system
- */
-
-/*@{*/
-
-/*@}*/ 
-
-/**
  * @addtogroup Key var
  */
  
@@ -196,7 +188,7 @@ static mKey_Bitmap_t KeyBufferOut(void) {
  */
 static void KeyBufferIn(mKey_Bitmap_t code) {    
 	/*buf满则放弃最早的一个按键值*/
-	if(keyNRead >= KEY_BUFFER_SIZE) {               
+	if (keyNRead >= KEY_BUFFER_SIZE) {               
 		KeyBufferOut();                                                 
 	}
 
@@ -248,9 +240,9 @@ void mKey_Scan(void) {
 		keyPressTmr--;
 		
 		/*长按判断周期到,保存相应长按键值*/
-		if(!keyPressTmr) {
+		if (!keyPressTmr) {
 			/*长按键-连发模式*/
-			if(nowReadKey & ~(KEY_LONG_SHIFT)) {
+			if (nowReadKey & ~(KEY_LONG_SHIFT)) {
 #if USE_SHIFT_KEY == 1
 				KeyBufferIn(nowReadKey | keyShift);
 #else
@@ -281,7 +273,7 @@ void mKey_Scan(void) {
 	
 	/*短按键判断*/
 	if (keyRelease) {
-		if(keyRelease & (~keyMask)) {
+		if (keyRelease & (~keyMask)) {
 			/*shift按键码(边缘触发)*/
 #if USE_SHIFT_KEY == 1
 			keyShift ^= (keyRelease & (KEY_SHIFT));
@@ -290,8 +282,8 @@ void mKey_Scan(void) {
 #else
 			KeyBufferIn(keyRelease);
 #endif
-			
-		}else{
+		}
+		else {
 			keyMask = 0;
 		}
 	}
@@ -318,10 +310,10 @@ __inline mKey_Bitmap_t mKey_Get(void) {
  *
  *  @param none
  *
- *  @return bool 返回结果
+ *  @return uint8_t 返回结果
  */
-__inline bool mKey_IsHit(void) {
-  return (bool)(keyNRead > 0) ? true : false;
+__inline uint8_t mKey_IsHit(void) {
+  return keyNRead > 0 ? 1 : 0;
 }
 
 /*@}*/

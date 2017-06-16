@@ -31,8 +31,25 @@
 #ifndef KEY_H_
 #define KEY_H_
 
-#include <stdbool.h>
+/**
+ * @addtogroup std C lib include
+ */
+
+/*@{*/
+
 #include <stdint.h>
+
+/*@}*/
+
+/**
+ * @addtogroup os include
+ */
+
+/*@{*/
+
+#include "../../arch/platform.h"
+
+/*@}*/
 
 /**
  * @addtogroup Key function configure
@@ -61,16 +78,16 @@
 #if LONG_KEY_EN == 1
 /**
  *  长按键判断周期
- *  @note none
+ *  @note 按键扫描周期 * KEY_PRESS_DLY = 长按判定
  */
-#define KEY_PRESS_DLY     (20)  /**< 按键扫描周期 * KEY_PRESS_DLY = 长按判定 */
+#define KEY_PRESS_DLY     (20)
 
 /*长按键有效周期*/
 /**
  *  长按键判断周期
- *  @note none
+ *  @note 按键扫描周期 * KEY_PRESS_TMR = 长按发射一次
  */
-#define KEY_PRESS_TMR     (3)   /**< 按键扫描周期 * KEY_PRESS_TMR = 长按发射一次 */
+#define KEY_PRESS_TMR     (3)
 #endif
 
 /**
@@ -106,17 +123,17 @@ typedef uint32_t mKey_Bitmap_t;
  *  普通按键
  *  @note none
  */
-#define KEY_OK_FLAG       (mKey_Bitmap_t) 0x01
-#define KEY_MENU_FLAG     (mKey_Bitmap_t) 0x02
-#define KEY_UP_FLAG       (mKey_Bitmap_t) 0x04
-#define KEY_DOWN_FLAG     (mKey_Bitmap_t) 0x08
+#define KEY_OK_FLAG       (mKey_Bitmap_t)0x01
+#define KEY_MENU_FLAG     (mKey_Bitmap_t)0x02
+#define KEY_UP_FLAG       (mKey_Bitmap_t)0x04
+#define KEY_DOWN_FLAG     (mKey_Bitmap_t)0x08
 
 /**
  *  shift按键
  *  @note none
  */
 #if USE_SHIFT_KEY == 1
-#define KEY_SHIFT     (mKey_Bitmap_t) 0x10
+#define KEY_SHIFT     (mKey_Bitmap_t)0x10
 #endif
 
 /**
@@ -130,8 +147,8 @@ typedef uint32_t mKey_Bitmap_t;
  *  长按消息定义
  *  @note 短按键的反码
  */
-#define KEY_OK_LONG_FLAG    (mKey_Bitmap_t) 0xFE
-#define KEY_MENU_LONG_FLAG  (mKey_Bitmap_t) 0xFD
+#define KEY_OK_LONG_FLAG    (mKey_Bitmap_t)0xFE
+#define KEY_MENU_LONG_FLAG  (mKey_Bitmap_t)0xFD
 #endif
 
 /*@}*/
@@ -166,7 +183,7 @@ extern void mKey_Scan(void);
 
 extern mKey_Bitmap_t mKey_Get(void);
 
-extern bool mKey_IsHit(void);
+extern uint8_t mKey_IsHit(void);
 
 /*@}*/
 
