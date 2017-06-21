@@ -84,8 +84,8 @@ extern void console_PortOutput(const char *log, uint16_t size);
 /*@{*/
 
 /**
- *  log输出优先级描述符字符串
- *  @note none
+ * log输出优先级描述符字符串
+ * @note none
  */
 const char* logLevelString[6] = {
   [Log_A] = "\033[0;33mAssert\033[0m",   /**< 棕色 */
@@ -97,26 +97,26 @@ const char* logLevelString[6] = {
 };
 
 /**
- *  输出缓冲器
- *  @note none
+ * 输出缓冲器
+ * @note none
  */
 char outputBuffer[OUTPUT_BUFFER_SIZE] = {0};
 
 /**
- *  log输出等级过滤
- *  @note none
+ * log输出等级过滤
+ * @note none
  */
 Log_Level log_LevelFiter = log_V;
 
 /**
- *  log输出等级屏蔽mask
- *  @note 标记则为允许输出
+ * log输出等级屏蔽mask
+ * @note 标记则为允许输出
  */
 uint8_t log_LevelMask = 0x00;
 
 /**
- *  log状态
- *  @note bit7:使能状态|bit6:锁状态
+ * log状态
+ * @note bit7:使能状态|bit6:锁状态
  */
 uint8_t log_State = 0x80;
 

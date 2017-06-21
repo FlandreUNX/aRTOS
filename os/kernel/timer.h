@@ -52,8 +52,8 @@
 /*@{*/
 
 /**
- *  定时器运行模式
- *  @note none
+ * 定时器运行模式
+ * @note none
  */
 #if USING_SOFT_TIMER == 1
   typedef enum {
@@ -68,8 +68,8 @@
 
   
 /**
- *  定时器循环模式
- *  @note none
+ * 定时器循环模式
+ * @note none
  */
 typedef enum {
   osTimerOnce = 0x01,     /**< 单次模式 */
@@ -86,8 +86,8 @@ typedef enum {
 
 
 /**
- *  Timer运行状态
- *  @note none
+ * Timer运行状态
+ * @note none
  */
 typedef enum {
   osTimerRunning = 0x01,     /**< 正在运行 */
@@ -122,8 +122,8 @@ typedef struct osTimer {
 
 
 /**
- *  Timer全局句柄
- *  @note none
+ * Timer全局句柄
+ * @note none
  */
 typedef osTimer_Attr_t* osTimer_ID;
 

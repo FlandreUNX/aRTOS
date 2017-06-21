@@ -58,15 +58,15 @@
 /*@{*/
 
 /**
- *  输出缓冲器大小
- *  @note none
+ * 输出缓冲器大小
+ * @note none
  */
 #define OUTPUT_BUFFER_SIZE    (128)
 
 
 /**
- *  输出结尾自动换行
- *  @note none
+ * 输出结尾自动换行
+ * @note none
  */
 #define LOG_AUTO_NEWLINE      (1)
 
@@ -116,8 +116,8 @@
 /*@{*/
 
 /**
- *  log输出优先级描述符
- *  @note none
+ * log输出优先级描述符
+ * @note none
  */
 typedef enum {
   Log_A = 0,
@@ -137,14 +137,14 @@ typedef enum {
 /*@{*/
 
 /**
- *  使能/失能LOG整体输出
- *  @note none
+ * 使能/失能LOG整体输出
+ * @note none
  */
 #define AD_LOG_CEN      0x80
 
 /**
- *  LOG锁状态
- *  @note 启动锁即其余线程无法输出LOG
+ * LOG锁状态
+ * @note 启动锁即其余线程无法输出LOG
  */
 #define AD_LOG_LOCKER   0x40
 

@@ -62,21 +62,21 @@
 /*@{*/
 
 /**
- *  硬定时器计时循环队列
- *  @note none
+ * 硬定时器计时循环队列
+ * @note none
  */
 struct osList_t timer_HardList;
 
 #if USING_SOFT_TIMER == 1
 /**
- *  软定时器计时循环队列
- *  @note none
+ * 软定时器计时循环队列
+ * @note none
  */
 struct osList_t timer_softList;
 
 /**
- *  软定时器计时线程
- *  @note none
+ * 软定时器计时线程
+ * @note none
  */
 osThread_Id timer_SoftThreadID;
 extern OS_NO_RETURN os_SoftTimer_Thread(void *argument);

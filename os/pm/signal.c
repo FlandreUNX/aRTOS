@@ -50,13 +50,13 @@
 /*@{*/
 
 /**
- *  设置线程信号
+ * 设置线程信号
  *
- *  @param target_Id 目标线程Id
- *  @param signal 信号值
- *  @param wait 堵塞等待时间 
+ * @param target_Id 目标线程Id
+ * @param signal 信号值
+ * @param wait 堵塞等待时间 
  * 
- *  @retval 操作结果
+ * @retval 操作结果
  */
 osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick_t wait) {
   osSche_Lock();
@@ -68,11 +68,11 @@ osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick_t wait
 
 
 /**
- *  获取信号
+ * 获取信号
  *
- *  @param wait 堵塞等待时间 
+ * @param wait 堵塞等待时间 
  * 
- *  @retval 返回具体事件信息
+ * @retval 返回具体事件信息
  */
 osEvent_t osSignal_Wait(osTick_t wait) {
   osEvent_t retEvent;

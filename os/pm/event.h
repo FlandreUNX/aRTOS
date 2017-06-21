@@ -49,8 +49,8 @@
 /*@{*/
 
 /**
- *  event 类型描述符
- *  @note 描述存在的event类型
+ * event 类型描述符
+ * @note 描述存在的event类型
  */
 typedef enum {
   osEventSignal,   /**< 信号类 */
@@ -59,19 +59,19 @@ typedef enum {
 
 
 /**
- *  event 状态描述符
- *  @note 描述event的状态
+ * event 状态描述符
+ * @note 描述event的状态
  */
 typedef enum {
   /**
-   *  Thread->event状态
+   * Thread->event状态
    */
   osEvent_sSet,         /**< 线程事件被置位 */
   osEvent_sWait,        /**< 线程正在等待事件 */
   osEvent_sIDLE,        /**< 线程事件空闲中 */
   
   /**
-   *  输出Event_t通用状态
+   * 输出Event_t通用状态
    */
   osEvent_sOK,          /**< 无错误 */
   osEvent_sTimeout,     /**< 等待超时 */

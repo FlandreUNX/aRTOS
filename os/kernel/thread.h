@@ -50,14 +50,14 @@
 /*@}*/
 
 /**
- *  @addtogroup Thread标志符
+ * @addtogroup Thread标志符
  */
  
 /*@{*/
 
 /**
- *  Thread状态
- *  @note 用于标记线程运行状态
+ * Thread状态
+ * @note 用于标记线程运行状态
  */
 typedef enum {
   osThreadReady,      /**< 就绪 */
@@ -70,18 +70,18 @@ typedef enum {
 /*@}*/
 
 /**
- *  @addtogroup Thread描述符
+ * @addtogroup Thread描述符
  */
  
 /*@{*/
 
 /**
- *  Thread描述符
- *  @note none
+ * Thread描述符
+ * @note none
  */
 typedef struct Thread_Attr {
   /**
-   *  Thread堆栈储存指针
+   * Thread堆栈储存指针
    */
   volatile void *stackTop;      /**< Thread栈顶指针 */
   void *stackEnd;      /**< Thread栈底指针 */
@@ -91,7 +91,7 @@ typedef struct Thread_Attr {
   void *arguments;    /**< Thread主体变量 */
 
   /**
-   *  Thread优先级
+   * Thread优先级
    */
   uint8_t priority;   /**< 优先级 */
 
@@ -107,12 +107,12 @@ typedef struct Thread_Attr {
 #endif
   
   /**
-   *  事件相关
+   * 事件相关
    */
   osEvent_t event;
 
   /**
-   *  其他属性
+   * 其他属性
    */
   struct osList_t list;    /**< 链表节点 */
 
@@ -126,15 +126,15 @@ typedef struct Thread_Attr {
 
 
 /**
- *  Thread全局句柄
- *  @note none
+ * Thread全局句柄
+ * @note none
  */
 typedef osThread_Attr_t* osThread_Id;
 
 /*@}*/
 
 /**
- *  @addtogroup thread user functions
+ * @addtogroup thread user functions
  */
  
 /*@{*/

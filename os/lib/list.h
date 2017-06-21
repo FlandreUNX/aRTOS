@@ -77,7 +77,7 @@ struct osList_t {
  * 
  * @retval none
  */
-OS_INLINE void __DROP__ListAdd(struct osList_t* new_lst, struct osList_t* previous_list, struct osList_t* next_list) {
+static OS_INLINE void __DROP__ListAdd(struct osList_t* new_lst, struct osList_t* previous_list, struct osList_t* next_list) {
 	next_list->previous = new_lst;
 	new_lst->next = next_list;
 	new_lst->previous = previous_list;
@@ -93,7 +93,7 @@ OS_INLINE void __DROP__ListAdd(struct osList_t* new_lst, struct osList_t* previo
  * 
  * @retval none
  */
-OS_INLINE void __DROP__Delete(struct osList_t* prev, struct osList_t* next) {
+static OS_INLINE void __DROP__Delete(struct osList_t* prev, struct osList_t* next) {
 	next->previous = prev;
 	prev->next = next;
 }
@@ -169,7 +169,7 @@ OS_INLINE void __DROP__Delete(struct osList_t* prev, struct osList_t* next) {
  * 
  * @retval none
  */	
-OS_INLINE void osList_HeadInit(struct osList_t* head) {
+static OS_INLINE void osList_HeadInit(struct osList_t* head) {
 	head->next = head;
 	head->previous = head;
 }
@@ -183,7 +183,7 @@ OS_INLINE void osList_HeadInit(struct osList_t* head) {
  * 
  * @retval none
  */	
-OS_INLINE void osList_AddTail(struct osList_t* list, struct osList_t* newNode) {
+static OS_INLINE void osList_AddTail(struct osList_t* list, struct osList_t* newNode) {
 	//__ListAdd(node, list->previous, list);
   list->previous->next = newNode;
   newNode->previous = list->previous;
@@ -218,7 +218,7 @@ OS_INLINE void osList_Add(struct osList_t* list, struct osList_t* newNode) {
  * 
  * @retval none
  */	
-OS_INLINE void osList_DeleteNode(struct osList_t* node) {
+static OS_INLINE void osList_DeleteNode(struct osList_t* node) {
 	node->next->previous = node->previous;
 	node->previous->next = node->next;
 
@@ -234,7 +234,7 @@ OS_INLINE void osList_DeleteNode(struct osList_t* node) {
  * 
  * @retval bool
  */	
-OS_INLINE int osList_CheckIsLast(struct osList_t* head, struct osList_t* node) {
+static OS_INLINE int osList_CheckIsLast(struct osList_t* head, struct osList_t* node) {
 	return (node->next == head);
 }
 
@@ -246,7 +246,7 @@ OS_INLINE int osList_CheckIsLast(struct osList_t* head, struct osList_t* node) {
  * 
  * @retval bool
  */	
-OS_INLINE int osList_CheckIsEmpty(struct osList_t* head) {
+static OS_INLINE int osList_CheckIsEmpty(struct osList_t* head) {
 	return (head->next == head);
 }
 
@@ -259,7 +259,7 @@ OS_INLINE int osList_CheckIsEmpty(struct osList_t* head) {
  * 
  * @retval none
  */	
-OS_INLINE void osList_Move(struct osList_t* head, struct osList_t* node) {
+static OS_INLINE void osList_Move(struct osList_t* head, struct osList_t* node) {
 	osList_DeleteNode(node);
 	osList_Add(node, head);
 }
@@ -273,7 +273,7 @@ OS_INLINE void osList_Move(struct osList_t* head, struct osList_t* node) {
  * 
  * @retval none
  */	
-OS_INLINE void osList_MoveTail(struct osList_t* head, struct osList_t* node) {
+static OS_INLINE void osList_MoveTail(struct osList_t* head, struct osList_t* node) {
 	osList_DeleteNode(node);
 	osList_AddTail(node, head);
 }
@@ -287,7 +287,7 @@ OS_INLINE void osList_MoveTail(struct osList_t* head, struct osList_t* node) {
  * 
  * @retval none
  */	
-OS_INLINE void osList_Splice(struct osList_t* head, struct osList_t* list) {
+static OS_INLINE void osList_Splice(struct osList_t* head, struct osList_t* list) {
 	if (!osList_CheckIsEmpty(list)) {
 		struct osList_t *first = list->next;
 		struct osList_t *last = list->previous;
