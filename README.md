@@ -1,6 +1,6 @@
 aRTOS
 ===
-学习用途的RTOS,并没有啥性能可言...<br>
+
 <br>
 # 性能<br>
 ## Memory<br>
