@@ -1,6 +1,7 @@
 aRTOS
 ===
- A Real-time operating system
+'aRTOS' A Real-time Operating System
+  2015 - 2017 Copyright by FlandreUNX
 <br>
 # 性能<br>
 ## Memory<br>
