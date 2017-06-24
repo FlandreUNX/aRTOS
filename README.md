@@ -1,7 +1,7 @@
 aRTOS
 ===
-'aRTOS' A Real-time Operating System
-  2015 - 2017 Copyright by FlandreUNX
+'aRTOS' A Real-time Operating System <br>
+2015 - 2017 Copyright by FlandreUNX <br>
 <br>
 # 性能<br>
 ## Memory<br>
