@@ -1,10 +1,10 @@
 aRTOS
 ===
-
+ A Real-time operating system
 <br>
 # 性能<br>
 ## Memory<br>
-*   采用buddy内存管理模型,可配置管理范围
+*   采用buddy内存管理模型,可配置管理范围
 ## Thread<br>
 *   线程描述符编译占用RW-Data,堆栈属于内存管理器Heap动态分配
 ## Timer<br>
