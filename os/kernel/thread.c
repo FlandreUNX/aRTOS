@@ -295,12 +295,13 @@ void osThread_Yield(void) {
   
   if (thread->state == osThreadReady || 
     thread->state == osThreadRunning) {
-      /*就绪任务*/
-      thread->state = osThreadReady;
-        
-      /*线程移至调度器容器末尾*/
-      osList_DeleteNode(&(thread->list));
-      osList_AddTail(&(sche_ReadyList[thread->priority]), &(thread->list));
+      
+    /*就绪任务*/
+    thread->state = osThreadReady;
+      
+    /*线程移至调度器容器末尾*/
+    osList_DeleteNode(&(thread->list));
+    osList_AddTail(&(sche_ReadyList[thread->priority]), &(thread->list));
   }
 
   /*开中断*/
@@ -320,6 +321,10 @@ EXPORT_SYMBOL(osThread_Yield);
  * @retval none
  */
 void osThread_Delay(osTick_t tick) {
+  if (tick == 0) {
+    return;
+  }
+  
   /*关中断*/
   hal_DisableINT();
 
@@ -333,12 +338,12 @@ void osThread_Delay(osTick_t tick) {
 
   /*设置堵塞tick*/
   osTimer_Start(&(thread->timer), tick);
+  
+    /*开中断*/
+  hal_EnableINT();
 
   /*进行一次调度*/
   sche_ToNextThread();
-
-  /*开中断*/
-  hal_EnableINT();
 }
 
 /*@}*/

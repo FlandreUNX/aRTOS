@@ -75,6 +75,7 @@ typedef enum {
    */
   osEvent_sOK,          /**< 无错误 */
   osEvent_sTimeout,     /**< 等待超时 */
+  osEvent_sUnTarget,    /**< 非本信号 */
   osEvent_sUnkwn        /**< 未知错误 */
 } osEvent_Status;
 

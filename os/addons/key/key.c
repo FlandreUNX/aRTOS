@@ -31,40 +31,93 @@
 #include "./key.h"
 
 /**
+ * @addtogroup hal
+ */
+ 
+/*@{*/
+
+#include "stm32f7xx.h"                  // Device header
+
+/*@}*/
+
+/**
+ * @addtogroup os include
+ */
+
+/*@{*/
+
+#include "../../arch/platform.h"
+
+#include "../../lib/list.h"
+
+#include "../../osAPI.h"
+
+/*@}*/
+
+/**
+ * @addtogroup add ons
+ */
+ 
+/*@{*/
+
+#include "addons/console/console.h"
+
+/*@}*/
+
+/**
  * @addtogroup Key var
  */
  
 /*@{*/
 
 /**
- *  前次按键扫描值
- *  @note none
+ * 前次按键扫描值
+ * @note none
  */
 static mKey_Bitmap_t preScanKey = 0;                     
 
 /**
- *  前次按键读取值
- *  @note none
+ * 前次按键读取值
+ * @note none
  */
 static mKey_Bitmap_t preReadKey = 0;  
 
-#if USE_SHIFT_KEY == 1
 /**
- *  shift按键记录
- *  @note none
- */
-static mKey_Bitmap_t keyShift = 0;
-#endif
-
-/**
- *  按键掩码
- *  @note none
+ * 按键掩码
+ * @note none
  */
 static mKey_Bitmap_t keyMask = 0;
 
-#if LONG_KEY_EN == 1
-static mKey_Bitmap_t keyPressTmr = KEY_PRESS_DLY;
+#if USE_SHIFT_KEY == 1
+/**
+ * shift按键记录
+ * @note none
+ */
+static mKey_Bitmap_t keyShift = 0;
+
+/**
+ * shift按键对象
+ * @note none
+ */
+static mKeyDef_t key_ShiftObj = {
+  .port = 0,
+  .value = 0x01
+};
 #endif
+
+static mKey_Bitmap_t keyPressTmr = KEY_PRESS_DLY;
+
+/**
+ * 长按键编码掩码
+ * @note none
+ */
+static mKey_Bitmap_t key_LongMask;
+
+/**
+ * 按键对象集合
+ * @note none
+ */
+static struct osList_t keysList;
 
 /*@}*/
 
@@ -75,24 +128,26 @@ static mKey_Bitmap_t keyPressTmr = KEY_PRESS_DLY;
 /*@{*/
 
 /**
- *  环形buf
- *  @note none
+ * 环形buf
+ * @note none
  */
 static mKey_Bitmap_t keyBuf[KEY_BUFFER_SIZE];
+
 /**
- *  buf入指针
- *  @note none
+ * buf入指针
+ * @note none
  */
-static mKey_Bitmap_t keyBufInIx = 0;      
+static mKey_Bitmap_t keyBufInIx = 0;    
+
 /**
- *  buf出指针
- *  @note none
+ * buf出指针
+ * @note none
  */
 static mKey_Bitmap_t keyBufOutIx = 0; 
 
 /**
- *  buf中按键数量
- *  @note none
+ * buf中按键数量
+ * @note none
  */
 static mKey_Bitmap_t keyNRead = 0;
 
@@ -105,53 +160,37 @@ static mKey_Bitmap_t keyNRead = 0;
 /*@{*/
 
 /**
- *  读取一次GPIO状态
+ * 读取一次GPIO状态
  *
- *  @param none
+ * @param none
  *
- *  @return uint8_t key扫描结果
+ * @return uint8_t key扫描结果
  */
-OS_INLINE mKey_Bitmap_t GPIORead(void) {
+static OS_INLINE mKey_Bitmap_t GPIORead(void) {
   mKey_Bitmap_t keyScanCode = 0;
+  mKeyDef_t *obj;
+  struct osList_t *index;
 
-  keyScanCode |= GPIOF->IDR & GPIO_Pin_1 ? 0 : KEY_OK_FLAG;
-  keyScanCode |= GPIOA->IDR & GPIO_Pin_0 ? 0 : KEY_MENU_FLAG;
-  keyScanCode |= GPIOA->IDR & GPIO_Pin_1 ? 0 : KEY_DOWN_FLAG;
-  keyScanCode |= GPIOA->IDR & GPIO_Pin_2 ? 0 : KEY_UP_FLAG;
+#if USE_SHIFT_KEY == 1
+  keyScanCode |= ((((GPIO_TypeDef *)key_ShiftObj.port)->IDR) & key_ShiftObj.gpio) ? (key_ShiftObj.level ? key_ShiftObj.value : 0) : (key_ShiftObj.level ? 0 : key_ShiftObj.value);
+#endif
+
+  osList_ForEach(index, &keysList) {
+    obj = osList_Entry(index, mKeyDef_t, list);
+    
+    keyScanCode |= ((((GPIO_TypeDef *)obj->port)->IDR) & obj->gpio) ? (obj->level ? obj->value : 0) : (obj->level ? 0 : obj->value);
+  }  
 
   return keyScanCode;
 }
 
 
 /**
- *  初始化GPIO
+ * 读取缓冲区中按键信息
  *
- *  @param none
+ * @param none
  *
- *  @return none
- */
-void mKey_InterfaceInit(void) {
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOF, ENABLE);
-  
-  GPIO_InitTypeDef gpio;
-  gpio.GPIO_Mode = GPIO_Mode_IN;
-  gpio.GPIO_Pin = GPIO_Pin_1;
-  gpio.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(GPIOF, &gpio);
-  
-  gpio.GPIO_Mode = GPIO_Mode_IN;
-  gpio.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2;
-  gpio.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(GPIOA, &gpio);
-}
-
-
-/**
- *  读取缓冲区中按键信息
- *
- *  @param none
- *
- *  @return mKey_Bitmap_t key
+ * @return mKey_Bitmap_t key
  */
 static mKey_Bitmap_t KeyBufferOut(void) {
 	mKey_Bitmap_t code = 0;
@@ -165,7 +204,7 @@ static mKey_Bitmap_t KeyBufferOut(void) {
 		keyBufOutIx++;
 		
 		/*buf满则指针循环回到起点*/
-		if (keyBufOutIx >= KEY_BUFFER_SIZE) {         
+		if (keyBufOutIx >= KEY_BUFFER_SIZE) {
 			keyBufOutIx = 0;
 		}
 		
@@ -180,11 +219,11 @@ static mKey_Bitmap_t KeyBufferOut(void) {
 
 
 /**
- *  写入一个按键信息到缓冲区
+ * 写入一个按键信息到缓冲区
  *
- *  @param none
+ * @param none
  *
- *  @return none
+ * @return none
  */
 static void KeyBufferIn(mKey_Bitmap_t code) {    
 	/*buf满则放弃最早的一个按键值*/
@@ -205,13 +244,13 @@ static void KeyBufferIn(mKey_Bitmap_t code) {
 
 
 /**
- *  周期扫描按键
+ * 周期扫描按键
  *
- *  @param none
+ * @param none
  *
- *  @return none
+ * @return none
  */
-void mKey_Scan(void) {
+static void mKey_Scan(void) {
 	/*当前按键值扫描值*/
 	mKey_Bitmap_t nowScanKey = 0;
 	/*当前按键值*/
@@ -234,7 +273,6 @@ void mKey_Scan(void) {
 	/*下降沿触发*/
 	keyRelease = (preReadKey & (nowReadKey ^ preReadKey));
 
-#if LONG_KEY_EN == 1      
 	/*用电平触发做长按键的有效判据*/
 	if (nowReadKey == preReadKey && nowReadKey) {
 		keyPressTmr--;
@@ -242,7 +280,7 @@ void mKey_Scan(void) {
 		/*长按判断周期到,保存相应长按键值*/
 		if (!keyPressTmr) {
 			/*长按键-连发模式*/
-			if (nowReadKey & ~(KEY_LONG_SHIFT)) {
+			if (nowReadKey & ~(key_LongMask)) {
 #if USE_SHIFT_KEY == 1
 				KeyBufferIn(nowReadKey | keyShift);
 #else
@@ -251,7 +289,7 @@ void mKey_Scan(void) {
 			}
 			
 			/*长按键-反码模式*/
-			else if (nowReadKey & (KEY_LONG_SHIFT) & ~keyMask ) {
+			else if (nowReadKey & (key_LongMask) & ~keyMask) {
 #if USE_SHIFT_KEY == 1
 				KeyBufferIn(~(nowReadKey | keyShift));  
 #else
@@ -269,14 +307,13 @@ void mKey_Scan(void) {
 		/*按键变化,重置按键判断周期*/
 		keyPressTmr = KEY_PRESS_DLY;
 	}
-#endif
 	
 	/*短按键判断*/
 	if (keyRelease) {
 		if (keyRelease & (~keyMask)) {
 			/*shift按键码(边缘触发)*/
 #if USE_SHIFT_KEY == 1
-			keyShift ^= (keyRelease & (KEY_SHIFT));
+			keyShift ^= (keyRelease & (key_ShiftObj.keyValue));
       
 			KeyBufferIn(keyRelease | keyShift);
 #else
@@ -294,11 +331,11 @@ void mKey_Scan(void) {
 
 
 /**
- *  获取按键
+ * 获取按键
  *
- *  @param none
+ * @param none
  *
- *  @return mKey_Bitmap_t 按键bitmap
+ * @return mKey_Bitmap_t 按键bitmap
  */
 static OS_INLINE mKey_Bitmap_t mKey_Get(void) {                         
   return KeyBufferOut();
@@ -306,14 +343,165 @@ static OS_INLINE mKey_Bitmap_t mKey_Get(void) {
 
 
 /**
- *  判断是否有按键按下
+ * 判断是否有按键按下
  *
- *  @param none
+ * @param none
  *
- *  @return uint8_t 返回结果
+ * @return uint8_t 返回结果
  */
-OS_INLINE uint8_t mKey_IsHit(void) {
+static OS_INLINE uint8_t mKey_IsHit(void) {
   return keyNRead > 0 ? 1 : 0;
+}
+
+/*@}*/
+
+/**
+ * @addtogroup Key Thread def
+ */
+ 
+/*@{*/
+
+#if OS_DEBUG_MODE == 1
+uint32_t mKey_Count = 0;
+#endif
+
+osThread_FuncDef(thread_mKey) {
+  mKey_Bitmap_t keyGet;
+  
+  mKeyDef_t *obj;
+  struct osList_t *index;
+  
+#if OS_DEBUG_MODE == 1
+  mLog_ThreadPrintf(Log_I, "mKey", 0, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
+#endif
+  
+  for (;;) {
+#if OS_DEBUG_MODE == 1
+    mKey_Count++;
+#endif    
+    
+    osThread_Delay(30);
+    
+    osSche_Lock();
+    
+    mKey_Scan();
+  
+    if (!mKey_IsHit()) {
+      osSche_Unlock();
+      
+      continue;
+    }
+  
+    keyGet = mKey_Get();
+    
+    osList_ForEach(index, &keysList) {
+      obj = osList_Entry(index, mKeyDef_t, list);
+      if (obj->callback) {
+        obj->callback(obj, keyGet);
+      }
+    }
+    osSche_Unlock();
+  }
+}
+osThread_Def(thread_mKey, KEY_THREAD_PRIORITY, KEY_THREAD_STACK_SIZE, thread_mKey);
+osThread_Id thread_mKey_ID;
+
+/*@}*/
+
+/**
+ * @addtogroup mKey user functions
+ */
+ 
+/*@{*/
+
+/**
+ * 按键模块启动
+ *
+ * @param none
+ *
+ * @return none
+ */
+void mKey_ModuleStartup(void) {
+#if USE_SHIFT_KEY == 1
+  /*检查shift是否初始化*/
+  if (!key_ShiftObj.port) {
+    for (;;);
+  }
+#endif
+  
+  osList_HeadInit(&keysList);
+
+  thread_mKey_ID = osThread_Create(osThread_Obj(thread_mKey), (void *)0);
+  osThread_Ready(thread_mKey_ID);
+}
+
+
+#if USE_SHIFT_KEY == 1
+/**
+ * shift按键初始化
+ *
+ * @param port
+ * @param gpio 
+ *
+ * @return none
+ */
+void mKey_ShiftKeySet(uint32_t port, uint32_t gpio, uint8_t level) {
+  key_ShiftObj.port = port;
+  key_ShiftObj.gpio = gpio;
+  key_ShiftObj.level = level;
+}
+#endif
+
+
+/**
+ * 按键对象插入
+ *
+ * @param obj 按键对象指针
+ *
+ * @return none
+ */
+void mKey_ObjInsert(mKeyDef_t *obj) {
+  osSche_Lock(); {
+    osList_HeadInit(&obj->list);
+    osList_AddTail(&keysList, &obj->list);
+    
+    if (obj->type & KEY_TYPE_LONG) {
+      key_LongMask |= obj->value;
+      obj->valueLong = ~obj->value;
+    }
+  } osSche_Unlock();
+}
+
+
+/**
+ * 判断按键是否输出类型(短/长按/shift)
+ *
+ * @param obj 按键对象指针
+ *
+ * @return 类型
+ */
+uint8_t mKey_GetPressType(mKeyDef_t *obj, mKey_Bitmap_t vaule) {
+#if USE_SHIFT_KEY == 1
+  if (vaule == obj->value) {
+    return KEY_IS_SP;
+  }
+  else if (vaule == (~(obj->vaule | key_ShiftObj.vaule))) {
+    return KEY_IS_SLP;
+  }
+  else if (vaule == (obj->vaule | key_ShiftObj.vaule)) {
+    return KEY_IS_SSP;
+  }
+  else {
+    return KEY_IS_LP;
+  }
+#else
+  if (obj->value == vaule) {
+    return KEY_IS_SP;
+  }
+  else {
+    return KEY_IS_LP;
+  }
+#endif
 }
 
 /*@}*/

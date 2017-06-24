@@ -57,6 +57,8 @@
 /*@{*/
 
 #include "addons/console/console.h"
+#include "addons/key/key.h"
+
 #include "../osInfo.h"
 
 /*@}*/
@@ -138,6 +140,7 @@ void osSys_KernelStartup(void) {
  */
 void osSys_ModulesInit(void) {
   mConsole_Init();
+  mKey_ModuleStartup();
   
   /**
    *  欢迎界面

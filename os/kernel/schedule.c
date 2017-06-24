@@ -70,7 +70,7 @@
  *  osSystick计数
  *  @note none
  */
-static volatile osTick_t sys_TickCount;
+static osTick_t sys_TickCount;
 
 /*@}*/
 
@@ -173,6 +173,13 @@ struct osList_t sche_NoReadyList;
  
 /*@{*/
 
+/**
+ * 检测线程栈是否溢出
+ *
+ * @param thread 被检测线程
+ * 
+ * @retval none
+ */
 #if USING_STACK_OVERFLOW_CHECK
 void stackOverFlowCheck(osThread_Attr_t* thread) {
   if ((*((uint32_t *) thread->stackEnd)) != MAGIC_WORD) {
@@ -316,8 +323,8 @@ void sche_SetFirstThread(void) {
   register uint8_t pos;
 
   /**  
-   *  对L1 bitmap查询 分别查询4次 对应4字节 直接找出最小bit位(最高就绪) 
-   *  对应256bit的哪一大组(8个就绪组为一个大组)
+   * 对L1 bitmap查询 分别查询4次 对应4字节 直接找出最小bit位(最高就绪) 
+   * 对应256bit的哪一大组(8个就绪组为一个大组)
    */
   if (bitmap_L1 & 0xFF) {
     pos = BITMAP[bitmap_L1 & 0xFF];
@@ -376,8 +383,8 @@ void sche_ToNextThread(void) {
       register uint8_t pos;
 
       /**  
-       *  对L1 bitmap查询 分别查询4次 对应4字节 直接找出最小bit位(最高就绪) 
-       *  对应256bit的哪一大组(8个就绪组为一个大组)
+       * 对L1 bitmap查询 分别查询4次 对应4字节 直接找出最小bit位(最高就绪) 
+       * 对应256bit的哪一大组(8个就绪组为一个大组)
        */
       if (bitmap_L1 & 0xFF) {
         pos = BITMAP[bitmap_L1 & 0xFF];
@@ -414,7 +421,6 @@ void sche_ToNextThread(void) {
 
       /*标记线程状态*/
       sche_ThreadSwitchStatus.nextThread->state = osThreadRunning;
-      sche_ThreadSwitchStatus.nowThread->state = osThreadReady;
 
       /*调度Call*/
       hal_PendSVSet();

@@ -59,11 +59,52 @@
  * @retval 操作结果
  */
 osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick_t wait) {
-  osSche_Lock();
-  
   osThread_Attr_t *thread = target_Id;
+  
+  osSche_Lock();
 
-  return osEvent_sOK;
+  /*目标无事件等待*/
+  if (thread->event.type == osEventNull) {
+    thread->event.type = osEventSignal;
+    thread->event.value.v = signal;
+    
+    osSche_Unlock();
+  
+    return osEvent_sOK;
+  }
+  /*目标正在等待signal*/
+  else if (thread->event.type == osEventSignal) {
+    thread->event.value.v = signal;
+    
+    /*唤醒目标*/
+    osSche_Unlock();
+    osThread_Ready(thread);
+    
+    return osEvent_sOK;
+  }
+  /*线程存在其他事件*/
+  else {
+    /*延时*/
+    osSche_Unlock();
+    osThread_Delay(wait);
+    osSche_Lock();
+    
+    /*目标等待signal或者空闲*/
+    if (thread->event.type == osEventSignal || thread->event.type == osEventNull) {
+      thread->event.value.v = signal;
+      
+      /*唤醒目标*/
+      osSche_Unlock();
+      osThread_Ready(thread);
+
+      return osEvent_sOK;
+    }
+    else {
+      osSche_Unlock();
+      
+      return osEvent_sTimeout;
+    }
+  }
 }
 
 
@@ -84,70 +125,42 @@ osEvent_t osSignal_Wait(osTick_t wait) {
   osSche_Lock();
   
   osThread_Attr_t *self = osThread_Self();
-
-  /**
-   *  线程存在两个事件情况->wait/set
-   */
+    
+  /*线程event空闲,主动等待信号*/
+  if (self->event.type == osEventNull) {
+    self->event.type = osEventSignal;
+    self->event.value.v = 0;
   
-  /*线程被标记等待某事件*/
-  /*set一级情况包括other/signal*/
-  if (self->event.state == osEvent_sSet) {
-    if (self->event.type == osEventSignal) {
-      /*拉取信号*/
-      retEvent.value.v = self->event.value.v;
-    
-      /*清空本次事件*/
-      self->event.value.v = 0;
-      self->event.type = osEventNull;
-      self->event.state = osEvent_sIDLE;
-    }
-    /*线程被设置了其他事件*/
-    else {
-      osSche_Unlock();
-      if (wait == 0) {
-        retEvent.state = osEvent_sTimeout;
-      }
-      osThread_Delay(wait);
-      osSche_Lock();
-      
-      /**
-       *  延时后存在情况->IDLE/Other/Signal
-       *  IDLE\Other作为timeout处理
-       */
-      if (self->event.type == osEventSignal) {
-        retEvent.value.v = self->event.value.v;
-    
-        self->event.value.v = 0;
-        self->event.type = osEventNull;
-        self->event.state = osEvent_sIDLE;
-      }
-      else {
-        retEvent.state = osEvent_sTimeout;
-      }
-    }
-  }
-  /*线程主动等待事件*/
-  /*wait一级情况包括other/signal*/
-  else {
-    self->event.state = osEvent_sWait;
-    
+    /*延时*/
     osSche_Unlock();
-    if (wait == 0) {
-      retEvent.state = osEvent_sTimeout;
-    }
     osThread_Delay(wait);
     osSche_Lock();
     
-    if (self->event.type == osEventSignal) {
+    /*接受到信号*/
+    if (self->event.value.v) {
       retEvent.value.v = self->event.value.v;
-  
-      self->event.value.v = 0;
+      
       self->event.type = osEventNull;
-      self->event.state = osEvent_sIDLE;
+      self->event.value.v = 0;
     }
+    /*还是没信号*/
     else {
+      self->event.type = osEventNull;
+      self->event.value.v = 0;
+      
       retEvent.state = osEvent_sTimeout;
     }
+  }
+  /*线程已经存在signal事件*/
+  else if (self->event.type == osEventSignal) {
+    retEvent.value.v = self->event.value.v;
+
+    self->event.type = osEventNull;
+    self->event.value.v = 0;
+  }
+  /*线程存在其他事件*/
+  else {
+    retEvent.state = osEvent_sUnTarget;
   }
   
   osSche_Unlock();

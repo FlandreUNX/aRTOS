@@ -49,6 +49,12 @@
 
 #include "../../arch/platform.h"
 
+#include "../../lib/list.h"
+
+#include "../../kernel/thread.h"
+
+#include "../../osConfig.h"
+
 /*@}*/
 
 /**
@@ -64,37 +70,40 @@
 #define KEY_NUMBER        (4)
 
 /**
- *  是否使用长按键功能
- *  @note none
- */
-#define LONG_KEY_EN       (1)
-
-/**
  *  是否使用shift按键
  *  @note none
  */
 #define USE_SHIFT_KEY     (0)
 
-#if LONG_KEY_EN == 1
 /**
  *  长按键判断周期
  *  @note 按键扫描周期 * KEY_PRESS_DLY = 长按判定
  */
 #define KEY_PRESS_DLY     (20)
 
-/*长按键有效周期*/
 /**
  *  长按键判断周期
  *  @note 按键扫描周期 * KEY_PRESS_TMR = 长按发射一次
  */
 #define KEY_PRESS_TMR     (3)
-#endif
 
 /**
  *  按键缓冲区大小
  *  @note none
  */
 #define KEY_BUFFER_SIZE   (8)
+
+/**
+ *  按键后台线程的优先级
+ *  @note none
+ */
+#define KEY_THREAD_PRIORITY   (MAX_PRIORITY_LEVEL - 3)
+
+/**
+ *  按键后台线程的堆栈大小
+ *  @note none
+ */
+#define KEY_THREAD_STACK_SIZE   (512)
 
 /*@}*/
 
@@ -114,76 +123,94 @@ typedef uint32_t mKey_Bitmap_t;
 /*@}*/
 
 /**
- * @addtogroup Key static define
+ * @addtogroup Key object define
  */
  
 /*@{*/
 
 /**
- *  普通按键
- *  @note none
+ * key 类型
+ * @note 描述某key可触发的动作
  */
-#define KEY_OK_FLAG       (mKey_Bitmap_t)0x01
-#define KEY_MENU_FLAG     (mKey_Bitmap_t)0x02
-#define KEY_UP_FLAG       (mKey_Bitmap_t)0x04
-#define KEY_DOWN_FLAG     (mKey_Bitmap_t)0x08
+#define KEY_TYPE_SHORT     0x00  /**< 可短按连发 */
+#define KEY_TYPE_LONG      0x01  /**< 不可连发,长按 */
+
 
 /**
- *  shift按键
- *  @note none
+ * key 按下类型
+ * @note 描述某key触发的动作类型
  */
-#if USE_SHIFT_KEY == 1
-#define KEY_SHIFT     (mKey_Bitmap_t)0x10
-#endif
+#define KEY_IS_SP      0x00      /**< 短按 */
+#define KEY_IS_LP      0x01      /**< 长按 */
+#define KEY_IS_SSP     0x00      /**< shift + 短按 */
+#define KEY_IS_SLP     0x01      /**< shift + 长按 */
+
 
 /**
- *  支持长按反码的按键,未添加的则为长按连发按键
- *  @note 例如:0x01的长按键输出码为0xFE即,短按00000001->长按11111110
+ * key 触发电平类型
+ * @note none
  */
-#if LONG_KEY_EN == 1
-#define KEY_LONG_SHIFT    (KEY_OK_FLAG | KEY_MENU_FLAG)
+#define KEY_LEVEL_HIGHT     0x01  /**< 高电平触发 */
+#define KEY_LEVEL_LOW       0x00  /**< 低电平触发 */
+
 
 /**
- *  长按消息定义
- *  @note 短按键的反码
+ * key 对象
+ * @note 描述某key的配置
  */
-#define KEY_OK_LONG_FLAG    (mKey_Bitmap_t)0xFE
-#define KEY_MENU_LONG_FLAG  (mKey_Bitmap_t)0xFD
-#endif
+typedef struct mKeyDef {
+  uint8_t type;     /**< 按键类型 */
+  uint8_t level;    /**< 按键电平 */
+  
+  mKey_Bitmap_t value;       /**< 按键内部触发值 */
+  mKey_Bitmap_t valueLong;   /**< 按键长按内部触发值 */
+  
+  uint32_t port;  /**< 按键port */
+  uint32_t gpio;  /**< 按键GPIO */
+  
+  void (*callback)(void *obj, mKey_Bitmap_t value);  /**< 按键触发回调 */
+  
+  struct osList_t list;   /**< 对象链表头 */
+} mKeyDef_t;
 
 /*@}*/
 
 /**
- * @addtogroup 按键 signal event
+ * @addtogroup Key addons functions
  */
  
 /*@{*/
 
-#define KEY_OK_SIGNAL           0x20
-#define KEY_MENU_SIGNAL         0x21
-#define KEY_UP_SIGNAL           0x22
-#define KEY_DOWN_SIGNAL         0x23
+/**
+ * key callback
+ * @note none
+ */
+#define mKey_Callback(name) \
+  void name(void *obj, mKey_Bitmap_t value)
+    
 
-#define KEY_OK_LONG_SIGNAL      0x24
-#define KEY_MENU_LONG_SIGNAL    0x25
-
-#define KEY_UP_DOWN_SIGNAL      0x28
+/**
+ * key 获取按键值类型
+ * @note none
+ */
+#define SELF_PRESS_TYPE() \
+  mKey_GetPressType(obj, value)
 
 /*@}*/
 
 /**
- * @addtogroup Key functions
+ * @addtogroup Key functions define
  */
  
 /*@{*/
 
-extern void mKey_InterfaceInit(void);
+extern void mKey_ModuleStartup(void);
 
-extern void mKey_Scan(void);
+extern void mKey_ShiftKeySet(uint32_t port, uint32_t gpio);
 
-extern mKey_Bitmap_t mKey_Get(void);
-
-extern uint8_t mKey_IsHit(void);
+extern void mKey_ObjInsert(mKeyDef_t *obj);
+  
+extern uint8_t mKey_GetPressType(mKeyDef_t *obj, mKey_Bitmap_t vaule);
 
 /*@}*/
 

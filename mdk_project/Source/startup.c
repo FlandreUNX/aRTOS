@@ -58,8 +58,43 @@
 /*@{*/
 
 #include "addons/console/console.h"
+#include "addons/key/key.h"
 
 /*@}*/
+
+/**
+ * @addtogroupkey key obj
+ */
+
+/*@{*/
+
+mKey_Callback(userKey) {
+  if (SELF_PRESS_TYPE() == KEY_IS_SP) {
+    BSP_LED_Toggle(LED2);
+    
+    extern osThread_Id threadDemo1_ID;
+    osSignal_Set(threadDemo1_ID, 0x01, 0);
+  }
+  else {
+    BSP_LED_Toggle(LED3);
+    
+    extern osThread_Id threadDemo1_ID;
+    osSignal_Set(threadDemo1_ID, 0x02, 0);
+  }
+  
+}
+
+mKeyDef_t key_User = {
+  .type = KEY_TYPE_LONG,
+  .level = KEY_LEVEL_HIGHT,
+  
+  .value = 0x02,
+  
+  .port = (uint32_t)USER_BUTTON_GPIO_PORT,
+  .gpio = USER_BUTTON_PIN,
+
+  .callback = userKey
+};
 
 /*@}*/
 
@@ -70,60 +105,27 @@
 /*@{*/
 
 osThread_FuncDef(threadDemo1) {
-  mLog_ThreadPrintf(Log_I, "Thread-1", 1000, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
+  osEvent_t event;
+  mLog_ThreadPrintf(Log_I, "Thread1", 1000, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
+  
+  mKey_ObjInsert(&key_User);
   
   for (;;) {
-    osThread_Delay(100);
+    event = osSignal_Wait(5000);
+    switch (event.value.v) {
+      case (0x02) :
+      case (0x01) : {
+        mLog_ThreadPrintf(Log_I, "Thread1", 1000, "Signal get -> %d", event.value.v);
+      } break;
+      
+      default : {
+        mLog_ThreadPrintf(Log_W, "Thread1", 1000, "Waitting timeout");
+      } break;
+    }
   }
 }
 osThread_Def(threadDemo1, 0, 488, threadDemo1);
 osThread_Id threadDemo1_ID;
-
-/*@}*/
-
-/**
- * @addtogroup threadDemo2
- */
-
-/*@{*/
-
-osThread_FuncDef(threadDemo2) {
-  mLog_ThreadPrintf(Log_I, "Thread-2", 1000, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
-  
-  /*threadDemo1线程*/
-  threadDemo1_ID = osThread_Create(osThread_Obj(threadDemo1), (void *)0);
-  osThread_Ready(threadDemo1_ID);
-  
-  for (;;) {
-    osThread_Delay(100);
-  }
-}
-osThread_Def(threadDemo2, 1, 488, threadDemo2);
-osThread_Id threadDemo2_ID;
-
-/*@}*/
-
-/**
- * @addtogroup threadDemo3
- */
-
-/*@{*/
-
-uint32_t threadDemo3_RunningCount = 0;
-
-osThread_FuncDef(threadDemo3) {
-  mLog_ThreadPrintf(Log_I, "Thread-3", 1000, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
-  
-  /*threadDemo2线程*/
-  threadDemo2_ID = osThread_Create(osThread_Obj(threadDemo2), (void *)0);
-  osThread_Ready(threadDemo2_ID);
-  
-  for (;;) {
-    osThread_Delay(10);
-  }
-}
-osThread_Def(threadDemo3, 2, 488, threadDemo3);
-osThread_Id threadDemo3_ID;
 
 /*@}*/
 
@@ -142,38 +144,6 @@ osTimer_ID timerDemo1_ID;
 /*@}*/
 
 /**
- * @addtogroup timerDemo2
- */
-
-/*@{*/
-
-uint32_t timerDemo2_RunningCount = 0;
-
-osTimer_Callback(timerDemo2) {
-  BSP_LED_Toggle(LED2);
-}
-osTimer_Def(timerDemo2, osTimerSoft, timerDemo2);
-osTimer_ID timerDemo2_ID;
-
-/*@}*/
-
-/**
- * @addtogroup timerDemo3
- */
-
-/*@{*/
-
-uint32_t timerDemo3_RunningCount = 0;
-
-osTimer_Callback(timerDemo3) {
-  BSP_LED_Toggle(LED3);
-}
-osTimer_Def(timerDemo3, osTimerSoft, timerDemo3);
-osTimer_ID timerDemo3_ID;
-
-/*@}*/
-
-/**
  * @addtogroup main functions
  */
 
@@ -187,6 +157,7 @@ int main(void) {
   BSP_LED_Init(LED1);
   BSP_LED_Init(LED2);
   BSP_LED_Init(LED3);
+  BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
   
   /*os内核初始化*/
   osSys_KernelInitialize();
@@ -194,21 +165,13 @@ int main(void) {
   /*相关模块初始化*/
   osSys_ModulesInit();
   
-  /*threadDemo3线程*/
-  threadDemo3_ID = osThread_Create(osThread_Obj(threadDemo3), (void *)0);
-  osThread_Ready(threadDemo3_ID);
+  /*threadDemo1线程*/
+  threadDemo1_ID = osThread_Create(osThread_Obj(threadDemo1), (void *)0);
+  osThread_Ready(threadDemo1_ID);
 
   /*定时器1*/
   timerDemo1_ID = osTimer_Create(osTimer_Obj(timerDemo1), osTimerPeriodic, (void *)0);
-  osTimer_Start(timerDemo1_ID, 25);
-  
-  /*定时器2*/
-  timerDemo2_ID = osTimer_Create(osTimer_Obj(timerDemo2), osTimerPeriodic, (void *)0);
-  osTimer_Start(timerDemo2_ID, 100);
-  
-  /*定时器3*/
-  timerDemo3_ID = osTimer_Create(osTimer_Obj(timerDemo3), osTimerPeriodic, (void *)0);
-  osTimer_Start(timerDemo3_ID, 1000);
+  osTimer_Start(timerDemo1_ID, 500);
 
   /*启动OS*/
   osSys_KernelStartup();

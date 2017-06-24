@@ -354,7 +354,13 @@ void osTimer_Start(osTimer_ID id, osTick_t tick) {
 
   /*设置超时的Tick*/
   timer->perTick = tick;
-  timer->timeoutTick = osSys_GetNowTick() + timer->perTick;
+  
+  if (tick == OS_WAIT_FOREVER) {
+    timer->timeoutTick = OS_WAIT_FOREVER;
+  }
+  else {
+    timer->timeoutTick = osSys_GetNowTick() + timer->perTick;
+  }
 
   /*选择定时器运行列表*/
 #if USING_SOFT_TIMER == 1
@@ -384,6 +390,7 @@ void osTimer_Start(osTimer_ID id, osTick_t tick) {
       /*如果Timer超时值小于原有list最小值,插到他前面,否则continue*/
       if (timer->timeoutTick <= timerNext->timeoutTick) {
         osList_AddTail(pos, &(timer->list));
+        
         break;
       }
     }
