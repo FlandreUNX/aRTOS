@@ -45,7 +45,7 @@
  */
 #define MCU_NAME        "STM32F767ZI"
 
-#define MCU_RAM_TYPE  "DTCM"
+#define MCU_RAM_TYPE    "DTCM"
 
 /**
  * 使用LOGO

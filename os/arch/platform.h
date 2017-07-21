@@ -54,7 +54,8 @@ typedef uint32_t  osTick_t;  /**< osTick最大计量 */
 #define CPU_UINT32_MAX      (0xFFFFFFFF)                /**< Maxium number of UINT32 */
 #define CPU_TICK_MAX        (uint32_t)(CPU_UINT32_MAX)  /**< Maxium number of tick */
 
-#define OS_WAIT_FOREVER     (CPU_TICK_MAX / 2)    /**< 系统无限等待数 */
+#define OS_WAIT_FOREVER       (CPU_TICK_MAX - 1)    /**< 系统无限等待数 */
+#define OS_TIMOUT_CHECKPOINT  (CPU_TICK_MAX / 2)    /**< 系统超时检查点 */
 
 #define MAGIC_WORD          (uint32_t)(0xE25A2EA5)      /**< 魔幻数,用于检验thread的堆栈溢出 */
 
@@ -70,7 +71,7 @@ typedef uint32_t  osTick_t;  /**< osTick最大计量 */
 
 /**
  *  是否启动VFP浮点模块
- *  @note 启动锁即其余线程无法输出LOG
+ *  @note none
  */
 #define CM_VFP_ENABLE     (1)
 

@@ -164,7 +164,6 @@ void mem_Init(uint32_t memStart, uint32_t memEnd) {
 
   /*计算剩余内存能分出多少最大内存块*/
   uint32_t maxOrderNumber = (osMem_Info.remaining) / ((1 << (BUDDY_MAX_ORDER)) * BUDDY_BLOCK_SIZE);
-
   /*连续的将剩余内存分配成最大内存块*/
   for (uint32_t i = 0; i < maxOrderNumber; i++) {
     BuddyBlock_t* block = (BuddyBlock_t *) (osMem_Info.heapStart + (i * (((1 << (BUDDY_MAX_ORDER)) * BUDDY_BLOCK_SIZE))));
@@ -356,7 +355,7 @@ void* osMem_Malloc(uint32_t size) {
 
   BuddyBlock_t* block;
   
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   /*获取需要的页面*/
   block = allocateBlock(wantOrder);
@@ -366,7 +365,7 @@ void* osMem_Malloc(uint32_t size) {
     return NULL;
   }
 
-  hal_EnableINT();
+  hal_EnableINT(level);
 
   /*返回地址*/
   /*将链表占用的空间也分配出去,剩余一个(state)*/
@@ -383,7 +382,7 @@ EXPORT_SYMBOL(osMem_Malloc);
  * @retval none
  */
 void osMem_Free(void* address) {
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
   
   /*内存块结构体基地址 = 分配出去的内存地址偏移-结构体大小*/
   BuddyBlock_t* block = (BuddyBlock_t *) ((uint32_t)address - (uint32_t) sizeof(uint8_t));
@@ -393,7 +392,7 @@ void osMem_Free(void* address) {
     __FreeBlock(block);
   }
 
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osMem_Free);
 

@@ -40,7 +40,7 @@
 /**
  * 调试模式
  */
-#define OS_DEBUG_MODE   (1)
+#define OS_DEBUG_MODE   (0)
 
 /**
  * 允许堆栈溢出检查
@@ -50,12 +50,12 @@
 /**
  * 系统线程优先级分级数量,此值-1为最小优先级,0为最大优先级
  */
-#define MAX_PRIORITY_LEVEL      (32)
+#define MAX_PRIORITY_LEVEL      (8)
 
 /**
  * 空闲线程堆栈大小
  */
-#define IDLE_STACK_SIZE     (488)
+#define IDLE_STACK_SIZE     (256)
 
 /**
  * 空闲线程优先级
@@ -80,7 +80,7 @@
   /**
    *  软件定时器线程堆栈大小
    */
-  #define SOFT_TIMER_STACK_SIZE   (488)
+  #define SOFT_TIMER_STACK_SIZE   (512)
 #endif
 
 /*@}*/

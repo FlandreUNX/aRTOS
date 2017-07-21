@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
- * File      : con_Interface.h
+ * File      : kprintf.h
  * This file is part of aRTOS
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,8 +28,8 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CONSOLE_H_
-#define CONSOLE_H_
+#ifndef LOG_H_
+#define LOG_H_
 
 /**
  * @addtogroup std C lib include
@@ -42,12 +42,12 @@
 /*@}*/
 
 /**
- * @addtogroup os include
+ * @addtogroup OS file include
  */
 
 /*@{*/
 
-#include "../../osAPI.h"
+#include "../arch/platform.h"
 
 /*@}*/
 
@@ -156,7 +156,17 @@ typedef enum {
 
 /*@{*/
 
-extern void mConsole_Init(void);
+extern void log_Init(void);
+
+/*@}*/
+
+/**
+ * @addtogroup kernel printf functionss
+ */
+
+/*@{*/
+
+extern void osLog_RawPrintf(osTick_t timeout, const char *format, ...);
 
 /*@}*/
 
@@ -166,13 +176,13 @@ extern void mConsole_Init(void);
 
 /*@{*/
 
-extern void mLog_SetFiter(Log_Level level);
-extern Log_Level mLog_GetFiter(void);
+extern void osLog_SetFiter(Log_Level level);
+extern Log_Level osLog_GetFiter(void);
 
-extern void mLog_TagEnable(Log_Level level);
-extern void mLog_TagDisable(Log_Level level);
+extern void osLog_TagEnable(Log_Level level);
+extern void osLog_TagDisable(Log_Level level);
 
-extern void mLog_Control(uint8_t state, uint8_t en);
+extern void osLog_Control(uint8_t state, uint8_t en);
 
 /*@}*/
 
@@ -190,8 +200,17 @@ extern void mLog_Control(uint8_t state, uint8_t en);
 
 #define RESET_SCREEN() printf("\033[u\033[2J")
 
-extern void mLog_RawPrntf(osTick_t timeout, const char *format, ...);
-extern void mLog_ThreadPrintf(Log_Level level, const char *context, osTick_t timeout, const char *format, ...);
+extern void osLog_Printf(Log_Level level, const char *context, osTick_t timeout, const char *format, ...);
+
+/*@}*/
+
+/**
+ * @addtogroup os info print
+ */
+
+/*@{*/
+
+extern void osLog_InfoShow(void);
 
 /*@}*/
 

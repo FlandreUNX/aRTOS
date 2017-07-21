@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
- * File      : con_Port.c
+ * File      : kprintf_if.c
  * This file is part of aRTOS
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -45,8 +45,6 @@
 
 /*@{*/
 
-#include "osAPI.h"
-
 /*@}*/
 
 /**
@@ -78,7 +76,7 @@ UART_HandleTypeDef uartHandler;
  * 
  * @retval none
  */
-void console_PortInit(void) {
+void printPortInit(void) {
   RCC_PeriphCLKInitTypeDef periphClock;
   periphClock.PeriphClockSelection = RCC_PERIPHCLK_USART3;
   periphClock.Usart3ClockSelection = RCC_USART3CLKSOURCE_HSI;
@@ -88,7 +86,7 @@ void console_PortInit(void) {
   __HAL_RCC_GPIOD_CLK_ENABLE();
   GPIO_InitTypeDef gpio;
   gpio.Mode = GPIO_MODE_AF_PP;
-  gpio.Pull = GPIO_PULLUP;
+//  gpio.Pull = GPIO_PULLUP;
   gpio.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   
   gpio.Pin = GPIO_PIN_8;
@@ -137,8 +135,8 @@ int fputc(int ch, FILE *f) {
 
 /*@{*/
 
-void console_PortOutput(uint8_t *log, uint16_t size) {
-  HAL_UART_Transmit(&uartHandler, log, size, 0xFFFF);
+void printPortOutput(uint8_t *log, uint16_t size) {
+  HAL_UART_Transmit(&uartHandler, log, size, 0xFFFFFFFF);
 }
 
 /*@}*/

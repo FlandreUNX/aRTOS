@@ -1001,14 +1001,13 @@ ARM Macro Assembler    Page 16
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M7.fp.dp --apcs=
 interwork --depend=.\objects\startup_stm32f767xx.d -o.\objects\startup_stm32f76
-7xx.o -IH:\unx^444\aRTOS\mdk_project\RTE\Device\STM32F767ZITx -IH:\unx^444\aRTO
-S\mdk_project\RTE\_Target_1 -I"G:\Program Files\Develop\keil5\ARM\PACK\ARM\CMSI
-S\5.0.0\CMSIS\Include" -I"G:\Program Files\Develop\keil5\ARM\PACK\Keil\STM32F7x
-x_DFP\2.7.0\Drivers\CMSIS\Device\ST\STM32F7xx\Include" -I"G:\Program Files\Deve
-lop\keil5\ARM\PACK\Keil\STM32F7xx_DFP\2.7.0\Drivers\STM32F7xx_HAL_Driver\Inc" -
--predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 522" --prede
-fine="_RTE_ SETA 1" --predefine="STM32F767xx SETA 1" --list=.\listings\startup_
-stm32f767xx.lst RTE\Device\STM32F767ZITx\startup_stm32f767xx.s
+7xx.o -I.\RTE\Device\STM32F767ZITx -I.\RTE\_Target_1 -IF:\Programs\Development\
+keil5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include -IF:\Programs\Development\keil5\AR
+M\PACK\Keil\STM32F7xx_DFP\2.7.0\Drivers\CMSIS\Device\ST\STM32F7xx\Include -IF:\
+Programs\Development\keil5\ARM\PACK\Keil\STM32F7xx_DFP\2.7.0\Drivers\STM32F7xx_
+HAL_Driver\Inc --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION S
+ETA 524" --predefine="_RTE_ SETA 1" --predefine="STM32F767xx SETA 1" --list=.\l
+istings\startup_stm32f767xx.lst RTE\Device\STM32F767ZITx\startup_stm32f767xx.s
 
 
 

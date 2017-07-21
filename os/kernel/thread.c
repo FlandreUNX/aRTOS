@@ -71,8 +71,6 @@ extern struct osList_t sche_ReadyList[MAX_PRIORITY_LEVEL];
 /*@{*/
 
 void threadTimerCallback(void *arguments) {
-  //OS_ASSERT
-
   osThread_Attr_t *thread = (osThread_Attr_t *)arguments;
 
   /*标记线程就绪态*/
@@ -83,58 +81,11 @@ void threadTimerCallback(void *arguments) {
   sche_ToNextThread();
 }
 
-/*@}*/
 
-/**
- * @addtogroup thread user functions
- */
-
-/*@{*/
-
-/**
- * 创建线程
- *
- * @param thread 线程对象
- * @param argument 入口函数的传入参数
- *
- * @retval 线程句柄
- */
-osThread_Id osThread_Create(osThread_Attr_t *thread, void *argument) {
-  //OS_ASSERT
-  uint32_t *stackTop;
-
-  /*调整堆栈大小,字节对齐*/
-  thread->stackSize = ALIGN(thread->stackSize, BYTE_ALIGNMENT_MASK);
-  //OS_ASSERT
-
-  /*申请栈空间*/
-  thread->stackEnd = (void *)osMem_Malloc(thread->stackSize);
-  if (thread->stackEnd == NULL) {
-    //OS_ASSERT
-
-    return 0;
-  }
-  /*栈底,字节向上对齐*/
-  thread->stackEnd = (void *)ALIGN((uint32_t)thread->stackEnd, BYTE_ALIGNMENT_MASK);
-
-  /*最后栈底最后一个字节写入一个固定数值,用于检测栈溢出*/
-  *((uint32_t*) thread->stackEnd) = (uint32_t) MAGIC_WORD;
-
-  /*栈顶,字节向下对齐*/
-  stackTop = (uint32_t *)((uint32_t)thread->stackEnd + thread->stackSize);
-  stackTop = (uint32_t *)ALIGN_DOWN((uint32_t)stackTop, BYTE_ALIGNMENT_MASK);
-
-  /*初始化线程CPU栈寄存器*/
-  stackTop = cpu_SetupRegisters(thread->functions, argument, stackTop);
-  
-  thread->stackTop = (void *)stackTop;
-  thread->arguments = argument;
-
+void threadCreate(osThread_Attr_t *thread) {
   /*超出最大设定组别*/
   if (thread->priority > MAX_PRIORITY_LEVEL) {
-    //OS_ASSERT
-
-    thread->priority = MAX_PRIORITY_LEVEL;
+    thread->priority = MAX_PRIORITY_LEVEL - 1;
   }
 
   /*确定线程在优先bitmap的位置*/
@@ -162,10 +113,87 @@ osThread_Id osThread_Create(osThread_Attr_t *thread, void *argument) {
   thread->event.state = osEvent_sIDLE;
   thread->event.type = osEventNull;
   thread->event.value.v = 0;
+}
 
+/*@}*/
+
+/**
+ * @addtogroup thread user functions
+ */
+
+/*@{*/
+
+/**
+ * 创建线程(动态内存)
+ *
+ * @param thread 线程对象
+ * @param argument 入口函数的传入参数
+ *
+ * @retval 线程句柄
+ */
+osThread_Id osThread_Create(osThread_Attr_t *thread, void *argument) {
+  uint32_t *stackTop;
+
+  /*调整堆栈大小,字节对齐*/
+  thread->stackSize = ALIGN(thread->stackSize, BYTE_ALIGNMENT_MASK);
+
+  /*申请栈空间*/
+  thread->stackEnd = (void *)osMem_Malloc(thread->stackSize);
+  if (thread->stackEnd == NULL) {
+    for(;;);
+  }
+
+  /*最后栈底最后一个字节写入一个固定数值,用于检测栈溢出*/
+  *((uint32_t*) thread->stackEnd) = (uint32_t) MAGIC_WORD;
+
+  /*栈顶,字节向下对齐*/
+  stackTop = (uint32_t *)((uint32_t)thread->stackEnd + thread->stackSize);
+
+  /*初始化线程CPU栈寄存器*/
+  stackTop = cpu_SetupRegisters(thread->functions, argument, stackTop);
+  
+  thread->stackTop = (void *)stackTop;
+  thread->arguments = argument;
+
+  threadCreate(thread);
+  
   return (osThread_Id)thread;
 }
 EXPORT_SYMBOL(osThread_Create);
+
+
+/**
+ * 创建线程(静态内存)
+ *
+ * @param thread 线程对象
+ * @param argument 入口函数的传入参数
+ * @param stack 栈指针
+ *
+ * @retval 线程句柄
+ */
+osThread_Id osThread_StaticCreate(osThread_Attr_t *thread, void *argument, uint8_t *stack) {
+  uint32_t *stackTop;
+
+  /*设置栈空间,字节向上对齐*/
+  thread->stackEnd = (void *)stack;
+
+  /*最后栈底最后一个字节写入一个固定数值,用于检测栈溢出*/
+  *((uint32_t*) thread->stackEnd) = (uint32_t) MAGIC_WORD;
+
+  /*栈顶,字节向下对齐*/
+  stackTop = (uint32_t *)((uint32_t)thread->stackEnd + thread->stackSize);
+
+  /*初始化线程CPU栈寄存器*/
+  stackTop = cpu_SetupRegisters(thread->functions, argument, stackTop);
+  
+  thread->stackTop = (void *)stackTop;
+  thread->arguments = argument;
+
+  threadCreate(thread);
+  
+  return (osThread_Id)thread;
+}
+EXPORT_SYMBOL(osThread_StaticCreate);
 
 
 /**
@@ -180,7 +208,7 @@ void osThread_Ready(osThread_Id id) {
   //OS_ASSERT
 
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   osThread_Attr_t *thread = (osThread_Attr_t *)id;
 
@@ -189,7 +217,7 @@ void osThread_Ready(osThread_Id id) {
     thread->state == osThreadReady) {
     //OS_ASSERT
 
-    hal_EnableINT();
+    hal_EnableINT(level);
 
     return;
   }
@@ -201,7 +229,7 @@ void osThread_Ready(osThread_Id id) {
   /*插入调度器*/
   sche_InsertThread(thread);
 
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osThread_Ready);
 
@@ -218,7 +246,7 @@ void osThread_Suspend(osThread_Id id) {
   //OS_ASSERT
 
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   osThread_Attr_t *thread = (osThread_Attr_t *)id;
 
@@ -228,7 +256,7 @@ void osThread_Suspend(osThread_Id id) {
     //OS_ASSERT
 
     /*开中断*/
-    hal_EnableINT();
+    hal_EnableINT(level);
 
     return;
   }
@@ -241,7 +269,7 @@ void osThread_Suspend(osThread_Id id) {
   sche_RemoveThread(thread);
 
   /*开中断*/
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osThread_Suspend);
 
@@ -268,12 +296,12 @@ EXPORT_SYMBOL(osThread_Terminate);
  */
 osThread_Id osThread_Self(void) {
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   osThread_Id self = (osThread_Id)sche_ThreadSwitchStatus.nowThread;
 
   /*开中断*/
-  hal_EnableINT();
+  hal_EnableINT(level);
 
   return self;
 }
@@ -289,7 +317,7 @@ EXPORT_SYMBOL(osThread_Self);
  */
 void osThread_Yield(void) {
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   osThread_Attr_t *thread = (osThread_Attr_t *)sche_ThreadSwitchStatus.nowThread;
   
@@ -304,11 +332,11 @@ void osThread_Yield(void) {
     osList_AddTail(&(sche_ReadyList[thread->priority]), &(thread->list));
   }
 
-  /*开中断*/
-  hal_EnableINT();
-
   /*切换下一线程*/
   sche_ToNextThread();
+  
+  /*开中断*/
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osThread_Yield);
 
@@ -326,7 +354,7 @@ void osThread_Delay(osTick_t tick) {
   }
   
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   /*获取当前线程*/
   osThread_Attr_t *thread = (osThread_Attr_t *)sche_ThreadSwitchStatus.nowThread;
@@ -339,11 +367,11 @@ void osThread_Delay(osTick_t tick) {
   /*设置堵塞tick*/
   osTimer_Start(&(thread->timer), tick);
   
-    /*开中断*/
-  hal_EnableINT();
-
   /*进行一次调度*/
   sche_ToNextThread();
+  
+  /*开中断*/
+  hal_EnableINT(level);
 }
 
 /*@}*/

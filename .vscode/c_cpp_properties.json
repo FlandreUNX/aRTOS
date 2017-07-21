@@ -13,7 +13,8 @@
                     "/usr/include",
                     "/usr/local/include"
                 ]
-            }
+            },
+            "intelliSenseMode": "clang-x64"
         },
         {
             "name": "Linux",
@@ -28,7 +29,8 @@
                     "/usr/include",
                     "/usr/local/include"
                 ]
-            }
+            },
+            "intelliSenseMode": "clang-x64"
         },
         {
             "name": "Win32",
@@ -45,7 +47,8 @@
                     "G:/Program Files/Develop/keil5/ARM/ARMCC/include/*",
                     "C:/My Program/Develop/keil_5/ARM/ARMCC/include/*"
                 ]
-            }
+            },
+            "intelliSenseMode": "msvc-x64"
         }
     ]
 }

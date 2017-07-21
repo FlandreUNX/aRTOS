@@ -70,11 +70,11 @@ static volatile int8_t interruptNest = 0;
  * @retval none
  */
 void osSys_ISRLeave(void) {
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   interruptNest --;
 
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osSys_ISRLeave);
 
@@ -87,11 +87,11 @@ EXPORT_SYMBOL(osSys_ISRLeave);
  * @retval none
  */
 void osSys_ISREnter(void) {
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   interruptNest ++;
 
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osSys_ISREnter);
 

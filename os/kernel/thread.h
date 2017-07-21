@@ -140,6 +140,7 @@ typedef osThread_Attr_t* osThread_Id;
 /*@{*/
 
 extern osThread_Id osThread_Create(osThread_Attr_t *thread, void *argument);
+extern osThread_Id osThread_StaticCreate(osThread_Attr_t *thread, void *argument, uint8_t *stack);
 
 extern void osThread_Ready(osThread_Id id);
 extern void osThread_Suspend(osThread_Id id);

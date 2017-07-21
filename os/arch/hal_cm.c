@@ -191,16 +191,16 @@ __asm void hal_EnableVFP( void ) {
  * 
  *  @retval none
  */
-void hal_RaiseBASEPRI(void) {
-  uint32_t ulNewBASEPRI = MAX_SYSCALL_INTERRUPT_PRIORITY;
+__asm uint32_t hal_RaiseBASEPRI(void) {
+  PRESERVE8
   
-  __asm {
-    cpsid i
-		msr basepri, ulNewBASEPRI
-		dsb
-		isb
-		cpsie i
-  }
+  mrs r0, PRIMASK
+  
+  cpsid i
+
+  bx lr
+  
+  align 4
 }
 
 
@@ -211,10 +211,14 @@ void hal_RaiseBASEPRI(void) {
  * 
  *  @retval none
  */
-void hal_SetBASEPRI(uint32_t value) {
-  __asm {
-    msr basepri, value
-  }
+__asm void hal_SetBASEPRI(uint32_t value) {
+  PRESERVE8
+  
+  msr PRIMASK, r0
+  
+  bx lr
+  
+  align 4
 }
 
 
@@ -236,8 +240,10 @@ __asm void cpu_GotoFisrtTask(void) {
 
   /*将SP指针指回__initial_sp*/
   msr msp, r0
+  
   cpsie i
 	cpsie f
+  
 	dsb
 	isb
   
@@ -260,9 +266,7 @@ __asm void SVC_Handler(void) {
   PRESERVE8
   
   /*关闭中断*/
-  mrs r0, basepri
-  mov r1, #MAX_SYSCALL_INTERRUPT_PRIORITY
-  msr basepri, r1
+  cpsid i
 
   dsb
   isb
@@ -287,8 +291,7 @@ __asm void SVC_Handler(void) {
   isb
       
   /*恢复中断*/
-  mov r0, #0
-  msr basepri, r0
+  cpsie i
       
   /*返回任务*/
   bx 	r14
@@ -306,40 +309,35 @@ __asm void SVC_Handler(void) {
  */
 __asm void PendSV_Handler(void) {
   extern sche_ThreadSwitchStatus;
-  extern sche_ThreadSwitchStatus;
-  
   extern sche_NextToNow;
   
   PRESERVE8
+  
+  mrs r4, primask
+  cpsid i
   
   mrs r0, psp
   isb
   
   ldr r3, =__cpp(&sche_ThreadSwitchStatus.nowThread)
   ldr r2, [r3]
-  
+ 
+#if CM_VFP_ENABLE == 1  
   /*检查是否开启FPU,开启就存档*/
   tst r14, #0x10
 	it eq
 	vstmdbeq r0!, {s16 - s31}
-      
+#endif
+  
   stmdb r0!, {r4 - r11, r14}
 
   str r0, [r2]
   stmdb sp!, {r3}
-
-  mov r0, #MAX_SYSCALL_INTERRUPT_PRIORITY
-	cpsid i
-	msr basepri, r0
-	dsb
-	isb
-	cpsie i 
-
+  
   /*仅消耗4条ASM指令,不修改*/
   bl __cpp(sche_NextToNow)
-
-  mov r0, #0
-  msr basepri, r0
+  
+  msr primask, r4
 
   ldmia sp!, {r3}
   
@@ -348,10 +346,13 @@ __asm void PendSV_Handler(void) {
   
   ldmia r0!, {r4 - r11, r14}
 
+#if CM_VFP_ENABLE == 1
+  /*对VPU入栈*/
   tst r14, #0x10
 	it eq
 	vldmiaeq r0!, {s16-s31}
-
+#endif
+  
   msr psp, r0
   isb
 

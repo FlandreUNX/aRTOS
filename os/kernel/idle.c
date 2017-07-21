@@ -49,17 +49,6 @@
 /*@}*/
 
 /**
- * @addtogroup add ons
- */
- 
-/*@{*/
-
-#include "addons/console/console.h"
-#include "../osInfo.h"
-
-/*@}*/
-
-/**
  * @addtogroup schedule extern 
  */
  
@@ -83,6 +72,7 @@ osThread_Attr_t os_Thread_Idle = { \
   .stackSize = IDLE_STACK_SIZE, \
   .priority = IDLE_PRIORITY \
 };
+uint8_t os_Thread_Stack_Idle[IDLE_STACK_SIZE];
 
 /*@}*/
 
@@ -92,23 +82,8 @@ osThread_Attr_t os_Thread_Idle = { \
  
 /*@{*/
 
-#if OS_DEBUG_MODE == 1
-/**
- *  线程运行计数
- *  @note none
- */
-uint32_t idle_RunningCount = 0;
-#endif
-
 OS_NO_RETURN os_Idle_Thread(void *argument) {
-#if OS_DEBUG_MODE == 1
-  mLog_ThreadPrintf(Log_I, "Idle", 0, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
-#endif
-  
   for (;;) {
-#if OS_DEBUG_MODE == 1
-    idle_RunningCount++;
-#endif
   }
 }
 

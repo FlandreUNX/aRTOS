@@ -56,8 +56,7 @@
  
 /*@{*/
 
-#include "addons/console/console.h"
-#include "addons/key/key.h"
+#include "../service/log.h"
 
 #include "../osInfo.h"
 
@@ -73,6 +72,22 @@ extern struct threadSwitchInfo_t sche_ThreadSwitchStatus;
 
 extern osThread_Id idle_ThreadID;
 extern osThread_Attr_t os_Thread_Idle;
+extern uint8_t os_Thread_Stack_Idle[IDLE_STACK_SIZE];
+
+
+/**
+ * 相关模块初始化
+ *
+ * @param none
+ *
+ * @retval none
+ */
+void modulesInit(void) {
+  log_Init();
+
+  osLog_InfoShow();
+}
+
 
 /**
  * 初始化os内核
@@ -82,7 +97,7 @@ extern osThread_Attr_t os_Thread_Idle;
  * @retval none
  */
 void osSys_KernelInitialize(void) {
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
   
   /*动态内存库初始化*/
   mem_Init((uint32_t)HEAP_BEGIN, (uint32_t)HEAP_END);
@@ -93,7 +108,9 @@ void osSys_KernelInitialize(void) {
   /*定时器初始化*/
   timer_Init();
   
-  hal_EnableINT();
+  modulesInit();
+  
+  hal_EnableINT(level);
 }
 
 
@@ -106,7 +123,7 @@ void osSys_KernelInitialize(void) {
  */
 void osSys_KernelStartup(void) { 
   /*初始化并启动idle*/
-  idle_ThreadID = osThread_Create(&os_Thread_Idle, (void *)0);
+  idle_ThreadID = osThread_StaticCreate(&os_Thread_Idle, (void *)0, os_Thread_Stack_Idle);
   if (idle_ThreadID == 0) {
     //OS_ASSERT
   }
@@ -123,38 +140,9 @@ void osSys_KernelStartup(void) {
   hal_EnableVFP();
 #endif
   
-  mLog_RawPrntf(0, "\033[1;32maRTOS Start...\033[0m\r\n\r\n");
+  osLog_RawPrintf(0, "\033[1;32maRTOS Start...\033[0m\r\n\r\n");
 
-  hal_EnableINT();
-  
   cpu_GotoFisrtTask();
-}
-
-
-/**
- * 相关模块初始化
- *
- * @param none
- *
- * @retval none
- */
-void osSys_ModulesInit(void) {
-  mConsole_Init();
-  mKey_ModuleStartup();
-  
-  /**
-   *  欢迎界面
-   */
-  for (uint8_t i = 0; i < 12; i++) {
-    mLog_RawPrntf(0, "%s\r\n", osLogo[i]);
-  }
-  
-  mLog_RawPrntf(0, "%s\r\n", OS_INFO);
-  mLog_RawPrntf(0, "%s\r\n", OS_AUTHOR);
-  mLog_RawPrntf(0, "[CPU]\033[1;36m%s\033[0m ", MCU_NAME);
-  mLog_RawPrntf(0, "[Sysclk]\033[1;36m%dHz\033[0m ", osHal_GetSysclk());
-  mLog_RawPrntf(0, "[Mem(%s)]\033[1;36m%.1fKbyte\033[0m ", MCU_RAM_TYPE, osMem_Info.total / 1024.0f);
-  mLog_RawPrntf(0, "\r\nModules initialize successed.\r\n");
 }
 
 /*@}*/

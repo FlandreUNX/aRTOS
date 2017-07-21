@@ -46,16 +46,6 @@
 /*@}*/
 
 /**
- * @addtogroup add ons
- */
- 
-/*@{*/
-
-#include "addons/console/console.h"
-
-/*@}*/
-
-/**
  * @addtogroup timer system variable
  */
 
@@ -86,6 +76,7 @@ osThread_Attr_t os_Thread_SoftTimer = { \
   .stackSize = SOFT_TIMER_STACK_SIZE, \
   .priority = SOFT_TIMER_PRIORITY \
 };
+uint8_t os_Thread_Stack_SoftTimer[SOFT_TIMER_STACK_SIZE];
 #endif
 
 /*@}*/
@@ -112,7 +103,7 @@ void timer_Init(void) {
   osList_HeadInit(&timer_softList);
 
   /*初始化线程*/
-  timer_SoftThreadID = osThread_Create(&os_Thread_SoftTimer, NULL);
+  timer_SoftThreadID = osThread_StaticCreate(&os_Thread_SoftTimer, NULL, os_Thread_Stack_SoftTimer);
   osThread_Ready(timer_SoftThreadID);
 #endif
 }
@@ -126,11 +117,11 @@ void timer_Init(void) {
  * @retval none
  */
 void timer_TickCheck(void) {
+  /*关中断*/
+  register uint32_t level = hal_DisableINT();
+  
   /*获取最近的TICK*/
   osTick_t currentTick = osSys_GetNowTick();
-  
-  /*关中断*/
-  hal_DisableINT();
 
   /*遍历list*/
   osTimer_Attr_t *timer;
@@ -138,9 +129,12 @@ void timer_TickCheck(void) {
     /*取出timer*/
     timer = osList_Entry(timer_HardList.next, osTimer_Attr_t, list);
 
-    /*判断是否超时*/
-    if ((currentTick - timer->timeoutTick) < CPU_TICK_MAX / 2) {
-//    if (timer->timeoutTick == currentTick) {
+    /** 
+     * 判断是否超时
+     * 原理是currentTick - timer->timeoutTick 如果是负数,数值反转大于CPU_TICK_MAX / 2,证明没到时间条件不符合
+     * 减法结果为大于等于0时,条件符合证明到时间或者已经超过过规定时间了,避免可能某原因跳过判断
+     */
+    if ((currentTick - timer->timeoutTick) < OS_TIMOUT_CHECKPOINT) {
       /*删除节点*/
       osList_DeleteNode(&timer->list);
 
@@ -156,22 +150,18 @@ void timer_TickCheck(void) {
         osTimer_Start(timer, timer->perTick);
       }
     }
+    /*因为链表是按顺序的,如果检测到一个没到时间,证明后面的都没到时间可以退出*/
     else {
       break;
     }
   }
 
   /*开中断*/
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 
 
 #if USING_SOFT_TIMER == 1
-
-#if OS_DEBUG_MODE == 1
-/*线程运行计数*/
-uint32_t softTimer_RunningCount = 0;
-#endif
 
 /**
   * 软定时器核心线程
@@ -184,18 +174,10 @@ OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
   volatile osTick_t currentTick;
   volatile osTick_t nextTimeout;
   osTimer_Attr_t *timer;
-  
-#if OS_DEBUG_MODE == 1
-  mLog_ThreadPrintf(Log_I, "uTimer", 0, CONSOLE_YELLOW "Startup. FreeMem=%.1f Kbyte" CONSOLE_NONE, osMem_Info.remaining / 1024.0f);
-#endif
 
   for (;;) {
-#if OS_DEBUG_MODE == 1
-    softTimer_RunningCount++;
-#endif
-    
     if (osList_CheckIsEmpty(&timer_softList)) {
-      nextTimeout = CPU_TICK_MAX;
+      nextTimeout = OS_WAIT_FOREVER;
     }
     else {
       timer = osList_Entry(timer_softList.next, osTimer_Attr_t, list);
@@ -203,26 +185,21 @@ OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
     }
 
     /*无定时器挂载,先挂起*/
-    if (nextTimeout == CPU_TICK_MAX) {
+    if (nextTimeout == OS_WAIT_FOREVER) {
       osThread_Suspend(osThread_Self());
       
       osThread_Yield();
     }
     else {
-      /*获取最近的TICK*/
+      /*获取最近的Tick*/
       currentTick = osSys_GetNowTick();
-      if ((nextTimeout - currentTick) < (CPU_TICK_MAX / 2)) {
-        /*延时相对时间*/
-        nextTimeout = nextTimeout - currentTick;
-        
-        if (nextTimeout != 0) {
-          osThread_Delay(nextTimeout);
-        }
+      
+      /*判断还有多少tick后超时*/
+      if ((nextTimeout - currentTick) < OS_TIMOUT_CHECKPOINT) {
+        /*延时相对时间*/  
+        osThread_Delay(nextTimeout - currentTick);
       }
     }
-
-    /*获取最近的TICK*/
-    currentTick = osSys_GetNowTick();
     
     /*锁定调度器*/
     osSche_Lock();
@@ -235,13 +212,12 @@ OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
       /*获取最近的TICK*/
       currentTick = osSys_GetNowTick();
 
-       if ((currentTick - timer->timeoutTick) < CPU_TICK_MAX / 2) {
-//        if (timer->timeoutTick == currentTick) {
+      if ((currentTick - timer->timeoutTick) < OS_TIMOUT_CHECKPOINT) {
         /*从timer_list中删除节点*/
         osList_DeleteNode(&(timer->list));
 
         /*解锁调度器*/
-        osSche_Unlock();
+//        osSche_Unlock();
 
         /*回调该定时器的函数*/
         timer->callback(timer->arguments);
@@ -250,7 +226,7 @@ OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
         currentTick = osSys_GetNowTick();
 
         /*Relock*/
-        osSche_Lock();
+//        osSche_Lock();
         
         /*标记定时器该周期结束*/
         timer->state = osTimerStop;
@@ -289,8 +265,6 @@ OS_NO_RETURN os_SoftTimer_Thread(void *argument) {
  * @retval 定时器句柄
  */
 osTimer_ID osTimer_Create(osTimer_Attr_t *obj, osTimer_Flag flag, void *arguments) {
-  //OS_ASSERT
-
   obj->state = osTimerStop;
   obj->flag = flag;
   obj->arguments = arguments;
@@ -311,8 +285,6 @@ EXPORT_SYMBOL(osTimer_Create);
  * @retval none
  */
 void osTimer_SetTick(osTimer_ID id, osTick_t tick) {
-  //OS_ASSERT
-
   osTimer_Attr_t *obj = (osTimer_Attr_t *)id;
 
   /*检查定时运行状态*/
@@ -336,12 +308,10 @@ EXPORT_SYMBOL(osTimer_SetTick);
  * @retval none
  */
 void osTimer_Start(osTimer_ID id, osTick_t tick) {
-  //OS_ASSERT
-
   struct osList_t *timerList;
 
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
   osTimer_Attr_t *timerNext;
@@ -412,7 +382,7 @@ void osTimer_Start(osTimer_ID id, osTick_t tick) {
 #endif
 
   /*开中断*/
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osTimer_Start);
 
@@ -425,10 +395,8 @@ EXPORT_SYMBOL(osTimer_Start);
  * @retval none
  */
 void osTimer_Stop(osTimer_ID id) {
-  //OS_ASSERT
-
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
 
@@ -440,7 +408,7 @@ void osTimer_Stop(osTimer_ID id) {
   timer->timeoutTick = 0;
 
   /*开中断*/
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osTimer_Stop);
 
@@ -454,10 +422,8 @@ EXPORT_SYMBOL(osTimer_Stop);
  * @retval none
  */
 void osTimer_SetArgument(osTimer_ID id, void *arguments) {
-  //OS_ASSERT
-
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
 
@@ -465,7 +431,7 @@ void osTimer_SetArgument(osTimer_ID id, void *arguments) {
     //OS_ASSERT
     
     /*开中断*/
-    hal_EnableINT();
+    hal_EnableINT(level);
 
     return;
   }
@@ -473,7 +439,7 @@ void osTimer_SetArgument(osTimer_ID id, void *arguments) {
   timer->arguments = arguments;
 
   /*开中断*/
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osTimer_SetArgument);
 
@@ -486,17 +452,15 @@ EXPORT_SYMBOL(osTimer_SetArgument);
  * @retval tick剩余值
  */
 osTick_t osTimer_GetResidueTick(osTimer_ID id) {
-  //OS_ASSERT
-
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   osTimer_Attr_t *timer = (osTimer_Attr_t *)id;
   
   osTick_t tick = timer->timeoutTick - osSys_GetNowTick();
 
   /*开中断*/
-  hal_EnableINT();  
+  hal_EnableINT(level);  
 
   return tick; 
 }

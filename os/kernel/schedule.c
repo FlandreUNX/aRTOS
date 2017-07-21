@@ -70,7 +70,7 @@
  *  osSystick计数
  *  @note none
  */
-static osTick_t sys_TickCount;
+osTick_t sys_TickCount;
 
 /*@}*/
 
@@ -84,13 +84,13 @@ static osTick_t sys_TickCount;
  *  调度器加锁指示
  *  @note none
  */
-static volatile int8_t sche_LockNest;
+volatile int8_t sche_LockNest;
 
 /**
  *  当前运行中线程的优先级
  *  @note 等于最高优先级的线程组
  */
-static volatile uint8_t sche_CurrPriority;
+volatile uint8_t sche_CurrPriority;
 
 /**
  *  调度器线程运行指示
@@ -182,7 +182,10 @@ struct osList_t sche_NoReadyList;
  */
 #if USING_STACK_OVERFLOW_CHECK
 void stackOverFlowCheck(osThread_Attr_t* thread) {
-  if ((*((uint32_t *) thread->stackEnd)) != MAGIC_WORD) {
+  if ((*((uint32_t *)thread->stackEnd)) != MAGIC_WORD ||
+    (uint32_t)thread->stackTop <= (uint32_t)thread->stackEnd ||
+    (uint32_t)thread->stackEnd > ((uint32_t)thread->stackTop + thread->stackSize)) {
+      
     hal_DisableINT();
     
     for (;;);
@@ -242,7 +245,7 @@ void sche_Init(void) {
  * @retval none
  */
 void sche_InsertThread(osThread_Attr_t *thread) {
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   /*插入ready_list*/
   osList_DeleteNode(&(thread->list));
@@ -255,7 +258,7 @@ void sche_InsertThread(osThread_Attr_t *thread) {
   bitmap_L2[thread->bitmap_Low_Mask] |= thread->bitmap_High_Mask;
 #endif
 
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 
 
@@ -267,7 +270,7 @@ void sche_InsertThread(osThread_Attr_t *thread) {
  * @retval 无
  */
 void sche_RemoveThread(osThread_Attr_t* thread) {
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   /*删除节点*/
   osList_DeleteNode(&(thread->list));
@@ -291,7 +294,7 @@ void sche_RemoveThread(osThread_Attr_t* thread) {
 #endif
   }
 
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 
 
@@ -350,10 +353,6 @@ void sche_SetFirstThread(void) {
   sche_ThreadSwitchStatus.nextThread = osList_Entry(sche_ReadyList[highestPriority].next, osThread_Attr_t, list);
   sche_ThreadSwitchStatus.nowThread = sche_ThreadSwitchStatus.nextThread;
   
-#if USING_STACK_OVERFLOW_CHECK
-  /*堆栈检查*/
-  stackOverFlowCheck(sche_ThreadSwitchStatus.nowThread); 
-#endif
   /*当前最高线程优先级*/
   sche_CurrPriority = highestPriority;
 
@@ -373,7 +372,7 @@ void sche_ToNextThread(void) {
   register uint8_t highestPriority;
 
   /*关中断*/
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   /*检查调度器是否被锁定*/
   if (sche_LockNest == 0) {
@@ -428,7 +427,7 @@ void sche_ToNextThread(void) {
   }
 
   /*开中断*/
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 
 
@@ -446,6 +445,9 @@ void sys_TickHandler(void) {
   /*系统节拍+1*/
   ++sys_TickCount;
 
+  /*检查定时器*/
+  timer_TickCheck();
+  
   /*线程时间片-1*/
   --sche_ThreadSwitchStatus.nowThread->timeSlice;
 
@@ -455,9 +457,6 @@ void sys_TickHandler(void) {
 
     osThread_Yield();
   }
-
-  /*检查定时器*/
-  timer_TickCheck();
 
   /*中断嵌套-1*/
   osSys_ISRLeave();
@@ -479,11 +478,11 @@ void sys_TickHandler(void) {
  * @retval none
  */
 void osSche_Lock(void) {
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   sche_LockNest++;
 
-  hal_EnableINT();
+  hal_EnableINT(level);
 }
 EXPORT_SYMBOL(osSche_Lock);
 
@@ -496,7 +495,7 @@ EXPORT_SYMBOL(osSche_Lock);
  * @retval none
  */
 void osSche_Unlock(void) {
-  hal_DisableINT();
+  register uint32_t level = hal_DisableINT();
 
   sche_LockNest --;
 
@@ -505,14 +504,14 @@ void osSche_Unlock(void) {
     sche_LockNest = 0;
 
     /*打开中断*/
-    hal_EnableINT();
+    hal_EnableINT(level);
     
     /*调度*/
     sche_ToNextThread();
   }
   else {
     /*打开中断*/
-    hal_EnableINT();
+    hal_EnableINT(level);
   }
 }
 EXPORT_SYMBOL(osSche_Unlock);
@@ -525,7 +524,7 @@ EXPORT_SYMBOL(osSche_Unlock);
  * 
  * @retval none
  */
-osTick_t osSys_GetNowTick(void) {
+OS_INLINE osTick_t osSys_GetNowTick(void) {
   return sys_TickCount;
 }
 EXPORT_SYMBOL(osSys_GetNowTick);

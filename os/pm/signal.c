@@ -41,6 +41,8 @@
 
 #include "../arch/hal_cm.h"
 
+#include "../lib/symbolExport.h"
+
 /*@}*/
 
 /**
@@ -59,6 +61,10 @@
  * @retval 操作结果
  */
 osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick_t wait) {
+  if (target_Id == NULL) {
+    return osEvent_sUnTarget;
+  }
+  
   osThread_Attr_t *thread = target_Id;
   
   osSche_Lock();
@@ -106,6 +112,7 @@ osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick_t wait
     }
   }
 }
+EXPORT_SYMBOL(osSignal_Set);
 
 
 /**
@@ -167,5 +174,6 @@ osEvent_t osSignal_Wait(osTick_t wait) {
   
   return retEvent;
 }
+EXPORT_SYMBOL(osSignal_Wait);
 
 /*@}*/

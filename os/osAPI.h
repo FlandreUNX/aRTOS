@@ -89,16 +89,6 @@ extern void osSys_KernelInitialize(void);
 
 
 /**
- * 相关模块初始化
- *
- * @param none
- *
- * @retval none
- */
-extern void osSys_ModulesInit(void);
-
-
-/**
  * 启动os
  *
  * @param none
@@ -236,7 +226,30 @@ extern osTick_t osSys_GetNowTick(void);
  */
 #define osThread_Obj(name) \
   &os_Thread_##name
+  
 
+/**
+ * 静态栈空间声明
+ *
+ * @param name 名称
+ * @param size 内存大小 
+ * 
+ * @retval none
+ */
+#define osThread_StackDef(name, size) \
+  uint8_t os_Thread_Stack_##name[size]
+  
+  
+/**
+ * 静态栈空间对象
+ *
+ * @param name 名称
+ * 
+ * @retval none
+ */
+#define osThread_StackObj(name) \
+  os_Thread_Stack_##name
+  
 
 /**
  * 创建线程
@@ -247,6 +260,18 @@ extern osTick_t osSys_GetNowTick(void);
  * @retval 线程句柄
  */
 extern osThread_Id osThread_Create(osThread_Attr_t *thread, void *argument);
+
+
+/**
+ * 创建线程(静态内存)
+ *
+ * @param thread 线程对象
+ * @param argument 入口函数的传入参数
+ * @param stack 栈指针
+ *
+ * @retval 线程句柄
+ */
+extern osThread_Id osThread_StaticCreate(osThread_Attr_t *thread, void *argument, uint8_t *stack);
 
 
 /**
@@ -449,5 +474,17 @@ extern osEvent_Status osSignal_Set(osThread_Id target_Id, int32_t signal, osTick
  * @retval 返回具体事件信息
  */
 extern osEvent_t osSignal_Wait(osTick_t wait);
+
+/*@}*/
+
+/**
+ * @addtogroup ------------------printf api------------------
+ */
+
+/*@{*/
+
+#include "./service/log.h"
+
+/*@}*/
 
 #endif

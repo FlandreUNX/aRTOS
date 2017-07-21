@@ -216,9 +216,10 @@ void hal_CallNMI(void) {
 //}
 
 
-//uint32_t HAL_GetTick(void) {
-//  return osSys_GetNowTick();
-//}
+uint32_t HAL_GetTick(void) {
+  extern osTick_t osSys_GetNowTick();
+  return osSys_GetNowTick();
+}
 
 
 //void HAL_IncTick(void) {

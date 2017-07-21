@@ -29,11 +29,13 @@
  */
 
 /**
- * *******Built with Linux kernel source*******
- */
-
-/**
- *	left tail, right head
+ *	left <tail>--[node head]--right <head>
+ *
+ *           left ----> right
+ *  --<tail>---[node_Head]---<head>--
+ *  |                               |
+ *  |                               |
+ *  |-------------------------------|
  */
 
 #ifndef LIST_H_

@@ -79,17 +79,6 @@ typedef struct cm_RegisterFrame {
 /*@}*/
 
 /**
- * @addtogroup cm IRQ configure
- */
- 
-/*@{*/
-
-#define MAX_SYSCALL_INTERRUPT_PRIORITY		(5) << (8 - 3)
-
-/*@}*/
-
-
-/**
  * @addtogroup cm_hal system functions 
  */
  
@@ -101,11 +90,11 @@ extern void cpu_GotoFisrtTask(void);
 
 extern void hal_EnableVFP(void);
 
-extern void hal_RaiseBASEPRI(void);
+extern uint32_t hal_RaiseBASEPRI(void);
 #define hal_DisableINT()  hal_RaiseBASEPRI()
 
 extern void hal_SetBASEPRI(uint32_t value);
-#define hal_EnableINT()  hal_SetBASEPRI(0)
+#define hal_EnableINT(value)  hal_SetBASEPRI(value)
 
 extern int32_t hal_IsHandlerMode(void);
 

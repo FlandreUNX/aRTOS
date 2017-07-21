@@ -10,7 +10,7 @@
  *　　　　` .　　　　　　　　 　 　 　　 /
  *　　　　　　`. .__　　　 　 　 　　.／
  *　　　　　　　　　/`'''.‐‐──‐‐‐┬---
- * File      : con_Interface.c
+ * File      : log.c
  * This file is part of aRTOS
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,7 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#include "./console.h"
+#include "./log.h"
 
 /**
  * @addtogroup Hal file include
@@ -59,9 +59,13 @@
 
 /*@{*/
 
-#include "osAPI.h"
+#include "../arch/platform.h"
 
-#include "../../lib/symbolExport.h"
+#include "../lib/symbolExport.h"
+
+#include "../kernel/schedule.h"
+
+#include "../mm/buddy.h"
 
 /*@}*/
 
@@ -71,9 +75,9 @@
 
 /*@{*/
 
-extern void console_PortInit(void);
+extern void printPortInit(void);
 
-extern void console_PortOutput(const char *log, uint16_t size);
+extern void printPortOutput(const char *log, uint16_t size);
 
 /*@}*/
 
@@ -135,8 +139,8 @@ uint8_t log_State = 0x80;
  * 
  * @retval none
  */
-void mConsole_Init(void) {
-  console_PortInit();
+void log_Init(void) {
+  printPortInit();
   
   RESET_SCREEN();
 }
@@ -157,9 +161,10 @@ void mConsole_Init(void) {
  * 
  * @retval none
  */
-void mLog_SetFiter(Log_Level level) {
+void osLog_SetFiter(Log_Level level) {
   log_LevelFiter = level;
 }
+EXPORT_SYMBOL(osLog_SetFiter);
 
 
 /**
@@ -169,9 +174,10 @@ void mLog_SetFiter(Log_Level level) {
  * 
  * @retval none
  */
-Log_Level mLog_GetFiter(void) {
+Log_Level osLog_GetFiter(void) {
   return log_LevelFiter;
 }
+EXPORT_SYMBOL(osLog_GetFiter);
 
 
 /**
@@ -181,9 +187,10 @@ Log_Level mLog_GetFiter(void) {
  * 
  * @retval none
  */
-void mLog_TagEnable(Log_Level level) {
+void osLog_TagEnable(Log_Level level) {
   log_LevelMask |= 0x01 << (uint8_t)level;
 }
+EXPORT_SYMBOL(osLog_TagEnable);
 
 
 /**
@@ -193,9 +200,10 @@ void mLog_TagEnable(Log_Level level) {
  * 
  * @retval none
  */
-void mLog_TagDisable(Log_Level level) {
+void osLog_TagDisable(Log_Level level) {
   log_LevelMask &= ~(0x01 << (uint8_t)level);
 }
+EXPORT_SYMBOL(osLog_TagDisable);
 
 
 /**
@@ -206,14 +214,15 @@ void mLog_TagDisable(Log_Level level) {
  * 
  * @retval none
  */
-void mLog_Control(uint8_t state, uint8_t en) {
-  if (en >= 1) {
+void osLog_Control(uint8_t state, uint8_t en) {
+  if (en) {
     log_State |= state;
   }
   else {
     log_State &= ~state;
   }
 }
+EXPORT_SYMBOL(osLog_Control);
 
 /*@}*/
 
@@ -263,20 +272,11 @@ uint16_t logStrcpy(uint16_t length, char *dst, const char *src) {
  * 
  * @retval none
  */
-void mLog_RawPrntf(osTick_t timeout, const char *format, ...) {
+void osLog_RawPrintf(osTick_t timeout, const char *format, ...) {
   if (!(log_State & AD_LOG_CEN)) {
     return;
   }
-  
-  if (log_State & AD_LOG_LOCKER) {
-    osThread_Delay(timeout);
-    if (log_State & AD_LOG_LOCKER) {
-      return;
-    }
-  }
-  
-  mLog_Control(AD_LOG_LOCKER, 0x01);
-  
+
   va_list args;
   int32_t fmt_result;
   uint16_t stringLength = 0;
@@ -292,10 +292,9 @@ void mLog_RawPrntf(osTick_t timeout, const char *format, ...) {
     stringLength = OUTPUT_BUFFER_SIZE;
   }
   
-  console_PortOutput(outputBuffer, stringLength);
-  
-  mLog_Control(AD_LOG_LOCKER, 0x00);
+  printPortOutput(outputBuffer, stringLength);
 }
+EXPORT_SYMBOL(osLog_RawPrintf);
 
 
 /**
@@ -308,7 +307,7 @@ void mLog_RawPrntf(osTick_t timeout, const char *format, ...) {
  * 
  * @retval none
  */
-void mLog_ThreadPrintf(Log_Level level, const char *context, osTick_t timeout, const char *format, ...) {
+void osLog_Printf(Log_Level level, const char *context, osTick_t timeout, const char *format, ...) {
   if (!(log_State & AD_LOG_CEN)) {
     return;
   }
@@ -321,13 +320,16 @@ void mLog_ThreadPrintf(Log_Level level, const char *context, osTick_t timeout, c
   }
   
   if (log_State & AD_LOG_LOCKER) {
-    osThread_Delay(timeout);
-    if (log_State & AD_LOG_LOCKER) {
+    if (timeout == 0) {
       return;
+    }
+    
+    while (log_State & AD_LOG_LOCKER) {
+      osThread_Delay(timeout);
     }
   }
   
-  mLog_Control(AD_LOG_LOCKER, 0x01);
+  osLog_Control(AD_LOG_LOCKER, 0x01);
   
   va_list args;
   int32_t fmt_result;
@@ -357,7 +359,6 @@ void mLog_ThreadPrintf(Log_Level level, const char *context, osTick_t timeout, c
   fmt_result = vsnprintf(outputBuffer + stringLength, OUTPUT_BUFFER_SIZE - stringLength - 1, format, args);
   va_end(args);
   
-
   /*复制新行*/
 #if LOG_AUTO_NEWLINE == 1
   if ((fmt_result > -1) && (fmt_result + stringLength + 2 <= OUTPUT_BUFFER_SIZE)) {
@@ -371,10 +372,49 @@ void mLog_ThreadPrintf(Log_Level level, const char *context, osTick_t timeout, c
 #else
   stringLength += fmt_result;
 #endif
-    
-  /*输出数据*/
-  console_PortOutput(outputBuffer, stringLength);
   
-  mLog_Control(AD_LOG_LOCKER, 0x00);
+  /*锁定调度器*/
+  osSche_Lock();
+  
+  /*输出数据*/
+  printPortOutput(outputBuffer, stringLength);
+  
+  /*锁解锁调度器*/
+  osSche_Unlock();
+  
+  osLog_Control(AD_LOG_LOCKER, 0x00);
 }
+EXPORT_SYMBOL(osLog_Printf);
+
+/*@}*/
+
+/**
+ * @addtogroup os info print
+ */
+
+/*@{*/
+
+#include "../osInfo.h"
+
+/**
+ * @brief 输出OS启动信息
+ *
+ * @param none
+ * 
+ * @retval none
+ */
+void osLog_InfoShow(void) {
+  for (uint8_t i = 0; i < 12; i++) {
+    osLog_RawPrintf(0, "%s\r\n", osLogo[i]);
+  }
+  
+  osLog_RawPrintf(0, "%s\r\n", OS_INFO);
+  osLog_RawPrintf(0, "%s\r\n", OS_AUTHOR);
+  osLog_RawPrintf(0, "[CPU]\033[1;36m%s\033[0m ", MCU_NAME);
+  osLog_RawPrintf(0, "[Sysclk]\033[1;36m%dHz\033[0m ", osHal_GetSysclk());
+  osLog_RawPrintf(0, "[Mem(%s)]\033[1;36m%.1fKbyte\033[0m ", MCU_RAM_TYPE, osMem_Info.total / 1024.0f);
+  osLog_RawPrintf(0, "\r\nModules initialize successed.\r\n");
+}
+EXPORT_SYMBOL(osLog_InfoShow);
+
 /*@}*/
