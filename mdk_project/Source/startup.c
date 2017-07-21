@@ -57,7 +57,7 @@
 
 /*@{*/
 
-osThread_FuncDef(thread1) {
+osThread_Def("Thread-1", thread1, 2, 512) {
   osEvent_t event;
   for (;;) {
     event = osSignal_Wait(5000);
@@ -66,12 +66,11 @@ osThread_FuncDef(thread1) {
       case (0x03) :
       case (0x02) :
       case (0x01) : {
-        osLog_Printf(Log_I, "Thread1", 10, "Signal get -> %d", event.value.v);
+        osLog_Printf(Log_I, osThread_GetName(osThread_Self()), 10, "Signal get -> %d", event.value.v);
       } break;
     }
   }
 }
-osThread_Def(thread1, 2, 512, thread1);
 osThread_Id thread1_ID;
 
 /*@}*/
@@ -82,7 +81,8 @@ osThread_Id thread1_ID;
 
 /*@{*/
 
-osThread_FuncDef(thread2) {
+osThread_StackDef(thread2, 512);
+osThread_Def("Thread-2", thread2, 1, sizeof(osThread_StackObj(thread2))) {
   thread1_ID = osThread_Create(osThread_Obj(thread1), (void *)0);
   osThread_Ready(thread1_ID);
 
@@ -94,12 +94,11 @@ osThread_FuncDef(thread2) {
       case (0x03) :
       case (0x02) :
       case (0x01) : {
-        osLog_Printf(Log_I, "Thread2", 10, "Signal get -> %d", event.value.v);
+        osLog_Printf(Log_I, osThread_GetName(osThread_Self()), 10, "Signal get -> %d", event.value.v);
       } break;
     }
   }
 }
-osThread_Def(thread2, 1, 512, thread2);
 osThread_Id thread2_ID;
 
 /*@}*/
@@ -110,17 +109,16 @@ osThread_Id thread2_ID;
 
 /*@{*/
 
-osThread_FuncDef(thread3) {
+osThread_StackDef(thread3, 512);
+osThread_Def("Thread-3", thread3, 0, sizeof(osThread_StackObj(thread3))){
   osThread_Ready(thread2_ID);
 
   for (;;) {
    osThread_Delay(1000);
-   osLog_Printf(Log_I, "Thread3", 5, "Live!");
+   osLog_Printf(Log_I, osThread_GetName(osThread_Self()), 5, "Live!");
     BSP_LED_Toggle(LED3);
   }
 }
-osThread_StackDef(thread3, 512);
-osThread_Def(thread3, 0, sizeof(osThread_StackObj(thread3)), thread3);
 osThread_Id thread3_ID;
 
 /*@}*/
@@ -173,17 +171,16 @@ int main(void) {
   /*os初始化*/
   osSys_KernelInitialize();
 
-  /*threadDemo3线程*/
   thread3_ID = osThread_StaticCreate(osThread_Obj(thread3), (void *)0, osThread_StackObj(thread3));
   osThread_Ready(thread3_ID);
   
-  thread2_ID = osThread_Create(osThread_Obj(thread2), (void *)0);
+  thread2_ID = osThread_StaticCreate(osThread_Obj(thread2), (void *)0, osThread_StackObj(thread2));
 
   timerDemo1_ID = osTimer_Create(osTimer_Obj(timerDemo1), osTimerPeriodic, (void *)0);
-  osTimer_Start(timerDemo1_ID, 500);
+  osTimer_Start(timerDemo1_ID, 200);
   
   timerDemo2_ID = osTimer_Create(osTimer_Obj(timerDemo2), osTimerPeriodic, (void *)0);
-  osTimer_Start(timerDemo2_ID, 250);
+  osTimer_Start(timerDemo2_ID, 100);
 
   /*启动OS*/
   osSys_KernelStartup();

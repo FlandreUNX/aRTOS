@@ -195,7 +195,7 @@ extern osTick_t osSys_GetNowTick(void);
  * @retval NO_RETURN
  */
 #define osThread_FuncDef(name) \
-  static OS_NO_RETURN os_ThreadFunc_##name(void *argument)
+  static OS_NO_RETURN os_Thread_Func_##name(void *argument)
 
 
 /**
@@ -208,14 +208,16 @@ extern osTick_t osSys_GetNowTick(void);
  * 
  * @retval none
  */
-#define osThread_Def(name, pri, ss, func) \
-  osThread_Attr_t os_Thread_##name = { \
+#define osThread_Def(string, Name, pri, ss) \
+  extern OS_NO_RETURN os_Thread_Func_##Name(void *argument); \
+  osThread_Attr_t os_Thread_##Name = { \
     .initTimeSlice = 1, \
-    .functions = (void *)os_ThreadFunc_##func, \
+    .functions = (void *)os_Thread_Func_##Name, \
     .stackSize = ss, \
-    .priority = pri \
-  };
-
+    .priority = pri, \
+    .name = string \
+  }; \
+  static OS_NO_RETURN os_Thread_Func_##Name(void *argument) 
 
 /**
  * 线程对象
@@ -325,6 +327,16 @@ extern osThread_Id osThread_Self(void);
  */
 extern void osThread_Yield(void);
 
+
+/**
+ * 返回指定线程的名称
+ *
+ * @param id 线程句柄
+ *
+ * @retval none
+ */
+extern const char* osThread_GetName(osThread_Id id);
+
 /*@}*/
 
 /**
@@ -347,7 +359,7 @@ extern void osThread_Yield(void);
  * @retval none
  */
 #define osTimer_Callback(name) \
-  static void os_TimerCB_##name(void *arguments)
+  static void os_Timer_Callback_##name(void *arguments)
 
 
 /**
@@ -355,14 +367,14 @@ extern void osThread_Yield(void);
  *
  * @param name 名称
  * @param Mode 运行模式(osTimerHard|osTimerSoft)
- * @param callback 超时回调函数
+ * @param Callback 超时回调函数
  * 
  * @retval none
  */
-#define osTimer_Def(name, Mode, cb) \
+#define osTimer_Def(name, Mode, Callback) \
   osTimer_Attr_t os_Timer_##name = { \
     .mode = Mode, \
-    .callback = os_TimerCB_##cb \
+    .callback = os_Timer_Callback_##Callback \
   };
 
 

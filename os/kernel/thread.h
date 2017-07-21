@@ -122,6 +122,8 @@ typedef struct Thread_Attr {
   uint16_t timeSlice;         /**< 时间片大小 */
 
   osThread_Status state;    /**< 状态 */
+  
+  const char * const name;
 }osThread_Attr_t;
 
 
@@ -151,6 +153,8 @@ extern void osThread_Delay(osTick_t tick);
 extern osThread_Id osThread_Self(void);
 
 extern void osThread_Yield(void);
+
+extern const char* osThread_GetName(osThread_Id id);
 
 /*@}*/
 

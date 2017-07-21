@@ -193,6 +193,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>sche_ReadyList</ItemText>
         </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>&amp;\\aRTOS\Source/startup.c\thread3_ID-&gt;name</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -205,7 +210,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>\\aRTOS\Source/startup.c\pos</ItemText>
+          <ItemText>\\aRTOS\Source/startup.c\thread3_ID-&gt;name</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>

@@ -374,4 +374,16 @@ void osThread_Delay(osTick_t tick) {
   hal_EnableINT(level);
 }
 
+
+/**
+ * 返回指定线程的名称
+ *
+ * @param id 线程句柄
+ *
+ * @retval none
+ */
+const char* osThread_GetName(osThread_Id id) {
+  return id->name;
+}
+
 /*@}*/
